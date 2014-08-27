@@ -1,0 +1,9 @@
+ID        | 记账凭证ID       | 1	      | 2          | 3           | 4		   | 5		    | 6			  | 7           | 8          | 9          | 10
+j_ID      | 借方科目的记录ID | 1          | 2          | 1           | 1           | 2          | 3           | 4           | 1          | 1          | 2
+d_ID      | 贷方科目的记录ID | 1          | 1          | 1           | 2           | 3          | 2           | 2           | 1          | 1          | 1
+jb_ID     | 借方科目内部ID   | bfj_cust   | bfj_cust   | wlzj_ysbf   | cfee_dqhf   | wlzj_yfzy  | income_cfee | income_cfee | wlzj_yszy  | cost_bfee  | cost_bfee
+db_ID     | 贷方科目内部ID   | txamt_yhyf | wlzj_yfzy  | income_cfee | income_cfee | bfj_cust   | wlzj_ysbf   | cfee_dqhf   | bfee_yhyf  | wlzj_yfbf  | bfee_cwwf
+ys_type   | 原始凭证类型     | 0019 	  | 0019       | 0019        | 0019        | 0019       | 0019        | 0019        | 0019       | 0019       | 0019
+ys_ID     | 原始凭证ID       | 1  		  | 1          | 1           | 1           | 1          | 1           | 1           | 1          | 1          | 1
+fID       | 分录编号         | 1.1		  | 2.1        | 2.2         | 2.3         | 3.1        | 3.2         | 3.3         | 4.1        | 4.2        | 4.3
+period    | 科目说明         | 2013-05-20 | 2013-05-20 | 2013-05-20  | 2013-05-20  | 2013-05-20 | 2013-05-20  | 2013-05-20  | 2013-05-20 | 2013-05-20 | 2013-05-20

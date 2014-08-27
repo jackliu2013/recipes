@@ -1,0 +1,45 @@
+----------------------------------IFS test--------------------------------
+default $IFS is:(ASSII in hexadecimal value)
+20 09 0a
+by default, IFS should be a SPACE, a HORIZONTAL TAB, or a LINC FEED.
+--------------------------------------------------------------------------
+set IFS=' ' #dealing with SPACE in IFS is different with other chars.
+var=' a b c '
+$*='a b c'
+[a]
+[b]
+[c]
+--------------------------------------------------------------------------
+set IFS=':'
+var='::a:b::c:::'
+$*='::a:b::c::'
+[]
+[]
+[a]
+[b]
+[]
+[c]
+[]
+--------------------------------------------------------------------------
+set IFS='+:-;' #but $* just use 1st char in IFS as the separator.
+var='::a:b::c:::'
+$*='++a+b++c++'
+[]
+[]
+[a]
+[b]
+[]
+[c]
+[]
+--------------------------------------------------------------------------
+set IFS='-+:;' #but $* just use 1st char in IFS as the separator.
+var='::a:b::c:::'
+$*='--a-b--c--'
+[]
+[]
+[a]
+[b]
+[]
+[c]
+[]
+--------------------------The END of IFS test-----------------------------

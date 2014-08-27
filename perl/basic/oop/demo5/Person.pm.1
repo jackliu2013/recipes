@@ -1,0 +1,34 @@
+#
+# 使用闭合域生成指示器
+# 闭合域是为你的实例数据创建一个多用途指示器的最干净的操作方法.
+# 而且不论对计算机还是你而言, 它都很有效.
+# 不仅所有指示器都共享同一段代码(它们只需要它们自己的词法本),
+# 而且以后你要增加其他属性也方便,你要做的修改是最少的:只需要给 for 循环增加一条
+# 或更多条单词,以及在 init 方法里加上几句就可以了
+package Person;
+
+sub new {
+    my $invocant = shift;
+    my $self = bless( {}, ref $invocant || $invocant );
+    $self->init();
+    return $self;
+}
+
+sub init {
+    my $self = shift;
+    $self->name("unnamed");
+    $self->race("unknown");
+    $self->aliases( [] );
+}
+
+for my $field (qw(name race aliases)) {
+    my $slot = __PACKAGE__ . "::$field";
+    no strict "refs";    # 这样指向类型团的符号引用就可以用了
+    *$field = sub {
+        my $self = shift;
+        $self->{$slot} = shift if @_;
+        return $self->{$slot};
+    };
+}
+
+1;

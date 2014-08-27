@@ -1,0 +1,35 @@
+Class类
+
+Class类（在java.lang包中，Instances of the class Classrepresent classes and interfaces in a running Javaapplication）：
+在Java中，每个class(类)都有一个相应的Class对象。也就是说，当我们编写一个类，编译完成后，在生成的.class文件中，就会产生一个Class对象，用于表示这个类的类型信息
+
+获取Class实例方式编辑
+方法1
+    利用对象调用getClass()方法获取该对象的Class实例；
+
+方法2
+    使用Class类的静态方法forName()，用类的名字获取一个Class实例（staticClass forName(String className) Returns the Classobject associated with the class or interface with the given stringname. ）
+
+方法3
+    运用.class的方式来获取Class实例，对于基本数据类型的封装类，还可以采用.TYPE来获取相对应的基本数据类型的Class实例
+
+在newInstance()调用类中缺省的构造方法 ObjectnewInstance()（可在不知该类的名字的时候，创建这个类的实例） Creates a new instance of the class represented by this Classobject.
+
+在运行期间，如果我们要产生某个类的对象，Java虚拟机(JVM)会检查该类型的Class对象是否已被加载。如果没有被加载，JVM会根据类的名称找到.class文件并加载它。一旦某个类型的Class对象已被加载到内存，就可以用它来产生该类型的所有对象
+
+
+public class ClassTest {
+    public static void main(String [] args)throws Exception{
+        String str1="abc";
+        Class cls1=str1.getClass();
+        Class cls2=String.class;
+        Class cls3=Class.forName("java.lang.String");
+        System.out.println(cls1==cls2);
+        System.out.println(cls1==cls3);
+    }
+}
+
+
+返回结果为：true,true.
+
+解释：虚拟机只会产生一份字节码， 用这份字节码可以产生多个实例对象。

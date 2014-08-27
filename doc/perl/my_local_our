@@ -1,0 +1,55 @@
+Perl中的变量作用范围 local, my, our与全局变量
+
+1. 首先说our, 这个最晚出现但其实质却最早出现的变量修饰符。众所周知，在Perl不使用use strict 'vars'的时候，你可以任意使用变量而不需要实现定义：
+
+$szStateMachineStatus = undef;
+
+这行代码在使用了use strict 'vars'以后是编译不能通过的。
+
+如果这个变量是一个全局变量，那么可以定义
+our $szStateMachineStatus = undef;
+
+这个效果和在不使用use strict 'vars'时一样。"一样"意味着什么呢？
+
+our $szStateMachineStatus = 'init';
+{
+    $szStateMachineStatus = 'inited';
+    print $szStateMachineStatus;
+}
+print $szStateMachineStatus;
+打印的结果是两个'inited'。顺便说，用our定义过的变量，可以在任何地方被再次用our定义，仍然和第一个our定义的变量是同一个。
+
+2. my
+所有的变量在使用前必须先被定义。my的法则很简单，只在当前作用域起作用。比如说定义了
+my $szStateMachineStatus;
+那么如果是在文件头定义的，作用范围就到文件尾，在子函数里也能用。如果是在子函数里定义的，那么作用范围就只到函数结束。试看以下代码
+foreach my $szName (@arrName){
+    print $szName;
+}
+在这个循环里Perl每次都创建一个新的$szName变量。换句话说，"my"是属于"见到my就新建"的变量。
+
+3. local
+其实这个定义都可以取消了。它是在my还没出现之前的一个权宜方案。比如说一个变量$i被定义成了全局变量，可是你又想暂时使用一个也叫$i的临时变量。
+no strict 'vars';
+$i = 9999;
+{
+local $i = 7777;
+print "$i\n";
+}
+print "$i\n";
+结果是7777, 9999。在出了local的作用域以后$i又回到了原来的值。在出现了my以后，没有任何理由需要使用local了，请忘记掉它吧。
+
+4. 最后一个话题，全局变量
+当你只有一个pl文件时，很简单，把你的全局变量在文件头部定义成our就行。可能你会看到有些书上说要使用use vars qw( $szVersion $szToolName); 这样的方式来把 $szVersion和$szToolName定义成全局变量。注意了，use vars的用法是在my出现后，our出现之前的一个历史的盲肠。our的语法更自然，更易于理解，为什么不用our呢？ －－另外，在文件头把变量定义成my, 也是全局可用的，但是冒了风险，假如在某个函数里用my再定义一次，原来的值可就消失了。用our就不存在多次定义会导致丢值的状况。
+
+当你在写一个有一个pl文件，N个pm文件的系统时该如何呢？事实上Perl里的变量和函数名都有一个系统级的名字。比如说你在某pm文件的头上定义了包名和全局变量
+package bagua;
+our $east = 'wood';
+那么在任何地方，任何pm和pl文件里都可以使用$bagua::east来访问这个变量。$bagua::east就被称为系统级名字。这也能回答一个问题，为什么不同的perl包里面定义的同名全局变量间不会冲突，因为它们都被限制在包的名字空间下面了。
+
+如果你是在pl里定义全局变量，而且该文件没有定义package名字怎么办？Perl会生成一个缺省的package，名字叫"main"。所以如果你的pl文件是这样
+our $szVersion = '1.0.1";
+那么在其它文件里就可以用$main::szVersion来访问，并不需要你定义package main.
+最后，说一个邪门招式。你可以试一下定义任意一个含有::的变量
+our $gColor::Blue = '0x0000FF';
+这个变量就在任何地方可用，哪怕你从来没有定义过gColor这个package。这个是Perl的灵活性的体现，它看到这个就自动生成了gColor这个名字空间。当然，我不鼓励这种无厘头的用法。

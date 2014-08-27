@@ -1,0 +1,23 @@
+绑定变量
+
+在perl文化中，tie操作符号让你创建一个看起来像普通变量的变量，但是在变量的伪装后面，它实际上是一个羽翼丰满的perl对象，而且
+此对象有着自己有趣的个性。
+
+另外一种方式来看，在变量名前面的趣味字符$,@,%,*告诉perl和它的程序许多事情--它们每个都暗示了一个原型特性的特殊集合。可以利用
+tie用各种方法封装那些特性，方法是用一个实现一系列新性质的类与该变量关联起来。
+
+可以把一个标量，数组，散列或者文件句柄(通过它的typeglob)与任意一个类进行绑定，这个类提供合适的命名方法以截取和模拟对这些对象的正常访问。那些方法的第一个是在进行tie动作本身时调用的：使用变量时总是调用一个构造器，如果这个构造器成功运行，则返回一个对象，而perl把这个对象藏在一个你看不见的地方---在“普通”变量的深层内部。稍后总是可以用tied函数在该普通变量上检索该对象：
+    tie variable , classname , list # 把variable绑定到classname
+    $object = tied variable;   # 在variable上检索classname 的对象
+
+    上面两行等效于：
+   $object = tie variable , classname, list ;
+
+   可以用untie(松绑)那个变量：
+   untie variable;
+
+几乎完全可以把tie看作是一种有趣的bless类型，只不过它是bless一个裸变量，而不是bless对象引用。它同样还可以接受额外的参数，就像构造器那样，因为它实际上就是在内部调用一个构造器，该构造器的名字取决于你尝试的变量类型：TIESCALAR, TIEARRAY, TIEHASH或者TIEHANDLE。调用这写构造器时，它们用所指定的classname为它们的调用者作为类方法调用，另外把你放在list里的任何东西都作为附加的参数(variable并不传递给构造器)。
+
+一个实现绑定数组的类至少要定义方法TIEARRAY FETCH SOTRE，此外还有许多可选的方法：DESTROY，还有用于提$#array scalar(@array)访问的STORESIZE FETCHSIZE方法。另外，当perl需要清空该数组时，会触发CLEAR,当perl在一个真正的数组上需要预先扩充(空间)分配的时候，需要EXTENED
+
+

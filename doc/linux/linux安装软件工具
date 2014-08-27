@@ -1,0 +1,167 @@
+一. ubuntu 下面安装软件的常用命令是apt-get
+    apt-get install 软件名/包名     # 安装
+    apt-get cache search  软件名/包名   # 搜索
+    apt-get remove 软件名/包名  # 卸载安装的文件或包(但是不删除对应的配置文件)
+    apt-get purge 软件名/包名 # 卸载安装的文件或包(配置文件也一并删掉)
+
+
+    1. 什么的是apt-get
+    
+    高级包装工具（英语：Advanced Packaging Tools,简称：APT）是Debian及其衍生发行版（如：ubuntu）的软件包管理器。APT可以自动下载，配置，安装二进制或者源代码格式的软 件包，因此简化了 Unix系统上管理软件的过程,apt-get命令一般需要root权限执行，所以一般跟着sudo命令。
+    
+    2. apt-get中文参数
+    
+    用法：
+    
+    apt-get [选项] 命令 apt-get [选项] install|remove pkg1 [pkg2 ...]
+    
+    apt-get [选项] source pkg1 [pkg2 ...]
+    
+     
+    
+    apt-get 是一个下载安装软件包的简单命令行接口。 最常用的命令是update(更新) 和install(安装)。
+    
+    命令： 
+    
+    update - 重新获取软件包列表 
+    
+    upgrade - 进行更新 
+    
+    install - 安装新的软件包 
+    
+    remove - 移除软件包 
+    
+    autoremove - 自动移除全部不使用的软件包 
+    
+    purge - 移除软件包和配置文件 
+    
+    source - 下载源码档案 
+    
+    build-dep - 为源码包配置编译依赖 
+    
+    dist-upgrade - 发行版升级
+    
+    dselect-upgrade - 依照 dselect 的选择更新 
+    
+    clean - 清除下载的归档文件 
+    
+    autoclean - 清除旧的的已下载的归档文件 
+    
+    check - 检验是否有损坏的依赖 
+    
+    选项： 
+    
+    -h 本帮助文件。 
+    
+    -q 输出到日志 - 无进展指示 
+    
+    -qq 不输出信息，错误除外 
+    
+    -d 仅下载 - 不安装或解压归档文件 
+    
+    -s 不实际安装。模拟执行命令
+    
+    -y 假定对所有的询问选是，不提示 
+    
+    -f 尝试修正系统依赖损坏处 
+    
+    -m 如果归档无法定位，尝试继续
+    
+    -u 同时显示更新软件包的列表 
+    
+    -b 获取源码包后编译 -V 显示详细的版本号
+    
+    -c=? 阅读此配置文件
+    
+    -o=? 设置自定的配置选项，如 -o dir::cache=/tmp
+    
+    3. apt-get 常用实例
+    
+    apt-cache search packagename 搜索包
+    apt-cache show packagename 获取包的相关信息，如说明、大小、版本等
+    apt-get install packagename 安装包
+    apt-get install packagename --reinstall 重新安装包
+    apt-get -f install 修复安装”-f = –fix-missing”
+    apt-get remove packagename 删除包
+    apt-get remove packagename --purge 删除包，包括删除配置文件等
+    apt-get update 更新源
+    apt-get upgrade 更新已安装的包
+    apt-get dist-upgrade 升级系统
+    apt-get dselect-upgrade 使用 dselect 升级
+    apt-cache depends packagename 了解使用依赖
+    apt-cache rdepends packagename 是查看该包被哪些包依赖
+    apt-get build-dep packagename 安装相关的编译环境
+    apt-get source packagename 下载该包的源代码
+    apt-get clean 清理无用的包
+    apt-get autoclean 清理无用的包
+    apt-get check 检查是否有损坏的依赖
+
+二. centos 下面安装软件的常用命令是yum
+    1.安装软件包:
+    yum install package
+    yum localinstall package 从本机目录安装软件包
+    yum groupinstall group 安装某个组件的全部软件包
+    
+    2.更新软件包：
+    yum update package
+    yum check-update 列出所有可更新的软件包
+    yum list updates mysql* 查找mysql的更新
+    yum update 更新所有可更新的软件包
+    yum update mysql* 更新所有mysql的软件包
+    yum groupupdate group 更新某个组件的所有软件包
+    yum list 列出所有已安装和仓库中可用的软件包
+    yum list available 列出仓库中所有可用的软件包
+    yum list updates 列出仓库中比当前系统更新的软件包
+    yum list installed 列出已安装的软件包
+    yum list recent 列出新加入仓库的软件包
+    yum info 查询软件包信息
+    
+    3.删除软件包：
+    yum remove package
+    yum groupremove group 删除某个组件的全部软件包
+    
+    4.清除软件包
+    yum clean packages 清除遗留在缓存里的包文件
+    yum clean metadata 清除遗留在缓存里的元数据
+    yum clean headers 清除遗留在缓存里的头文件
+    yum clean all 清除包文件,元数据,头文件
+    
+    5.搜索软件包：
+    yum search package
+    yum info package 查找一个软件包的信息
+    yum list package 列出包含指定信息的软件包
+    yum list installed 列出已安装的软件包
+    yum list extras 列出不是通过软件仓库安装的软件包
+    yum list *ttp* 列出标题包含ttp的软件包
+    yum list updates 列出可以更新的软件包
+    
+    6.查找特定文件是由什么软件包提供的：
+    yum whatprovides filename
+    例子:
+    yum whatprovides httpd.conf
+    
+    可用选项
+    –disalberepo=lib 禁用某个软件仓库
+    Empire CMS,phome.net
+    
+    –enalberepo=lib 启用某个软件仓库
+    
+    -C 禁用使用本机缓存的元数据
+    例子:
+    yum –disalberepo=livna|–enalberepo=livna install mplayer
+    yum -C info httpd
+
+三. dpkg
+
+    Debian，以及基于 Debian 的系统，如 Ubuntu 等，所使用的包格式为 deb。以下为操作 deb 包的常用 Dpkg 指令表，供初学的朋友参考。
+    命令    作用
+    dpkg -i package.deb     安装包
+    dpkg -r package     删除包
+    dpkg -P package     删除包（包括配置文件）
+    dpkg -L package     列出与该包关联的文件
+    dpkg -l package     显示该包的版本
+    dpkg --unpack package.deb   解开 deb 包的内容
+    dpkg -S keyword     搜索所属的包内容
+    dpkg -l     列出当前已安装的包
+    dpkg -c package.deb     列出 deb 包的内容
+    dpkg --configure package    配置包

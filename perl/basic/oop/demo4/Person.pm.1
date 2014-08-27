@@ -1,0 +1,39 @@
+#
+# 一个构造器和指示器的例子 如下
+# 
+package Person;
+
+# 用use fields 定义类中的域（属性）
+use fields qw/name race aliases/;
+
+#
+# Person construct funtion
+#
+sub new {
+    my $type = shift;
+    my Person $self = fields::new->( ref $type || $type );
+    $self->{name}    = "unnamed";
+    $self->{race}    = "unknown";
+    $self->{aliases} = [];
+    return $self;
+}
+
+sub name {
+	my Person $self = shift ;
+	$self->{name} = shift if @_ ;
+	return $self->{name} ;
+}
+
+sub race {
+	my Person $self = shift ;
+	$self->{race} = shift if @_ ;
+	return $self->{race} ;
+}
+
+sub aliases {
+	my Person $self = shift ;
+	$self->{aliases} = shift if @_ ;
+	return $self->{aliases} ;
+}
+
+1;

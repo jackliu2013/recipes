@@ -1,0 +1,3 @@
+SQL1218N  There are no pages currently available in bufferpool "4096".  SQLSTATE=57011
+
+需要修改bufferpool 小

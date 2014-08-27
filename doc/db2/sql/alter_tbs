@@ -1,0 +1,38 @@
+# 1. 查看所有的表空间
+db2 list tablespaces 
+
+# 2. 查看某个表空间的容器
+db2 list tablespace containers for <tablespace_id>  [ show detail ]
+如： db2 list tablespace containers for 3 show detail
+
+# 3. 查看表空间的配置信息，使用情况及容器信息
+db2pd -d <db_name> -tablespaces
+如：db2pd -d zdb -tablespaces
+
+# 4. 通过snapshot 获取表空间信息
+db2 get snapshot for tablespaces on <db_name>
+
+
+对于DMS( database manage ) 表空间，提供了几个方法更改表空间容器。
+    1. Add 用来增加新的容器
+    2. Drop 删除容器
+    3. Extend 扩展已有容器大小
+    4. Reduce 缩减已有容器大小
+    5. Resize 重新设定容器大小
+Add和Drop操作，表空间容器之间会发生数据重新平衡(rebalance)，Reduce和Resize操作，需要确保修改后的表空间容器有足够的空间，否则DB2会拒绝该操作。
+日常运维中出现表空间满的情况时，根据对存储空间和对运维的影响，有以下三种方案：
+1). 如果表空间对应的存储容器中还有未分配空间，可通过alter tablespace 的 extend 或 resize 选项扩展已有表空间容器的大小。如下面的例子是在每个容器上扩展了50GB：
+    db2 "alter tablespace tbs_dat extend ( file '/db2tbsp/dat_1' 50G, file '/db2tbsp/dat_2' 50G) ";
+
+2). 如果表空间容器对应的存储中没有剩下空间时，可以通过alter tablespace 的 add 选项增加新的表空间容器。需要注意的是：通过add增加容器会在容器之间进行数据Reblance，即数据重新平衡。如果数据量很大，reblance的时间会很长，对系统性能会造成很大的影响。下面是增加一个新的容器，表空间的不同容器内会发生reblance:
+    db2 "alter tablespace tbs_dat add ( file '/db2tbsp/dat_2' 10G)"
+
+3). 通过alter tablespace begin new stripe set 选项。begin new stripe set 选项是当已有容器使用完后，再使用新增加的容器。与方法2不同，该选项不会在容器之间做reblance，不会对系统造成性能影响，但它会造成数据偏移。如下：
+    db2 "alter tablespace tbs_dat begin new stripe set (file '/db2tbsp/dat_2' 10G) "
+
+# 删除表空间tbs_dat的容器dat_2
+db2 "alter tablespace tbs_dat drop ( file '/db2tbsp/dat_2' )"
+
+
+表空间容器的路径变化时，需要建立一个软链接(容器的原路径软链接到容器的新路径)，如：
+ln -s /db2tbs/zdb/dat_1 /db2tbsp/dat_1

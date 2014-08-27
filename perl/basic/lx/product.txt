@@ -1,0 +1,9 @@
+YYMMDD	province  product
+031212  HN         A
+031212  HB         B
+031213  HB         A
+031213  HN         C
+031214  HN         A
+031214  HN         B
+031215  HB         B
+031215  HB         C

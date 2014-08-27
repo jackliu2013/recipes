@@ -1,0 +1,39 @@
+1. 首先将这两个项目的2.0分支pull下来
+git pull origin 2.0:2.0
+
+2. checkout到2.0分支进行开发
+git checkout 2.0
+
+3. 如果已经切换到2.0分支后，如果做新功能的开发的话，最好在2.0上进行分支进行开发
+例如： 在2.0上开发work1， 
+     a. 那么我们要在2.0的基础上做一个work1分支, 且切换到work1分支进行开发
+        git branch work1
+        git checkout work1
+     b. 在work1上开发完后，pull分支2.0到最新
+        git pull origin 2.0:2.0
+     c. 提交work1到本地，然后切回2.0分支
+        git commit -a -m "描述"
+        git checkout 2.0
+     d. 合并work1分支回2.0, 然后再进行一次测试，测试没问题，将更新包发给我
+        git merge work1
+     e. 删除本地的work1分支
+        git branch -D work1
+
+
+git 分支管理
+
+1. 删除远端分支
+    git push origin : tmp   # 删除远端的tmp分支
+2. 创建分支
+    git branch work1        # 在当前分支的基础上创建work1分支
+3. 检查当前所在分支
+    git branch -a           # 查看当前所有的分支
+4. 切换分支到
+    git checkout work1      # 切换到work1分支
+5. 更新分支
+    git pull origin master : master # 更新远端的master分支数据到本地的master分支
+6. 删除本地分支
+    git branch -D work1     # 删除本地work1分支
+
+git 标签管理
+

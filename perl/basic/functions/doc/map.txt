@@ -1,0 +1,79 @@
+       map BLOCK LIST
+       map EXPR,LIST
+               Evaluates the BLOCK or EXPR for each element of LIST (locally
+               setting $ to each element) and returns the list value composed
+               of the results of each such evaluation.  In scalar context,
+               returns the total number of elements so generated.  Evaluates
+               BLOCK or EXPR in list context, so each element of LIST may
+               produce zero, one, or more elements in the returned value.
+
+                   @chars = map(chr, @numbers);
+
+               translates a list of numbers to the corresponding characters.
+
+                   my @squares = map { $ * $ } @numbers;
+
+               translates a list of numbers to their squared values.
+
+                   my @squares = map { $ > 5 ? ($ * $) : () } @numbers;
+
+               shows that number of returned elements can differ from the
+               number of input elements. To omit an element, return an empty
+               list ().  This could also be achieved by writing
+
+                   my @squares = map { $ * $ } grep { $ > 5 } @numbers;
+
+               which makes the intention more clear.
+
+               Map always returns a list, which can be assigned to a hash such
+               that the elements become key/value pairs. See perldata for more
+               details.
+
+                   %hash = map { getakeyfor($) => $ } @array;
+
+               is just a funny way to write
+
+                   %hash = ();
+                   foreach (@array) {
+                       $hash{getakeyfor($)} = $;
+                   }
+
+               Note that $ is an alias to the list value, so it can be used
+               to modify the elements of the LIST.  While this is useful and
+               supported, it can cause bizarre results if the elements of LIST
+               are not variables.  Using a regular "foreach" loop for this
+               purpose would be clearer in most cases.  See also "grep" for an
+               array composed of those items of the original list for which
+               the BLOCK or EXPR evaluates to true.
+
+               If $ is lexical in the scope where the "map" appears (because
+               it has been declared with "my $"), then, in addition to being
+               locally aliased to the list elements, $ keeps being lexical
+               inside the block; that is, it can't be seen from the outside,
+               avoiding any potential side-effects.
+
+               "{" starts both hash references and blocks, so "map { ..."
+               could be either the start of map BLOCK LIST or map EXPR, LIST.
+               Because Perl doesn't look ahead for the closing "}" it has to
+               take a guess at which it's dealing with based on what it finds
+               just after the "{". Usually it gets it right, but if it doesn't
+               it won't realize something is wrong until it gets to the "}"
+               and encounters the missing (or unexpected) comma. The syntax
+               error will be reported close to the "}", but you'll need to
+               change something near the "{" such as using a unary "+" to give
+               Perl some help:
+
+                   %hash = map {  "\L$" => 1  } @array  # perl guesses EXPR.  wrong
+                   %hash = map { +"\L$" => 1  } @array  # perl guesses BLOCK. right
+                   %hash = map { ("\L$" => 1) } @array  # this also works
+                   %hash = map {  lc($) => 1  } @array  # as does this.
+                   %hash = map +( lc($) => 1 ), @array  # this is EXPR and works!
+
+                   %hash = map  ( lc($), 1 ),   @array  # evaluates to (1, @array)
+
+               or to force an anon hash constructor use "+{":
+
+                  @hashes = map +{ lc($) => 1 }, @array # EXPR, so needs comma at end
+
+               to get a list of anonymous hashes each with only one entry
+               apiece.

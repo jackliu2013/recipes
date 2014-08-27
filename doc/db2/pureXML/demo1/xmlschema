@@ -1,0 +1,20 @@
+
+-- 注册xml schema
+db2 "register xmlschema 'http://pureXMLcookbook.org' from '/home/jackliu/workspace/recipes/doc/db2/pureXML/demo1/cust2.xsd' as db2admin.cust2xsd complete enable decomposition"
+
+-- 调用存储过程解析XML 此过程会把xml的数据写入到相应的库表
+db2 "call sysproc.xdb_decomp_xml_from_query('db2admin', 'cust2xsd', 'select cid, info from customer', 0, 25, 1, null, null, '1', ?, ?, ?)"
+
+-- 或者直接解析xml文件，让相应的数据进入库表
+db2 decompose xml document /home/jackliu/test.xml xmlschema db2inst.cust2xsd validate;
+
+
+-- 查询注册的xml schema对象
+select substr(objectname, 1, 10) as objectname,
+status, decomposition,objectschema
+from syscat.xsrobjects;
+
+select * from syscat.xsrobjects ; 
+
+-- 更改xsr对象为 enable
+alter xsrobject cust2xsd enable decomposition;

@@ -1,0 +1,40 @@
+ynchronous messages are events that are dispatched in the order in which they were enqueued (the first one in is the first one out, otherwise known as first-in/first-out, or FIFO order). These methods enqueue new messages for delivery. The act of enqueuing a message keeps the sender alive at least until the message is delivered.
+post DESTINATION, EVENT_NAME [, PARAMETER_LIST]
+
+post() enqueues a message to be dispatched to a particular DESTINATION session. The message will be handled by the code associated with EVENT_NAME. If a PARAMETER_LIST is included, its values will also be passed along.
+POE::Session->create(
+  inline_states => {
+    _start => sub {
+      $_[KERNEL]->post( $_[SESSION], "event_name", 0 );
+    },
+    event_name => sub {
+      print "$_[ARG0]\n";
+      $_[KERNEL]->post( $_[SESSION], "event_name", $_[ARG0] + 1 );
+    },
+  }
+);
+
+post() returns a Boolean value indicating whether the message was successfully enqueued. If post() returns false, $! is set to explain the failure:
+
+ESRCH ("No such process") - The DESTINATION session did not exist at the time post() was called.
+yield EVENT_NAME [, PARAMETER_LIST]
+
+yield() is a shortcut for post() where the destination session is the same as the sender. This example is equivalent to the one for post():
+POE::Session->create(
+  inline_states => {
+    _start => sub {
+      $_[KERNEL]->yield( "event_name", 0 );
+    },
+    event_name => sub {
+      print "$_[ARG0]\n";
+      $_[KERNEL]->yield( "event_name", $_[ARG0] + 1 );
+    },
+  }
+);
+
+As with post(), yield() returns right away, and the enqueued EVENT_NAME is dispatched later. This may be confusing if you're already familiar with threading.
+
+yield() should always succeed, so it does not return a meaningful value.
+
+
+具体例子参见post.pl yield.pl

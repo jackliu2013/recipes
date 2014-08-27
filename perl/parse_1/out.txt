@@ -1,0 +1,28 @@
+config user local
+
+    edit "guest"
+
+        set status enable
+
+        set two-factor disable
+
+        set type password
+
+        set passwd ENC NSKXMrL+Vklz7+RLcEZrG6YcU8VYKBg7K/SgmsO9oqzOaZEQpCe0Wn/2H+6QQIp9cAPL0txvTXVnB2EhA8Xr/hA/f6q6hg+8hE9d8yt16Q1sknr4
+
+    next
+
+    edit "user1"
+
+        set status enable
+
+        set two-factor disable
+
+        set type password
+
+        set passwd ENC pyWSJX9BEIhcer+3dLF0RFx0c0nazg+Qm/s1nLUUn6mJ0YWLvl0BlpR9PCZrKvItOIMFIrqSSay29P3TzqyVhIKv4Gwpgr20QLptFnBBv40+x15q
+
+    next
+
+end
+

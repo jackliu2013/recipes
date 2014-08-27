@@ -1,0 +1,16 @@
+
+当遇到如下error:
+DBD::DB2::db prepare failed: [IBM][CLI Driver][DB2/LINUX] SQL1218N  There are no pages currently available in bufferpool "4096".  SQLSTATE=57011
+
+# 查询bufferpool
+--select bpname,pagesize,npages from syscat.bufferpools
+得到结果如下:
+bufferpool名称  页大小              共多少页
+bpname          pagesize            npages
+-----------------------------------------------
+ibmdefaulttbp   4096                60000
+bp32k           32768               20480
+
+
+# alter bufferpool 更改bufferpool 页的个数
+--alter bufferpool ibmdefaultbp size 32768

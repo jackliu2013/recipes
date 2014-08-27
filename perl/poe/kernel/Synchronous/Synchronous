@@ -1,0 +1,28 @@
+Synchronous Messages
+
+It is sometimes necessary for code to be invoked right away. For example, some resources must be serviced right away, or they'll faithfully continue reporting their readiness. These reports would appear as a stream of duplicate events. Synchronous events can also prevent data from going stale between the time an event is enqueued and the time it's delivered.
+
+Synchronous event handlers preempt POE's event queue, so they should perform simple tasks of limited duration. Synchronous events that need to do more than just service a resource should pass the resource's information to an asynchronous handler. Otherwise synchronous operations will occur out of order in relation to asynchronous events. It's very easy to have race conditions or break causality this way, so try to avoid it unless you're okay with the consequences.
+
+POE provides these ways to call message handlers right away.
+call DESTINATION, EVENT_NAME [, PARAMETER_LIST]
+
+call()'s semantics are nearly identical to post()'s. call() invokes a DESTINATION's handler associated with an EVENT_NAME. An optional PARAMETER_LIST will be passed along to the message's handler. The difference, however, is that the handler will be invoked immediately, even before call() returns.
+
+call() returns the value returned by the EVENT_NAME handler. It can do this because the handler is invoked before call() returns. call() can therefore be used as an accessor, although there are better ways to accomplish simple accessor behavior.
+POE::Session->create(
+  inline_states => {
+    _start => sub {
+      print "Got: ", $_[KERNEL]->call($_[SESSION], "do_now"), "\n";
+    },
+    do_now => sub {
+      return "some value";
+    }
+  }
+);
+
+The POE::Wheel classes uses call() to synchronously deliver I/O notifications. This avoids a host of race conditions.
+
+call() may fail in the same way and for the same reasons as post(). On failure, $! is set to some nonzero value indicating why. Since call() may return undef as a matter of course, it's recommended that $! be checked for the error condition as well as the explanation.
+
+ESRCH ("No such process") - The DESTINATION session did not exist at the time post() was called

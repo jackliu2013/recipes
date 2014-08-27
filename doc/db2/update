@@ -1,0 +1,13 @@
+
+-- 查询出原始凭证0030里面所有period的数据
+select period ,clear_date  from yspz_0030   
+   where period  in (  select distinct period from yspz_0030 )
+   --  group by period , clear_date 
+
+
+-- 更新原始凭证0030里面每条数据的clear_date等于period
+update 
+     ( select period ,clear_date  from yspz_0030   
+          where period  in (  select distinct period from yspz_0030 )  
+     ) as t
+set clear_date = period

@@ -1,0 +1,17 @@
+    DBI 1.627-ithread default trace level set to 0x0/2 (pid 4321 pi 94ae008) at trace.pl line 17
+    -> prepare for DBD::DB2::db (DBI::db=HASH(0x9611fac)~0x9612060 'SELECT * FROM study.student') thr#94ae008
+    dbd_st_prepare'd sql f65537
+	SELECT * FROM study.student
+fbh 0: 'ID' , type 1,  6, dsize 6, p0 s158586544
+   out: ftype 1, indp 0, bufl 7, rlen 7
+fbh 1: 'NAME' NULLable, type 12,  50, dsize 50, p0 s158586600
+   out: ftype 1, indp 0, bufl 51, rlen 51
+fbh 2: 'PHONE' NULLable, type 12,  15, dsize 15, p0 s158586656
+   out: ftype 1, indp 0, bufl 16, rlen 16
+fbh 3: 'TS_C' NULLable, type 93,  26, dsize 26, p6 s158586712
+   out: ftype 1, indp 0, bufl 27, rlen 27
+    <- prepare= ( DBI::st=HASH(0x9562bbc) ) [1 items] at trace.pl line 29
+    -> execute for DBD::DB2::st (DBI::st=HASH(0x9562bbc)~0x9611d2c) thr#94ae008
+    <- execute= ( -1 ) [1 items] at trace.pl line 30
+    -> DESTROY for DBD::DB2::st (DBI::st=HASH(0x9611d2c)~INNER) thr#94ae008
+    <- DESTROY= ( undef ) [1 items] at trace.pl line 18

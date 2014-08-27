@@ -1,0 +1,280 @@
+Timer Events (Delayed Messages)
+
+It's often useful to wait for a certain time or until a certain amount of time has passed. POE supports this with events that are deferred until either an absolute time ("alarms") or until a certain duration of time has elapsed ("delays").
+
+Timer interfaces are further divided into two groups. One group identifies timers by the names of their associated events. Another group identifies timers by a unique identifier returned by the timer constructors. Technically, the two are both name-based, but the "identifier-based" timers provide a second, more specific handle to identify individual timers.
+
+Timers may only be set up for the current session. This design was modeled after alarm() and SIGALRM, which only affect the current UNIX process. Each session has a separate namespace for timer names. Timer methods called in one session cannot affect the timers in another. As you may have noticed, quite a lot of POE's API is designed to prevent sessions from interfering with each other.
+
+The best way to simulate deferred inter-session messages is to send an immediate message that causes the destination to set a timer. The destination's timer then defers the action requested of it. This way is preferred because the time spent communicating the request between sessions may not be trivial, especially if the sessions are separated by a network. The destination can determine how much time remains on the requested timer and adjust its wait time accordingly.
+Name-Based Timers
+
+Name-based timers are identified by the event names used to set them. It is possible for different sessions to use the same timer event names, since each session is a separate compartment with its own timer namespace. It is possible for a session to have multiple timers for a given event, but results may be surprising. Be careful to use the right timer methods.
+
+The name-based timer methods are alarm(), alarm_add(), delay(), and delay_add().
+alarm EVENT_NAME [, EPOCH_TIME [, PARAMETER_LIST] ]
+
+alarm() clears all existing timers in the current session with the same EVENT_NAME. It then sets a new timer, named EVENT_NAME, that will fire EVENT_NAME at the current session when EPOCH_TIME has been reached. An optional PARAMETER_LIST may be passed along to the timer's handler.
+
+Omitting the EPOCH_TIME and subsequent parameters causes alarm() to clear the EVENT_NAME timers in the current session without setting a new one.
+
+EPOCH_TIME is the UNIX epoch time. You know, seconds since midnight, 1970-01-01. POE uses Time::HiRes::time(), which allows EPOCH_TIME to be (or include) fractional seconds.
+
+POE supports fractional seconds, but accuracy falls off steeply after 1/100 second. Mileage will vary depending on your CPU speed and your OS time resolution.
+
+Be sure to use Time::HiRes::time() rather than Perl's built-in time() if sub-second accuracy matters at all. The built-in time() returns floor(Time::HiRes::time()), which is nearly always some fraction of a second in the past. For example the high-resolution time might be 1200941422.89996. At that same instant, time() would be 1200941422. An alarm for time() + 0.5 would be 0.39996 seconds in the past, so it would be dispatched immediately (if not sooner).
+
+POE's event queue is time-ordered, so a timer due before time() will be delivered ahead of other events but not before timers with even earlier due times. Therefore an alarm() with an EPOCH_TIME before time() jumps ahead of the queue.
+
+All timers are implemented identically internally, regardless of how they are set. alarm() will therefore blithely clear timers set by other means.
+POE::Session->create(
+  inline_states => {
+    _start => sub {
+      $_[KERNEL]->alarm( tick => time() + 1, 0 );
+    },
+    tick => sub {
+      print "tick $_[ARG0]\n";
+      $_[KERNEL]->alarm( tock => time() + 1, $_[ARG0] + 1 );
+    },
+    tock => sub {
+      print "tock $_[ARG0]\n";
+      $_[KERNEL]->alarm( tick => time() + 1, $_[ARG0] + 1 );
+    },
+  }
+);
+
+alarm() returns 0 on success or a true value on failure. Usually EINVAL to signal an invalid parameter, such as an undefined EVENT_NAME.
+alarm_add EVENT_NAME, EPOCH_TIME [, PARAMETER_LIST]
+
+alarm_add() is used to add a new alarm timer named EVENT_NAME without clearing existing timers. EPOCH_TIME is a required parameter. Otherwise the semantics are identical to alarm().
+
+A program may use alarm_add() without first using alarm().
+POE::Session->create(
+  inline_states => {
+    _start => sub {
+      $_[KERNEL]->alarm_add( tick => time() + 1.0, 1_000_000 );
+      $_[KERNEL]->alarm_add( tick => time() + 1.5, 2_000_000 );
+    },
+    tick => sub {
+      print "tick $_[ARG0]\n";
+      $_[KERNEL]->alarm_add( tock => time() + 1, $_[ARG0] + 1 );
+    },
+    tock => sub {
+      print "tock $_[ARG0]\n";
+      $_[KERNEL]->alarm_add( tick => time() + 1, $_[ARG0] + 1 );
+    },
+  }
+);
+
+alarm_add() returns 0 on success or EINVAL if EVENT_NAME or EPOCH_TIME is undefined.
+delay EVENT_NAME [, DURATION_SECONDS [, PARAMETER_LIST] ]
+
+delay() clears all existing timers in the current session with the same EVENT_NAME. It then sets a new timer, named EVENT_NAME, that will fire EVENT_NAME at the current session when DURATION_SECONDS have elapsed from "now". An optional PARAMETER_LIST may be passed along to the timer's handler.
+
+Omitting the DURATION_SECONDS and subsequent parameters causes delay() to clear the EVENT_NAME timers in the current session without setting a new one.
+
+DURATION_SECONDS may be or include fractional seconds. As with all of POE's timers, accuracy falls off steeply after 1/100 second. Mileage will vary depending on your CPU speed and your OS time resolution.
+
+POE's event queue is time-ordered, so a timer due before time() will be delivered ahead of other events but not before timers with even earlier due times. Therefore a delay () with a zero or negative DURATION_SECONDS jumps ahead of the queue.
+
+delay() may be considered a shorthand form of alarm(), but there are subtle differences in timing issues. This code is roughly equivalent to the alarm() example.
+POE::Session->create(
+  inline_states => {
+    _start => sub {
+      $_[KERNEL]->delay( tick => 1, 0 );
+    },
+    tick => sub {
+      print "tick $_[ARG0]\n";
+      $_[KERNEL]->delay( tock => 1, $_[ARG0] + 1 );
+    },
+    tock => sub {
+      print "tock $_[ARG0]\n";
+      $_[KERNEL]->delay( tick => 1, $_[ARG0] + 1 );
+    },
+  }
+);
+
+delay() returns 0 on success or a reason for failure: EINVAL if EVENT_NAME is undefined.
+delay_add EVENT_NAME, DURATION_SECONDS [, PARAMETER_LIST]
+
+delay_add() is used to add a new delay timer named EVENT_NAME without clearing existing timers. DURATION_SECONDS is a required parameter. Otherwise the semantics are identical to delay().
+
+A program may use delay_add() without first using delay().
+POE::Session->create(
+  inline_states => {
+    _start => sub {
+      $_[KERNEL]->delay_add( tick => 1.0, 1_000_000 );
+      $_[KERNEL]->delay_add( tick => 1.5, 2_000_000 );
+    },
+    tick => sub {
+      print "tick $_[ARG0]\n";
+      $_[KERNEL]->delay_add( tock => 1, $_[ARG0] + 1 );
+    },
+    tock => sub {
+      print "tock $_[ARG0]\n";
+      $_[KERNEL]->delay_add( tick => 1, $_[ARG0] + 1 );
+    },
+  }
+);
+
+delay_add() returns 0 on success or EINVAL if EVENT_NAME or EPOCH_TIME is undefined.
+Identifier-Based Timers
+
+A second way to manage timers is through identifiers. Setting an alarm or delay with the "identifier" methods allows a program to manipulate several timers with the same name in the same session. As covered in alarm() and delay() however, it's possible to mix named and identified timer calls, but the consequences may not always be expected.
+alarm_set EVENT_NAME, EPOCH_TIME [, PARAMETER_LIST]
+
+alarm_set() sets an alarm, returning a unique identifier that can be used to adjust or remove the alarm later. Unlike alarm(), it does not first clear existing timers with the same EVENT_NAME. Otherwise the semantics are identical to alarm().
+POE::Session->create(
+  inline_states => {
+    _start => sub {
+      $_[HEAP]{alarm_id} = $_[KERNEL]->alarm_set(
+        party => time() + 1999
+      );
+      $_[KERNEL]->delay(raid => 1);
+    },
+    raid => sub {
+      $_[KERNEL]->alarm_remove( delete $_[HEAP]{alarm_id} );
+    },
+  }
+);
+
+alarm_set() returns false if it fails and sets $! with the explanation. $! will be EINVAL if EVENT_NAME or TIME is undefined.
+alarm_adjust ALARM_ID, DELTA_SECONDS
+
+alarm_adjust() adjusts an existing timer's due time by DELTA_SECONDS, which may be positive or negative. It may even be zero, but that's not as useful. On success, it returns the timer's new due time since the start of the UNIX epoch.
+
+It's possible to alarm_adjust() timers created by delay_set() as well as alarm_set().
+
+This example moves an alarm's due time ten seconds earlier.
+use POSIX qw(strftime);
+ 
+POE::Session->create(
+  inline_states => {
+    _start => sub {
+      $_[HEAP]{alarm_id} = $_[KERNEL]->alarm_set(
+        party => time() + 1999
+      );
+      $_[KERNEL]->delay(postpone => 1);
+    },
+    postpone => sub {
+      my $new_time = $_[KERNEL]->alarm_adjust(
+        $_[HEAP]{alarm_id}, -10
+      );
+      print(
+        "Now we're gonna party like it's ",
+        strftime("%F %T", gmtime($new_time)), "\n"
+      );
+    },
+  }
+);
+
+alarm_adjust() returns Boolean false if it fails, setting $! to the reason why. $! may be EINVAL if ALARM_ID or DELTA_SECONDS are undefined. It may be ESRCH if ALARM_ID no longer refers to a pending timer. $! may also contain EPERM if ALARM_ID is valid but belongs to a different session.
+alarm_remove ALARM_ID
+
+alarm_remove() removes the alarm identified by ALARM_ID. ALARM_ID comes from a previous alarm_set() or delay_set() call.
+
+Upon success, alarm_remove() returns something true based on its context. In a list context, it returns three things: The removed alarm's event name, the UNIX time it was due to go off, and a reference to the PARAMETER_LIST (if any) assigned to the timer when it was created. If necessary, the timer can be re-set with this information.
+POE::Session->create(
+  inline_states => {
+    _start => sub {
+      $_[HEAP]{alarm_id} = $_[KERNEL]->alarm_set(
+        party => time() + 1999
+      );
+      $_[KERNEL]->delay(raid => 1);
+    },
+    raid => sub {
+      my ($name, $time, $param) = $_[KERNEL]->alarm_remove(
+        $_[HEAP]{alarm_id}
+      );
+      print(
+        "Removed alarm for event $name due at $time with @$param\n"
+      );
+ 
+      # Or reset it, if you'd like.  Possibly after modification.
+      $_[KERNEL]->alarm_set($name, $time, @$param);
+    },
+  }
+);
+
+In a scalar context, it returns a reference to a list of the three things above.
+# Remove and reset an alarm.
+my $alarm_info = $_[KERNEL]->alarm_remove( $alarm_id );
+my $new_id = $_[KERNEL]->alarm_set(
+  $alarm_info[0], $alarm_info[1], @{$alarm_info[2]}
+);
+
+Upon failure, however, alarm_remove() returns a Boolean false value and sets $! with the reason why the call failed:
+
+EINVAL ("Invalid argument") indicates a problem with one or more parameters, usually an undefined ALARM_ID.
+
+ESRCH ("No such process") indicates that ALARM_ID did not refer to a pending alarm.
+
+EPERM ("Operation not permitted"). A session cannot remove an alarm it does not own.
+alarm_remove_all
+
+alarm_remove_all() removes all the pending timers for the current session, regardless of creation method or type. This method takes no arguments. It returns information about the alarms that were removed, either as a list of alarms or a list reference depending whether alarm_remove_all() is called in scalar or list context.
+
+Each removed alarm's information is identical to the format explained in alarm_remove().
+sub some_event_handler {
+  my @removed_alarms = $_[KERNEL]->alarm_remove_all();
+  foreach my $alarm (@removed_alarms) {
+    my ($name, $time, $param) = @$alarm;
+    ...;
+  }
+}
+delay_set EVENT_NAME, DURATION_SECONDS [, PARAMETER_LIST]
+
+delay_set() sets a timer for DURATION_SECONDS in the future. The timer will be dispatched to the code associated with EVENT_NAME in the current session. An optional PARAMETER_LIST will be passed through to the handler. It returns the same sort of things that alarm_set() does.
+POE::Session->create(
+  inline_states => {
+    _start => sub {
+      $_[KERNEL]->delay_set("later", 5, "hello", "world");
+    },
+    later => sub {
+      print "@_[ARG0..#$_]\n";
+    }
+  }
+);
+delay_adjust ALARM_ID, SECONDS_FROM_NOW
+
+delay_adjust() changes a timer's due time to be SECONDS_FROM_NOW. It's useful for refreshing watchdog- or timeout-style timers. On success it returns the new absolute UNIX time the timer will be due.
+
+It's possible for delay_adjust() to adjust timers created by alarm_set() as well as delay_set().
+use POSIX qw(strftime);
+ 
+POE::Session->create(
+  inline_states => {
+    # Setup.
+    # ... omitted.
+ 
+    got_input => sub {
+      my $new_time = $_[KERNEL]->delay_adjust(
+        $_[HEAP]{input_timeout}, 60
+      );
+      print(
+        "Refreshed the input timeout.  Next may occur at ",
+        strftime("%F %T", gmtime($new_time)), "\n"
+      );
+    },
+  }
+);
+
+On failure it returns Boolean false and sets $! to a reason for the failure. See the explanation of $! for alarm_adjust().
+delay_remove is not needed
+
+There is no delay_remove(). Timers are all identical internally, so alarm_remove() will work with timer IDs returned by delay_set().
+delay_remove_all is not needed
+
+There is no delay_remove_all(). Timers are all identical internally, so alarm_remove_all() clears them all regardless how they were created.
+Comparison
+
+Below is a table to help compare the various delayed message-sending methods
++-----------+------------------+---------------------+------------+
+|           | time argument    | clears other events | returns on |
+| method    | passed to method | of the same name    | success    |
++-----------+------------------+---------------------+------------+
+| delay_set | seconds from now | N                   | alarm_id   |
+| delay     | seconds from now | Y                   | 0 (false)  |
+| alarm_set | unix epoch time  | N                   | alarm_id   |
+| alarm     | unix epoch time  | Y                   | 0 (false)  |
++-----------+------------------+---------------------+------------+

@@ -1,0 +1,111 @@
+linux   inotify+rsync+h 数据时时同步
+引用：
+   Inotify 是文件系统事件监控机制，计划包含在即将发布的 Linux 内核中作为 dnotify 的有效替代。dnotify 是较早内核支持的文件监控机制。Inotify一种强大的、细粒度的、异步的机制，它满足各种各样的文件监控需要，不仅限于安全和性能。下面让我们一起学习如何安装 inotify 和如何构建一个示例用户空间应用程序来响应文件系统事件。
+
+   文件系统事件监控对于从文件管理器到安全工具的各种程序都是必要的，但是 dnotify（早期内核中的标准）存在一些局限性，这使我们期待出现一种更加完善的机制。抱着这种期待，我们发现了 inotify，一种更加现代化的文件系统事件监控替代品。
+
+   为什么使用 inotify？
+
+   使用 inotify 取代 dnotify 的原因有很多。第一个原因是，dnotify 需要您为每个打算监控是否发生改变的目录打开一个文件描述符。当同时监控多个目录时，这会消耗大量的资源，因为有可能达到每个进程的文件描述符限制。
+
+   除此之外，文件描述符会锁定目录，不允许卸载（unmount）支持的设备，这在存在可移动介质的环境中会引发问题。在使用 inotify 时，如果正在监控被卸载的文件系统上的文件，那么监控会被自动移除并且您会接收到一个卸载事件。
+
+   dnotify 不如 inotify 的第二个原因是 dnotify 有点复杂。注意，使用 dnotify 基础设施的简单文件系统监控粒度只停留于目录级别。为了使用 dnotify 进行更细粒度的监控，应用程序编程人员必须为每个受监控的目录保留一个 stat 结构的缓存。该用户空间的 stat 结构缓存需要用来明确确定当接收到通知信号时目录发生了什么变化。当获得通知信号时，生成 stat 结构列表并与最新的状态相比较。显而易见，这种技术是不理想的。
+
+   inotify 的另一个优点是它使用文件描述符作为基本接口，使应用程序开发者使用 select 和 poll 来监控设备。这允许有效的多路 I/O 和与 Glib 的 mainloop 的集成。相反，dnotify 所使用的信号常常使程序员头疼并且感觉不太优雅。
+
+   inotify 通过提供一个更优雅的 API 解决了这些问题，该 API 使用最少的文件描述符，并确保更细粒度的监控。与 inotify 的通信是通过设备节点提供的。基于以上原因，对于监控 Linux 2.6 平台上的文件，inotify 是您最明智的选择。
+
+   http://www-128.ibm.com/developerworks/cn/linux/l-inotify.html#N10081
+
+   正文:
+   sotfware: inotify-tools-3.13.tar.gz
+   OS:       ubuntu server 8.10
+   server1:  192.168.6.2
+   server2:  192.168.6.3
+
+   需求 server1 目录 /home/ludy/rsync 时时同步 server2 /home/ludy
+
+   安装步骤：
+   1.首先确认你的内核支持inotify,如果不支持对内核打补丁，一般情况内核在 2.6.3以上的都支持的。你可以确认下运行
+
+   ludy@server1:~$ls -l /proc/sys/fs/inotify/
+   总用量 0
+   -rw-r--r-- 1 ludy ludy 0 2008-12-16 14:40 max_queued_events
+   -rw-r--r-- 1 ludy ludy 0 2008-12-16 14:40 max_user_instances
+   -rw-r--r-- 1 root root 0 2008-12-16 09:07 max_user_watches
+   如果没有的话，呵呵安装inotify～
+                                                                                   2.安装软件 inotify-tools-3.13.tar.gz
+    ludy@server1:~$ cd inotify-tools-3.13
+    ludy@server1:~$ ./configure --prefix=/usr/local/inotify
+    ludy@server1:~$ make
+    ludy@server1:~$ make install
+
+  3.生成SSH KEY 让 server1 ssh访问 server2不需要密码～
+    ludy@server1:~$ ssh-keygen
+    Generating public/private rsa key pair.
+    Enter file in which to save the key (/home/ludy/.ssh/id_rsa)：   //输入回车
+    Enter passphrase (empty for no passphrase):     //输入密码回车
+    Enter same passphrase again:                    //再输入确认后回车
+    Your identification has been saved in /home/ludy/.ssh/id_rsa.
+    Your public key has been saved in /home/ludy/.ssh/id_rsa.pub.
+    The key fingerprint is:
+    f1:35:4e:88:11:f1:c4:5a:7a:c9:2a:90:d3:5e:0a:6f ludy@ludy
+    The key's randomart image is:
+    +--[ RSA 2048]----+
+    |        ++.      |
+    |         =o.     |
+    |     o  o=o.+    |
+    |    = . +o++ .   |
+    |     * oSo. .    |
+    |      E .        |
+    |     . .         |
+    |                 |
+    |                 |
+    +-----------------+
+
+    4.然后把你用户目录下的 .ssh/id_rsa.pub 拷贝到 server2 的root下（我作的测试所以用的root，你最好不要用root很危险～）
+    ludy@server1:~/.ssh$ scp id_rsa.pub root@192.168.6.3:~/.ssh
+    拷贝过去后，进入server2 id_rsa.pub 把 名字改为 authorized_keys
+    root@server2:~/.ssh$  mv id_rsa.pub authorized_keys
+    root@server2:~/.ssh$  chown root:root authorized_keys     //改变使用者 root
+    root@server2:~/.ssh$  chmod 600  authorized_keys          //改变权限
+
+    5.在server1编写shell脚本
+    cat inosync.sh
+    
+    #!/bin/sh
+    SRC=/home/ludy/rsync/
+    DST=root@192.168.6.3:/home/ludy
+    INWT=/usr/local/inotify/bin/inotifywait
+    RSYNC=/usr/bin/rsync
+    $INWT -mrq -e create,move,delete,modify $SRC | while read D E F;do
+    rsync -aHqzt $SRC $DST
+    done
+
+    我解释一下
+
+    $INWT -mrq -e create,move,delete,modify $SRC | while read D E F;do
+    rsync -aHqzt --delete $SRC $DST
+        －m 是保持一直监听 
+        －r 是递归查看目录
+        －q 是打印出事件～
+        －e create,move,delete,modify
+             监听 创建 移动 删除 写入 事件
+    rsync -aHqzt $SRC $DST
+        -a 存档模式
+        -H 保存硬连接
+        -q 制止非错误信息
+        -z 压缩文件数据在传输
+        -t 维护修改时间
+        -delete 删除于多余文件
+
+    5.测试
+    ludy@server1:~$ ./inosync.sh ＆
+    ludy@server1:~$ cd rsync
+    ludy@server1:~/rsync$ touch asdfa
+    在server2 机器查看
+    root@server2:/home/ludy$ ls
+    asdfa
+    注意，可能第一次SSH 连接的时候需要输入一次密码，以后就不需要输入了～
+    本文出自 “linuxer” 博客，请务必保留此出处http://deidara.blog.51cto.com/400447/120008

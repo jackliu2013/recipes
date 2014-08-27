@@ -1,0 +1,11 @@
+zixapp 账务系统后台开发环境
+先把账务系统后台所涉及的项目clone到本地的开发环境，然后获取每个项目的最新分支
+
+1. 如果开发环境用户的主目录下有workspace opt目录，则跳到2，否则执行mkdir opt workspace创建目录
+2. cd opt ; git clone git@192.168.100.202:zeta.git ; cd zeta ; git fetch origin log:log ; git checkout log
+3. cd .. ; git clone git@192.168.100.202:zark.git ; cd zark ; git fetch origin 2.7.0:2.7.0 ; git checkout 2.7.0 
+4. cd ~/workspace ; git clone git@192.168.100.202:zixapp.git; cd zixapp ; git fetch origin 2.7.0:2.7.0 ; git checkout 2.7.0
+5. 执行 . etc/profile.dev 加载应用程序的profile
+6. cdsb 切换到 ~/workspace/zixapp/sbin目录 如果数据库已经建好，则跳到7执行 ; 否则执行db_crt.sh 和 tbs_crt.sh 建立数据库和对应的表空间
+7. 执行 ./tbl_crt.sh 创建账务系统后台的库表
+8. 库表建好后，执行 zixapp start 就可以把后台服务启起来.

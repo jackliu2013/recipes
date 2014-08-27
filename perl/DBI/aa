@@ -1,0 +1,335 @@
+do {
+  require MIME::Base64;
+  (
+    "Data::Dump",
+    {
+      dim  => "acct                          ",
+      memo => undef,
+      name => MIME::Base64::decode("6LWE6YeR6LSm5Y+377yMIOWMheaLrOiHquaciei1hOmHkeS4juWkh+S7mOmHkei0puWPtw=="),
+      ts_c => "2013-10-17 16:01:54.202535",
+    },
+  );
+}
+do {
+  require MIME::Base64;
+  (
+    "Data::Dump",
+    {
+      memo => undef,
+      name => MIME::Base64::decode("6LWE6YeR6LSm5Y+377yMIOWMheaLrOiHquaciei1hOmHkeS4juWkh+S7mOmHkei0puWPtw=="),
+      ts_c => "2013-10-17 16:01:54.202535",
+    },
+  );
+}
+(
+  "Data::Dump",
+  {
+    dim  => "bfj_acct                      ",
+    memo => undef,
+    name => pack("H*","e5a487e4bb98e98791e8b4a6e58fb76964"),
+    ts_c => "2013-10-17 16:01:54.202535",
+  },
+)
+(
+  "Data::Dump",
+  {
+    memo => undef,
+    name => pack("H*","e5a487e4bb98e98791e8b4a6e58fb76964"),
+    ts_c => "2013-10-17 16:01:54.202535",
+  },
+)
+(
+  "Data::Dump",
+  {
+    dim  => "bi                            ",
+    memo => undef,
+    name => pack("H*","e993b6e8a18ce68ea5e58fa3e7bc96e58fb7"),
+    ts_c => "2013-10-17 16:01:54.202535",
+  },
+)
+(
+  "Data::Dump",
+  {
+    memo => undef,
+    name => pack("H*","e993b6e8a18ce68ea5e58fa3e7bc96e58fb7"),
+    ts_c => "2013-10-17 16:01:54.202535",
+  },
+)
+(
+  "Data::Dump",
+  {
+    dim  => "c                             ",
+    memo => undef,
+    name => "\xE5\xAE\xA2\xE6\x88\xB7id",
+    ts_c => "2013-10-17 16:01:54.202535",
+  },
+)
+(
+  "Data::Dump",
+  {
+    memo => undef,
+    name => "\xE5\xAE\xA2\xE6\x88\xB7id",
+    ts_c => "2013-10-17 16:01:54.202535",
+  },
+)
+(
+  "Data::Dump",
+  {
+    dim  => "cust_proto                    ",
+    memo => undef,
+    name => pack("H*","e5aea2e688b7e58d8fe8aeae"),
+    ts_c => "2013-10-17 16:01:54.202535",
+  },
+)
+(
+  "Data::Dump",
+  {
+    memo => undef,
+    name => pack("H*","e5aea2e688b7e58d8fe8aeae"),
+    ts_c => "2013-10-17 16:01:54.202535",
+  },
+)
+(
+  "Data::Dump",
+  {
+    dim  => "e_date                        ",
+    memo => undef,
+    name => pack("H*","e5b7aee99499e697a5e69c9f"),
+    ts_c => "2013-10-17 16:01:54.202535",
+  },
+)
+(
+  "Data::Dump",
+  {
+    memo => undef,
+    name => pack("H*","e5b7aee99499e697a5e69c9f"),
+    ts_c => "2013-10-17 16:01:54.202535",
+  },
+)
+(
+  "Data::Dump",
+  {
+    dim  => "fp                            ",
+    memo => undef,
+    name => pack("H*","e591a8e69c9fe7a1aee8aea4e8a784e58899"),
+    ts_c => "2013-10-17 16:01:54.202535",
+  },
+)
+(
+  "Data::Dump",
+  {
+    memo => undef,
+    name => pack("H*","e591a8e69c9fe7a1aee8aea4e8a784e58899"),
+    ts_c => "2013-10-17 16:01:54.202535",
+  },
+)
+(
+  "Data::Dump",
+  {
+    dim  => "p                             ",
+    memo => undef,
+    name => "\xE4\xBA\xA7\xE5\x93\x81id",
+    ts_c => "2013-10-17 16:01:54.202535",
+  },
+)
+(
+  "Data::Dump",
+  {
+    memo => undef,
+    name => "\xE4\xBA\xA7\xE5\x93\x81id",
+    ts_c => "2013-10-17 16:01:54.202535",
+  },
+)
+(
+  "Data::Dump",
+  {
+    dim  => "period                        ",
+    memo => undef,
+    name => pack("H*","e69c9fe997b4e697a5e69c9f"),
+    ts_c => "2013-10-17 16:01:54.202535",
+  },
+)
+(
+  "Data::Dump",
+  {
+    memo => undef,
+    name => pack("H*","e69c9fe997b4e697a5e69c9f"),
+    ts_c => "2013-10-17 16:01:54.202535",
+  },
+)
+(
+  "Data::Dump",
+  {
+    dim  => "tx_date                       ",
+    memo => undef,
+    name => pack("H*","e4baa4e69893e697a5e69c9f"),
+    ts_c => "2013-10-17 16:01:54.202535",
+  },
+)
+(
+  "Data::Dump",
+  {
+    memo => undef,
+    name => pack("H*","e4baa4e69893e697a5e69c9f"),
+    ts_c => "2013-10-17 16:01:54.202535",
+  },
+)
+(
+  "Data::Dump",
+  {
+    dim  => "wlzj_type                     ",
+    memo => undef,
+    name => pack("H*","e5be80e69da5e8b584e98791e7b1bbe59e8b"),
+    ts_c => "2013-10-17 16:01:54.202535",
+  },
+)
+(
+  "Data::Dump",
+  {
+    memo => undef,
+    name => pack("H*","e5be80e69da5e8b584e98791e7b1bbe59e8b"),
+    ts_c => "2013-10-17 16:01:54.202535",
+  },
+)
+(
+  "Data::Dump",
+  {
+    dim  => "zjbd_date                     ",
+    memo => undef,
+    name => pack("H*","e8b584e98791e58f98e58aa8e697a5e69c9f"),
+    ts_c => "2013-10-17 16:01:54.202535",
+  },
+)
+(
+  "Data::Dump",
+  {
+    memo => undef,
+    name => pack("H*","e8b584e98791e58f98e58aa8e697a5e69c9f"),
+    ts_c => "2013-10-17 16:01:54.202535",
+  },
+)
+(
+  "Data::Dump",
+  {
+    dim  => "zjbd_type                     ",
+    memo => undef,
+    name => pack("H*","e8b584e98791e58f98e58aa8e7b1bbe59e8b"),
+    ts_c => "2013-10-17 16:01:54.202535",
+  },
+)
+(
+  "Data::Dump",
+  {
+    memo => undef,
+    name => pack("H*","e8b584e98791e58f98e58aa8e7b1bbe59e8b"),
+    ts_c => "2013-10-17 16:01:54.202535",
+  },
+)
+(
+  "Data::Dump",
+  {
+    dim  => "zyzj_acct                     ",
+    memo => undef,
+    name => pack("H*","e887aae69c89e8b584e98791e8b4a6e58fb76964"),
+    ts_c => "2013-10-17 16:01:54.202535",
+  },
+)
+(
+  "Data::Dump",
+  {
+    memo => undef,
+    name => pack("H*","e887aae69c89e8b584e98791e8b4a6e58fb76964"),
+    ts_c => "2013-10-17 16:01:54.202535",
+  },
+)
+do {
+  require MIME::Base64;
+  (
+    "Data::Dump",
+    "zyzj_acct                     ",
+    {
+      memo => undef,
+      name => pack("H*","e887aae69c89e8b584e98791e8b4a6e58fb76964"),
+      ts_c => "2013-10-17 16:01:54.202535",
+    },
+    "e_date                        ",
+    {
+      memo => undef,
+      name => pack("H*","e5b7aee99499e697a5e69c9f"),
+      ts_c => "2013-10-17 16:01:54.202535",
+    },
+    "zjbd_type                     ",
+    {
+      memo => undef,
+      name => pack("H*","e8b584e98791e58f98e58aa8e7b1bbe59e8b"),
+      ts_c => "2013-10-17 16:01:54.202535",
+    },
+    "period                        ",
+    {
+      memo => undef,
+      name => pack("H*","e69c9fe997b4e697a5e69c9f"),
+      ts_c => "2013-10-17 16:01:54.202535",
+    },
+    "bfj_acct                      ",
+    {
+      memo => undef,
+      name => pack("H*","e5a487e4bb98e98791e8b4a6e58fb76964"),
+      ts_c => "2013-10-17 16:01:54.202535",
+    },
+    "p                             ",
+    {
+      memo => undef,
+      name => "\xE4\xBA\xA7\xE5\x93\x81id",
+      ts_c => "2013-10-17 16:01:54.202535",
+    },
+    "c                             ",
+    {
+      memo => undef,
+      name => "\xE5\xAE\xA2\xE6\x88\xB7id",
+      ts_c => "2013-10-17 16:01:54.202535",
+    },
+    "bi                            ",
+    {
+      memo => undef,
+      name => pack("H*","e993b6e8a18ce68ea5e58fa3e7bc96e58fb7"),
+      ts_c => "2013-10-17 16:01:54.202535",
+    },
+    "tx_date                       ",
+    {
+      memo => undef,
+      name => pack("H*","e4baa4e69893e697a5e69c9f"),
+      ts_c => "2013-10-17 16:01:54.202535",
+    },
+    "cust_proto                    ",
+    {
+      memo => undef,
+      name => pack("H*","e5aea2e688b7e58d8fe8aeae"),
+      ts_c => "2013-10-17 16:01:54.202535",
+    },
+    "fp                            ",
+    {
+      memo => undef,
+      name => pack("H*","e591a8e69c9fe7a1aee8aea4e8a784e58899"),
+      ts_c => "2013-10-17 16:01:54.202535",
+    },
+    "zjbd_date                     ",
+    {
+      memo => undef,
+      name => pack("H*","e8b584e98791e58f98e58aa8e697a5e69c9f"),
+      ts_c => "2013-10-17 16:01:54.202535",
+    },
+    "wlzj_type                     ",
+    {
+      memo => undef,
+      name => pack("H*","e5be80e69da5e8b584e98791e7b1bbe59e8b"),
+      ts_c => "2013-10-17 16:01:54.202535",
+    },
+    "acct                          ",
+    {
+      memo => undef,
+      name => MIME::Base64::decode("6LWE6YeR6LSm5Y+377yMIOWMheaLrOiHquaciei1hOmHkeS4juWkh+S7mOmHkei0puWPtw=="),
+      ts_c => "2013-10-17 16:01:54.202535",
+    },
+  );
+}
+-----break while----- at fetchrow_hashref.pl line 44.

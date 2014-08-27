@@ -1,0 +1,4 @@
+su - username -c "db2start";
+开机启动db2
+配置在/etc/rc.local里。 
+db2有db2iauto. 但是这个不要用 

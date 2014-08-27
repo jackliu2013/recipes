@@ -1,0 +1,14 @@
+@@ protected.html.ep
+% layout 'default';
+% if (my $msg = flash 'message') {
+    <b><%= $msg %></b><br>
+% }
+Welcome <%= session 'user' %>.<br>
+%= link_to Logout => 'logout'
+
+@@ layouts/default.html.ep
+<!DOCTYPE html>
+<html>
+<head><title>Login Manager</title></head>
+<body><%= content %></body>
+</html>

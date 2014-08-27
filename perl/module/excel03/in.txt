@@ -1,0 +1,14 @@
+Signals {
+    "MAA0_0" InOut;
+    "MAA0_1" InOut;
+    "MAA0_2" InOut;
+    "MAA0_3" InOut;
+    "MAA0_4" InOut;
+    "MAA0_5" InOut;
+    "MAA0_6" InOut;
+    "MAA0_7" InOut;
+    "MAA0_8" InOut;
+    "MAA0_9" InOut;
+    "CASA0B" InOut;
+    "CKEA0" InOut;
+}

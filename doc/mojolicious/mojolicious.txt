@@ -1,0 +1,652 @@
+Mojolicious(3)                                      User Contributed Perl Documentation                                      Mojolicious(3)
+
+
+
+NAME
+       Mojolicious - Real-time web framework
+
+SYNOPSIS
+         # Application
+         package MyApp;
+         use Mojo::Base 'Mojolicious';
+
+         # Route
+         sub startup {
+           my $self = shift;
+           $self->routes->get('/hello')->to('foo#hello');
+         }
+
+         # Controller
+         package MyApp::Foo;
+         use Mojo::Base 'Mojolicious::Controller';
+
+         # Action
+         sub hello {
+           my $self = shift;
+           $self->render(text => 'Hello World!');
+         }
+
+DESCRIPTION
+       Take a look at our excellent documentation in Mojolicious::Guides!
+
+ATTRIBUTES
+       Mojolicious inherits all attributes from Mojo and implements the following new ones.
+
+   commands
+         my $commands = $app->commands;
+         $app         = $app->commands(Mojolicious::Commands->new);
+
+       Command line interface for your application, defaults to a Mojolicious::Commands object.
+
+         # Add another namespace to load commands from
+         push @{$app->commands->namespaces}, 'MyApp::Command';
+
+   controller_class
+         my $class = $app->controller_class;
+         $app      = $app->controller_class('Mojolicious::Controller');
+
+       Class to be used for the default controller, defaults to Mojolicious::Controller.
+
+   mode
+         my $mode = $app->mode;
+         $app     = $app->mode('production');
+
+       The operating mode for your application, defaults to a value from the MOJO_MODE and PLACK_ENV environment variables or
+       "development". You can also add per mode logic to your application by defining methods named "${mode}_mode" in the application
+       class, which will be called right before "startup".
+
+         sub development_mode {
+           my $self = shift;
+           ...
+         }
+
+         sub production_mode {
+           my $self = shift;
+           ...
+         }
+
+       Right before calling "startup" and mode specific methods, Mojolicious will pick up the current mode, name the log file after it and
+       raise the log level from "debug" to "info" if it has a value other than "development".
+
+   moniker
+         my $moniker = $app->moniker;
+         $app        = $app->moniker('foo_bar');
+
+       Moniker of this application, often used as default filename for configuration files and the like, defaults to decamelizing the
+       application class with "decamelize" in Mojo::Util.
+
+   plugins
+         my $plugins = $app->plugins;
+         $app        = $app->plugins(Mojolicious::Plugins->new);
+
+       The plugin manager, defaults to a Mojolicious::Plugins object. See the "plugin" method below if you want to load a plugin.
+
+         # Add another namespace to load plugins from
+         push @{$app->plugins->namespaces}, 'MyApp::Plugin';
+
+   renderer
+         my $renderer = $app->renderer;
+         $app         = $app->renderer(Mojolicious::Renderer->new);
+
+       Used in your application to render content, defaults to a Mojolicious::Renderer object. The two main renderer plugins
+       Mojolicious::Plugin::EPRenderer and Mojolicious::Plugin::EPLRenderer contain more information.
+
+         # Add another "templates" directory
+         push @{$app->renderer->paths}, '/home/sri/templates';
+
+         # Add another class with templates in DATA section
+         push @{$app->renderer->classes}, 'Mojolicious::Plugin::Fun';
+
+   routes
+         my $routes = $app->routes;
+         $app       = $app->routes(Mojolicious::Routes->new);
+
+       The router, defaults to a Mojolicious::Routes object. You use this in your startup method to define the url endpoints for your
+       application.
+
+         # Add routes
+         my $r = $app->routes;
+         $r->get('/foo/bar')->to('test#foo', title => 'Hello Mojo!');
+         $r->post('/baz')->to('test#baz');
+
+         # Add another namespace to load controllers from
+         push @{$app->routes->namespaces}, 'MyApp::Controller';
+
+   secret
+         my $secret = $app->secret;
+         $app       = $app->secret('passw0rd');
+
+       A secret passphrase used for signed cookies and the like, defaults to the "moniker" of this application, which is not very secure,
+       so you should change it!!! As long as you are using the insecure default there will be debug messages in the log file reminding you
+       to change your passphrase.
+
+   sessions
+         my $sessions = $app->sessions;
+         $app         = $app->sessions(Mojolicious::Sessions->new);
+
+       Signed cookie based session manager, defaults to a Mojolicious::Sessions object. You can usually leave this alone, see "session" in
+       Mojolicious::Controller for more information about working with session data.
+
+         # Change name of cookie used for all sessions
+         $app->sessions->cookie_name('mysession');
+
+   static
+         my $static = $app->static;
+         $app       = $app->static(Mojolicious::Static->new);
+
+       For serving static files from your "public" directories, defaults to a Mojolicious::Static object.
+
+         # Add another "public" directory
+         push @{$app->static->paths}, '/home/sri/public';
+
+         # Add another class with static files in DATA section
+         push @{$app->static->classes}, 'Mojolicious::Plugin::Fun';
+
+   types
+         my $types = $app->types;
+         $app      = $app->types(Mojolicious::Types->new);
+
+       Responsible for connecting file extensions with MIME types, defaults to a Mojolicious::Types object.
+
+         # Add custom MIME type
+         $app->types->type(twt => 'text/tweet');
+
+METHODS
+       Mojolicious inherits all methods from Mojo and implements the following new ones.
+
+   new
+         my $app = Mojolicious->new;
+
+       Construct a new Mojolicious application, calling "${mode}_mode" and "startup" in the process. Will automatically detect your home
+       directory and set up logging based on your current operating mode. Also sets up the renderer, static file server, a default set of
+       plugins and an "around_dispatch" hook with the default exception handling.
+
+   build_tx
+         my $tx = $app->build_tx;
+
+       Transaction builder, defaults to building a Mojo::Transaction::HTTP object.
+
+   defaults
+         my $hash = $app->defaults;
+         my $foo  = $app->defaults('foo');
+         $app     = $app->defaults({foo => 'bar'});
+         $app     = $app->defaults(foo => 'bar');
+
+       Default values for "stash" in Mojolicious::Controller, assigned for every new request.
+
+         # Remove value
+         my $foo = delete $app->defaults->{foo};
+
+   dispatch
+         $app->dispatch(Mojolicious::Controller->new);
+
+       The heart of every Mojolicious application, calls the "static" and "routes" dispatchers for every request and passes them a
+       Mojolicious::Controller object.
+
+   handler
+         $app->handler(Mojo::Transaction::HTTP->new);
+         $app->handler(Mojolicious::Controller->new);
+
+       Sets up the default controller and calls process for every request.
+
+   helper
+         $app->helper(foo => sub {...});
+
+       Add a new helper that will be available as a method of the controller object and the application object, as well as a function in
+       "ep" templates.
+
+         # Helper
+         $app->helper(cache => sub { state $cache = {} });
+
+         # Controller/Application
+         $self->cache->{foo} = 'bar';
+         my $result = $self->cache->{foo};
+
+         # Template
+         % cache->{foo} = 'bar';
+         %= cache->{foo}
+
+   hook
+         $app->hook(after_dispatch => sub {...});
+
+       Extend Mojolicious with hooks, which allow code to be shared with all requests indiscriminately.
+
+         # Dispatchers will not run if there's already a response code defined
+         $app->hook(before_dispatch => sub {
+           my $c = shift;
+           $c->render(text => 'Skipped static file server and router!')
+             if $c->req->url->path->to_route =~ /do_not_dispatch/;
+         });
+
+       These hooks are currently available and are emitted in the listed order:
+
+       after_build_tx
+         Emitted right after the transaction is built and before the HTTP request gets parsed.
+
+           $app->hook(after_build_tx => sub {
+             my ($tx, $app) = @_;
+             ...
+           });
+
+         This is a very powerful hook and should not be used lightly, it makes some rather advanced features such as upload progress bars
+         possible. Note that this hook will not work for embedded applications. (Passed the transaction and application object)
+
+       before_dispatch
+         Emitted right before the static file server and router start their work.
+
+           $app->hook(before_dispatch => sub {
+             my $c = shift;
+             ...
+           });
+
+         Very useful for rewriting incoming requests and other preprocessing tasks.  (Passed the default controller object)
+
+       after_static
+         Emitted after a static file response has been generated by the static file server.
+
+           $app->hook(after_static => sub {
+             my $c = shift;
+             ...
+           });
+
+         Mostly used for post-processing static file responses. (Passed the default controller object)
+
+       before_routes
+         Emitted after the static file server determined if a static file should be served and before the router starts its work.
+
+           $app->hook(before_routes => sub {
+             my $c = shift;
+             ...
+           });
+
+         Mostly used for custom dispatchers and collecting metrics. (Passed the default controller object)
+
+       around_action
+         Emitted right before an action gets invoked and wraps around it, so you have to manually forward to the next hook if you want to
+         continue the chain.  Default action dispatching is the last hook in the chain, yours will run before it.
+
+           $app->hook(around_action => sub {
+             my ($next, $c, $action, $last) = @_;
+             ...
+             return $next->();
+           });
+
+         This is a very powerful hook and should not be used lightly, it allows you for example to pass additional arguments to actions or
+         handle return values differently. (Passed a callback leading to the next hook, the current controller object, the action callback
+         and a flag indicating if this action is an endpoint)
+
+       after_render
+         Emitted after content has been generated by the renderer that is not partial.  Note that this hook can trigger out of order due to
+         its dynamic nature, and with embedded applications will only work for the application that is rendering.
+
+           $app->hook(after_render => sub {
+             my ($c, $output, $format) = @_;
+             ...
+           });
+
+         Mostly used for post-processing dynamically generated content. (Passed the current controller object, a reference to the content
+         and the format)
+
+       after_dispatch
+         Emitted in reverse order after a response has been rendered. Note that this hook can trigger out of order due to its dynamic
+         nature, and with embedded applications will only work for the application that is rendering.
+
+           $app->hook(after_dispatch => sub {
+             my $c = shift;
+             ...
+           });
+
+         Useful for rewriting outgoing responses and other post-processing tasks.  (Passed the current controller object)
+
+       around_dispatch
+         Emitted right before the "before_dispatch" hook and wraps around the whole dispatch process, so you have to manually forward to
+         the next hook if you want to continue the chain. Default exception handling with "render_exception" in Mojolicious::Controller is
+         the first hook in the chain and a call to "dispatch" the last, yours will be in between.
+
+           $app->hook(around_dispatch => sub {
+             my ($next, $c) = @_;
+             ...
+             $next->();
+             ...
+           });
+
+         This is a very powerful hook and should not be used lightly, it allows you for example to customize application wide exception
+         handling, consider it the sledgehammer in your toolbox. (Passed a callback leading to the next hook and the default controller
+         object)
+
+   plugin
+         $app->plugin('some_thing');
+         $app->plugin('some_thing', foo => 23);
+         $app->plugin('some_thing', {foo => 23});
+         $app->plugin('SomeThing');
+         $app->plugin('SomeThing', foo => 23);
+         $app->plugin('SomeThing', {foo => 23});
+         $app->plugin('MyApp::Plugin::SomeThing');
+         $app->plugin('MyApp::Plugin::SomeThing', foo => 23);
+         $app->plugin('MyApp::Plugin::SomeThing', {foo => 23});
+
+       Load a plugin, for a full list of example plugins included in the Mojolicious distribution see "PLUGINS" in Mojolicious::Plugins.
+
+   start
+         $app->start;
+         $app->start(@ARGV);
+
+       Start the command line interface for your application, for a full list of commands available by default see "COMMANDS" in
+       Mojolicious::Commands.
+
+         # Always start daemon and ignore @ARGV
+         $app->start('daemon', '-l', 'http://*:8080');
+
+   startup
+         $app->startup;
+
+       This is your main hook into the application, it will be called at application startup. Meant to be overloaded in a subclass.
+
+         sub startup {
+           my $self = shift;
+           ...
+         }
+
+HELPERS
+       In addition to the attributes and methods above you can also call helpers on Mojolicious objects. This includes all helpers from
+       Mojolicious::Plugin::DefaultHelpers and Mojolicious::Plugin::TagHelpers.  Note that application helpers are always called with a new
+       default controller object, so they can't depend on or change controller state, which includes request, response and stash.
+
+         $app->log->debug($app->dumper({foo => 'bar'}));
+
+BUNDLED FILES
+       The Mojolicious distribution includes a few files with different licenses that have been bundled for internal use.
+
+   Mojolicious Artwork
+         Copyright (C) 2010-2013, Sebastian Riedel.
+
+       Licensed under the CC-SA License, Version 3.0 http://creativecommons.org/licenses/by-sa/3.0 <http://creativecommons.org/licenses/by-
+       sa/3.0>.
+
+   jQuery
+         Copyright (C) 2005, 2013 jQuery Foundation, Inc.
+
+       Licensed under the MIT License, <http://creativecommons.org/licenses/MIT>.
+
+   prettify.js
+         Copyright (C) 2006, 2013 Google Inc.
+
+       Licensed under the Apache License, Version 2.0 http://www.apache.org/licenses/LICENSE-2.0
+       <http://www.apache.org/licenses/LICENSE-2.0>.
+
+CODE NAMES
+       Every major release of Mojolicious has a code name, these are the ones that have been used in the past.
+
+       4.0, "Top Hat" (u1F3A9)
+
+       3.0, "Rainbow" (u1F308)
+
+       2.0, "Leaf Fluttering In Wind" (u1F343)
+
+       1.4, "Smiling Face With Sunglasses" (u1F60E)
+
+       1.3, "Tropical Drink" (u1F379)
+
+       1.1, "Smiling Cat Face With Heart-Shaped Eyes" (u1F63B)
+
+       1.0, "Snowflake" (u2744)
+
+       0.999930, "Hot Beverage" (u2615)
+
+       0.999927, "Comet" (u2604)
+
+       0.999920, "Snowman" (u2603)
+
+SPONSORS
+       Some of the work on this distribution has been sponsored by The Perl Foundation <http://www.perlfoundation.org>, thank you!
+
+PROJECT FOUNDER
+       Sebastian Riedel, "sri@cpan.org"
+
+CORE DEVELOPERS
+       Current members of the core team in alphabetical order:
+
+           Abhijit Menon-Sen, "ams@cpan.org"
+
+           Glen Hinkle, "tempire@cpan.org"
+
+           Joel Berger, "jberger@cpan.org"
+
+           Marcus Ramberg, "mramberg@cpan.org"
+
+CREDITS
+       In alphabetical order:
+
+         Adam Kennedy
+
+         Adriano Ferreira
+
+         Al Newkirk
+
+         Alex Salimon
+
+         Alexey Likhatskiy
+
+         Anatoly Sharifulin
+
+         Andre Vieth
+
+         Andreas Jaekel
+
+         Andreas Koenig
+
+         Andrew Fresh
+
+         Andrey Khozov
+
+         Andy Grundman
+
+         Aristotle Pagaltzis
+
+         Ashley Dev
+
+         Ask Bjoern Hansen
+
+         Audrey Tang
+
+         Ben van Staveren
+
+         Benjamin Erhart
+
+         Bernhard Graf
+
+         Breno G. de Oliveira
+
+         Brian Duggan
+
+         Burak Gursoy
+
+         Ch Lamprecht
+
+         Charlie Brady
+
+         Chas. J. Owens IV
+
+         Christian Hansen
+
+         chromatic
+
+         Curt Tilmes
+
+         Daniel Kimsey
+
+         Danijel Tasov
+
+         Danny Thomas
+
+         David Davis
+
+         David Webb
+
+         Diego Kuperman
+
+         Dmitriy Shalashov
+
+         Dmitry Konstantinov
+
+         Dominik Jarmulowicz
+
+         Dominique Dumont
+
+         Douglas Christopher Wilson
+
+         Eugene Toropov
+
+         Gisle Aas
+
+         Graham Barr
+
+         Henry Tang
+
+         Hideki Yamamura
+
+         Ilya Chesnokov
+
+         James Duncan
+
+         Jan Jona Javorsek
+
+         Jan Schmidt
+
+         Jaroslav Muhin
+
+         Jesse Vincent
+
+         Johannes Plunien
+
+         John Kingsley
+
+         Jonathan Yu
+
+         Josh Leder
+
+         Kazuhiro Shibuya
+
+         Kevin Old
+
+         Kitamura Akatsuki
+
+         Lars Balker Rasmussen
+
+         Leon Brocard
+
+         Magnus Holm
+
+         Maik Fischer
+
+         Mark Stosberg
+
+         Marty Tennison
+
+         Matthew Lineen
+
+         Maksym Komar
+
+         Maxim Vuets
+
+         Michael Harris
+
+         Mike Magowan
+
+         Mirko Westermeier
+
+         Mons Anderson
+
+         Moritz Lenz
+
+         Neil Watkiss
+
+         Nic Sandfield
+
+         Nils Diewald
+
+         Oleg Zhelo
+
+         Pascal Gaudette
+
+         Paul Evans
+
+         Paul Tomlin
+
+         Pavel Shaydo
+
+         Pedro Melo
+
+         Peter Edwards
+
+         Pierre-Yves Ritschard
+
+         Quentin Carbonneaux
+
+         Rafal Pocztarski
+
+         Randal Schwartz
+
+         Robert Hicks
+
+         Robin Lee
+
+         Roland Lammel
+
+         Ryan Jendoubi
+
+         Sascha Kiefer
+
+         Scott Wiersdorf
+
+         Sergey Zasenko
+
+         Simon Bertrang
+
+         Simone Tampieri
+
+         Shu Cho
+
+         Skye Shaw
+
+         Stanis Trendelenburg
+
+         Stephane Este-Gracias
+
+         Tatsuhiko Miyagawa
+
+         Terrence Brannon
+
+         Tomas Znamenacek
+
+         Ulrich Habel
+
+         Ulrich Kautz
+
+         Uwe Voelker
+
+         Viacheslav Tykhanovskyi
+
+         Victor Engmark
+
+         Viliam Pucik
+
+         Wes Cravens
+
+         Yaroslav Korshak
+
+         Yuki Kimoto
+
+         Zak B. Elep
+
+COPYRIGHT AND LICENSE
+       Copyright (C) 2008-2013, Sebastian Riedel.
+
+       This program is free software, you can redistribute it and/or modify it under the terms of the Artistic License version 2.0.
+
+SEE ALSO
+       Mojolicious::Guides, <http://mojolicio.us>.
+
+
+
+perl v5.14.2                                                     2013-07-07                                                  Mojolicious(3)

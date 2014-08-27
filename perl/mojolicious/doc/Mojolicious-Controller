@@ -1,0 +1,491 @@
+Mojolicious::ControlleUser Contributed Perl DocumentMojolicious::Controller(3)
+
+
+
+NAME
+       Mojolicious::Controller - Controller base class
+
+SYNOPSIS
+         # Controller
+         package MyApp::Foo;
+         use Mojo::Base 'Mojolicious::Controller';
+
+         # Action
+         sub bar {
+           my $self = shift;
+           my $name = $self->param('name');
+           $self->res->headers->cache_control('max-age=1, no-cache');
+           $self->render(json => {hello => $name});
+         }
+
+DESCRIPTION
+       Mojolicious::Controller is the base class for your Mojolicious
+       controllers. It is also the default controller class for Mojolicious
+       unless you set "controller_class" in your application.
+
+ATTRIBUTES
+       Mojolicious::Controller inherits all attributes from Mojo::Base and
+       implements the following new ones.
+
+   app
+         my $app = $c->app;
+         $c      = $c->app(Mojolicious->new);
+
+       A reference back to the application that dispatched to this controller,
+       defaults to a Mojolicious object.
+
+         # Use application logger
+         $c->app->log->debug('Hello Mojo!');
+
+   match
+         my $m = $c->match;
+         $c    = $c->match(Mojolicious::Routes::Match->new);
+
+       Router results for the current request, defaults to a
+       Mojolicious::Routes::Match object.
+
+         # Introspect
+         my $foo = $c->match->endpoint->pattern->defaults->{foo};
+
+   tx
+         my $tx = $c->tx;
+         $c     = $c->tx(Mojo::Transaction::HTTP->new);
+
+       The transaction that is currently being processed, usually a
+       Mojo::Transaction::HTTP or Mojo::Transaction::WebSocket object.
+
+         # Check peer information
+         my $address = $c->tx->remote_address;
+
+METHODS
+       Mojolicious::Controller inherits all methods from Mojo::Base and
+       implements the following new ones.
+
+   cookie
+         my $value  = $c->cookie('foo');
+         my @values = $c->cookie('foo');
+         $c         = $c->cookie(foo => 'bar');
+         $c         = $c->cookie(foo => 'bar', {path => '/'});
+
+       Access request cookie values and create new response cookies.
+
+         # Create response cookie with domain and expiration date
+         $c->cookie(user => 'sri', {domain => 'example.com', expires => time + 60});
+
+   finish
+         $c = $c->finish;
+         $c = $c->finish(1000);
+         $c = $c->finish(1003 => 'Cannot accept data!');
+         $c = $c->finish('Bye!');
+
+       Close WebSocket connection or long poll stream gracefully.
+
+   flash
+         my $foo = $c->flash('foo');
+         $c      = $c->flash({foo => 'bar'});
+         $c      = $c->flash(foo => 'bar');
+
+       Data storage persistent only for the next request, stored in the
+       "session".
+
+         # Show message after redirect
+         $c->flash(message => 'User created successfully!');
+         $c->redirect_to('show_user', id => 23);
+
+   on
+         my $cb = $c->on(finish => sub {...});
+
+       Subscribe to events of "tx", which is usually a Mojo::Transaction::HTTP
+       or Mojo::Transaction::WebSocket object. Note that this method will
+       automatically respond to WebSocket handshake requests with a 101
+       response status.
+
+         # Do something after the transaction has been finished
+         $c->on(finish => sub {
+           my $c = shift;
+           $c->app->log->debug('We are done!');
+         });
+
+         # Receive WebSocket message
+         $c->on(message => sub {
+           my ($c, $msg) = @_;
+           $c->app->log->debug("Message: $msg");
+         });
+
+         # Receive JSON object via WebSocket message
+         $c->on(json => sub {
+           my ($c, $hash) = @_;
+           $c->app->log->debug("Test: $hash->{test}");
+         });
+
+         # Receive WebSocket "Binary" message
+         $c->on(binary => sub {
+           my ($c, $bytes) = @_;
+           my $len = length $bytes;
+           $c->app->log->debug("Received $len bytes.");
+         });
+
+   param
+         my @names       = $c->param;
+         my $foo         = $c->param('foo');
+         my @foo         = $c->param('foo');
+         my ($foo, $bar) = $c->param(['foo', 'bar']);
+         $c              = $c->param(foo => 'ba;r');
+         $c              = $c->param(foo => qw(ba;r ba;z));
+
+       Access GET/POST parameters, file uploads and route placeholder values
+       that are not reserved stash values. Note that this method is context
+       sensitive in some cases and therefore needs to be used with care, there
+       can always be multiple values, which might have unexpected
+       consequences. Parts of the request body need to be loaded into memory
+       to parse POST parameters, so you have to make sure it is not
+       excessively large.
+
+         # List context is ambiguous and should be avoided
+         my $hash = {foo => $self->param('foo')};
+
+         # Better enforce scalar context
+         my $hash = {foo => scalar $self->param('foo')};
+
+         # The multi name form can also enforce scalar context
+         my $hash = {foo => $self->param(['foo'])};
+
+       For more control you can also access request information directly.
+
+         # Only GET parameters
+         my $foo = $c->req->url->query->param('foo');
+
+         # Only GET and POST parameters
+         my $foo = $c->req->param('foo');
+
+         # Only file uploads
+         my $foo = $c->req->upload('foo');
+
+   redirect_to
+         $c = $c->redirect_to('named', foo => 'bar');
+         $c = $c->redirect_to('named', {foo => 'bar'});
+         $c = $c->redirect_to('/perldoc');
+         $c = $c->redirect_to('http://mojolicio.us/perldoc');
+
+       Prepare a 302 redirect response, takes the same arguments as "url_for".
+
+         # Conditional redirect
+         return $c->redirect_to('login') unless $c->session('user');
+
+         # Moved permanently
+         $c->res->code(301);
+         $c->redirect_to('some_route');
+
+   render
+         my $success = $c->render;
+         my $success = $c->render(controller => 'foo', action => 'bar');
+         my $success = $c->render(template => 'foo/index');
+         my $success = $c->render(template => 'index', format => 'html');
+         my $success = $c->render(data => $bytes);
+         my $success = $c->render(text => 'Hello!');
+         my $success = $c->render(json => {foo => 'bar'});
+         my $success = $c->render(handler => 'something');
+         my $success = $c->render('foo/index');
+         my $output  = $c->render('foo/index', partial => 1);
+
+       Render content using "render" in Mojolicious::Renderer and emit
+       "after_render" hook unless the result is "partial". If no template is
+       provided a default one based on controller and action or route name
+       will be generated, all additional values get merged into the "stash".
+
+   render_exception
+         $c = $c->render_exception('Oops!');
+         $c = $c->render_exception(Mojo::Exception->new('Oops!'));
+
+       Render the exception template "exception.$mode.$format.*" or
+       "exception.$format.*" and set the response status code to 500. Also
+       sets the stash values "exception" to a Mojo::Exception object and
+       "snapshot" to a copy of the "stash" for use in the templates.
+
+   render_later
+         $c = $c->render_later;
+
+       Disable automatic rendering to delay response generation, only
+       necessary if automatic rendering would result in a response.
+
+         # Delayed rendering
+         $c->render_later;
+         Mojo::IOLoop->timer(2 => sub {
+           $c->render(text => 'Delayed by 2 seconds!');
+         });
+
+   render_maybe
+         my $success = $c->render_maybe;
+         my $success = $c->render_maybe(controller => 'foo', action => 'bar');
+         my $success = $c->render_maybe('foo/index', format => 'html');
+
+       Try to render content but do not call "render_not_found" if no response
+       could be generated, takes the same arguments as "render".
+
+         # Render template "index_local" only if it exists
+         $self->render_maybe('index_local') or $self->render('index');
+
+   render_not_found
+         $c = $c->render_not_found;
+
+       Render the not found template "not_found.$mode.$format.*" or
+       "not_found.$format.*" and set the response status code to 404.
+
+   render_static
+         my $success = $c->render_static('images/logo.png');
+         my $success = $c->render_static('../lib/MyApp.pm');
+
+       Render a static file using "serve" in Mojolicious::Static, usually from
+       the "public" directories or "DATA" sections of your application. Note
+       that this method does not protect from traversing to parent
+       directories.
+
+   rendered
+         $c = $c->rendered;
+         $c = $c->rendered(302);
+
+       Finalize response and emit "after_dispatch" hook, defaults to using a
+       200 response code.
+
+   req
+         my $req = $c->req;
+
+       Get Mojo::Message::Request object from "req" in Mojo::Transaction.
+
+         # Longer version
+         my $req = $c->tx->req;
+
+         # Extract request information
+         my $url      = $c->req->url->to_abs;
+         my $userinfo = $c->req->url->to_abs->userinfo;
+         my $host     = $c->req->url->to_abs->host;
+         my $agent    = $c->req->headers->user_agent;
+         my $body     = $c->req->body;
+         my $hash     = $c->req->json;
+         my $foo      = $c->req->json('/23/foo');
+         my $dom      = $c->req->dom;
+         my $bar      = $c->req->dom('div.bar')->first->text;
+
+   res
+         my $res = $c->res;
+
+       Get Mojo::Message::Response object from "res" in Mojo::Transaction.
+
+         # Longer version
+         my $res = $c->tx->res;
+
+         # Force file download by setting a custom response header
+         $c->res->headers->content_disposition('attachment; filename=foo.png;');
+
+   respond_to
+         $c = $c->respond_to(
+           json => {json => {message => 'Welcome!'}},
+           html => {template => 'welcome'},
+           any  => sub {...}
+         );
+
+       Automatically select best possible representation for resource from
+       "Accept" request header, "format" stash value or "format" GET/POST
+       parameter, defaults to rendering an empty 204 response. Since browsers
+       often don't really know what they actually want, unspecific "Accept"
+       request headers with more than one MIME type will be ignored, unless
+       the "X-Requested-With" header is set to the value "XMLHttpRequest".
+
+         $c->respond_to(
+           json => sub { $c->render(json => {just => 'works'}) },
+           xml  => {text => '<just>works</just>'},
+           any  => {data => '', status => 204}
+         );
+
+   send
+         $c = $c->send({binary => $bytes});
+         $c = $c->send({text   => $bytes});
+         $c = $c->send({json   => {test => [1, 2, 3]}});
+         $c = $c->send([$fin, $rsv1, $rsv2, $rsv3, $op, $bytes]);
+         $c = $c->send(Mojo::ByteStream->new($chars));
+         $c = $c->send($chars);
+         $c = $c->send($chars => sub {...});
+
+       Send message or frame non-blocking via WebSocket, the optional drain
+       callback will be invoked once all data has been written. Note that this
+       method will automatically respond to WebSocket handshake requests with
+       a 101 response status.
+
+         # Send "Text" message
+         $c->send('I X Mojolicious!');
+
+         # Send JSON object as "Text" message
+         $c->send({json => {test => 'I X Mojolicious!'}});
+
+         # Send JSON object as "Binary" message
+         use Mojo::JSON 'j';
+         $c->send({binary => j({test => 'I X Mojolicious!'})});
+
+         # Send "Ping" frame
+         $c->send([1, 0, 0, 0, 9, 'Hello World!']);
+
+         # Make sure previous message has been written before continuing
+         $c->send('First message!' => sub {
+           my $c = shift;
+           $c->send('Second message!');
+         });
+
+       For mostly idle WebSockets you might also want to increase the
+       inactivity timeout, which usually defaults to 15 seconds.
+
+         # Increase inactivity timeout for connection to 300 seconds
+         Mojo::IOLoop->stream($c->tx->connection)->timeout(300);
+
+   session
+         my $session = $c->session;
+         my $foo     = $c->session('foo');
+         $c          = $c->session({foo => 'bar'});
+         $c          = $c->session(foo => 'bar');
+
+       Persistent data storage, all session data gets serialized with
+       Mojo::JSON and stored "Base64" encoded in "HMAC-SHA1" signed cookies.
+       Note that cookies usually have a 4096 byte limit, depending on browser.
+
+         # Manipulate session
+         $c->session->{foo} = 'bar';
+         my $foo = $c->session->{foo};
+         delete $c->session->{foo};
+
+         # Expiration date in seconds from now (persists between requests)
+         $c->session(expiration => 604800);
+
+         # Expiration date as absolute epoch time (only valid for one request)
+         $c->session(expires => time + 604800);
+
+         # Delete whole session by setting an expiration date in the past
+         $c->session(expires => 1);
+
+   signed_cookie
+         my $value  = $c->signed_cookie('foo');
+         my @values = $c->signed_cookie('foo');
+         $c         = $c->signed_cookie(foo => 'bar');
+         $c         = $c->signed_cookie(foo => 'bar', {path => '/'});
+
+       Access signed request cookie values and create new signed response
+       cookies.  Cookies failing "HMAC-SHA1" signature verification will be
+       automatically discarded.
+
+   stash
+         my $hash = $c->stash;
+         my $foo  = $c->stash('foo');
+         $c       = $c->stash({foo => 'bar'});
+         $c       = $c->stash(foo => 'bar');
+
+       Non persistent data storage and exchange, application wide default
+       values can be set with "defaults" in Mojolicious. Many stash values
+       have a special meaning and are reserved, the full list is currently
+       "action", "app", "cb", "controller", "data", "extends", "format",
+       "handler", "json", "layout", "namespace", "partial", "path", "status",
+       "template" and "text". Note that all stash values with a "mojo.*"
+       prefix are reserved for internal use.
+
+         # Remove value
+         my $foo = delete $c->stash->{foo};
+
+   url_for
+         my $url = $c->url_for;
+         my $url = $c->url_for(name => 'sebastian');
+         my $url = $c->url_for({name => 'sebastian'});
+         my $url = $c->url_for('test', name => 'sebastian');
+         my $url = $c->url_for('test', {name => 'sebastian'});
+         my $url = $c->url_for('/perldoc');
+         my $url = $c->url_for('//mojolicio.us/perldoc');
+         my $url = $c->url_for('http://mojolicio.us/perldoc');
+         my $url = $c->url_for('mailto:sri@example.com');
+
+       Generate a portable Mojo::URL object with base for a route, path or
+       URL.
+
+         # "/perldoc?foo=bar" if application is deployed under "/"
+         $c->url_for('/perldoc')->query(foo => 'bar');
+
+         # "/myapp/perldoc?foo=bar" if application is deployed under "/myapp"
+         $c->url_for('/perldoc')->query(foo => 'bar');
+
+       You can also use the helper "url_with" in
+       Mojolicious::Plugin::DefaultHelpers to inherit query parameters from
+       the current request.
+
+         # "/list?q=mojo&page=2" if current request was for "/list?q=mojo&page=1"
+         $c->url_with->query([page => 2]);
+
+   write
+         $c = $c->write;
+         $c = $c->write($bytes);
+         $c = $c->write(sub {...});
+         $c = $c->write($bytes => sub {...});
+
+       Write dynamic content non-blocking, the optional drain callback will be
+       invoked once all data has been written.
+
+         # Keep connection alive (with Content-Length header)
+         $c->res->headers->content_length(6);
+         $c->write('Hel' => sub {
+           my $c = shift;
+           $c->write('lo!')
+         });
+
+         # Close connection when finished (without Content-Length header)
+         $c->write('Hel' => sub {
+           my $c = shift;
+           $c->write('lo!' => sub {
+             my $c = shift;
+             $c->finish;
+           });
+         });
+
+       For Comet (long polling) you might also want to increase the inactivity
+       timeout, which usually defaults to 15 seconds.
+
+         # Increase inactivity timeout for connection to 300 seconds
+         Mojo::IOLoop->stream($c->tx->connection)->timeout(300);
+
+   write_chunk
+         $c = $c->write_chunk;
+         $c = $c->write_chunk($bytes);
+         $c = $c->write_chunk(sub {...});
+         $c = $c->write_chunk($bytes => sub {...});
+
+       Write dynamic content non-blocking with "chunked" transfer encoding,
+       the optional drain callback will be invoked once all data has been
+       written.
+
+         # Make sure previous chunk has been written before continuing
+         $c->write_chunk('He' => sub {
+           my $c = shift;
+           $c->write_chunk('ll' => sub {
+             my $c = shift;
+             $c->finish('o!');
+           });
+         });
+
+       You can call "finish" at any time to end the stream.
+
+         2
+         He
+         2
+         ll
+         2
+         o!
+         0
+
+HELPERS
+       In addition to the attributes and methods above you can also call
+       helpers on Mojolicious::Controller objects. This includes all helpers
+       from Mojolicious::Plugin::DefaultHelpers and
+       Mojolicious::Plugin::TagHelpers.
+
+         $c->layout('green');
+         $c->title('Welcome!');
+
+SEE ALSO
+       Mojolicious, Mojolicious::Guides, <http://mojolicio.us>.
+
+
+
+perl v5.14.2                      2013-07-07        Mojolicious::Controller(3)

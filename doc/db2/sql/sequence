@@ -1,0 +1,36 @@
+
+CREATE SEQUENCE ORG_SEQ START WITH 1 INCREMENT BY 1 NO MAXVALUE NO CYCLE CACHE 24
+
+-- 删除sequence
+drop sequence seq_test;
+
+-- 创建sequence
+create sequence seq_test as bigint start with 1 increment by 1 minvalue 1 no maxvalue no cycle cache 200 order;
+
+-- 查询sequence 的下一个值
+values nextval for seq_test ;     ||  values next value for seq_test;
+
+-- 查询sequence 的当前值
+values prevval  for seq_test ;  || values previous value  for seq_test
+
+
+--------------sequence 的修改
+alter sequence seq_test restart with 1000;  -- seq_test 从1000开始
+alter sequence seq_test restart;            -- seq_test 从seq_test创建的开始值重新计数
+
+alter sequence seq_test increment by 1;     -- 更改seq_test 的步长(每次变化的值)
+
+alter sequence seq_test minvalue 10 ;       -- 更改seq_test 的最小值 为10
+alter sequence seq_test no minvalue  ;      -- 更改seq_test 没有最小值
+
+alter sequence seq_test maxvalue 10000 ;    -- 更改seq_test 的最大值 为10000
+alter sequence seq_test no minvalue  ;      -- 更改seq_test 没有最大值
+
+alter sequence seq_test no cycle ;          -- seq_test 不循环计数
+alter sequence seq_test cycle ;             -- seq_test 在达到最大值后会重新开始计数
+
+alter sequence seq_test cache 500 ;         -- seq_test 每次缓存500个
+alter sequence seq_test no cache ;          -- seq_test 不使用cache
+
+alter sequence seq_test order;              -- seq_test sequence值顺序生成
+alter sequence seq_test no order;           -- seq_test sequence值不按顺序生成

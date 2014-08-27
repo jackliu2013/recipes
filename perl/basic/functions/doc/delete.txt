@@ -1,0 +1,75 @@
+       delete EXPR
+               Given an expression that specifies an element or slice of a
+               hash, "delete" deletes the specified elements from that hash so
+               that exists() on that element no longer returns true.  Setting
+               a hash element to the undefined value does not remove its key,
+               but deleting it does; see "exists".
+
+               In list context, returns the value or values deleted, or the
+               last such element in scalar context.  The return list's length
+               always matches that of the argument list: deleting non-existent
+               elements returns the undefined value in their corresponding
+               positions.
+
+               delete() may also be used on arrays and array slices, but its
+               behavior is less straightforward.  Although exists() will
+               return false for deleted entries, deleting array elements never
+               changes indices of existing values; use shift() or splice() for
+               that.  However, if all deleted elements fall at the end of an
+               array, the array's size shrinks to the position of the highest
+               element that still tests true for exists(), or to 0 if none do.
+
+               WWAARRNNIINNGG:: Calling delete on array values is deprecated and
+               likely to be removed in a future version of Perl.
+
+               Deleting from %ENV modifies the environment.  Deleting from a
+               hash tied to a DBM file deletes the entry from the DBM file.
+               Deleting from a "tied" hash or array may not necessarily return
+               anything; it depends on the implementation of the "tied"
+               package's DELETE method, which may do whatever it pleases.
+
+               The "delete local EXPR" construct localizes the deletion to the
+               current block at run time.  Until the block exits, elements
+               locally deleted temporarily no longer exist.  See "Localized
+               deletion of elements of composite types" in perlsub.
+
+                   %hash = (foo => 11, bar => 22, baz => 33);
+                   $scalar = delete $hash{foo};             # $scalar is 11
+                   $scalar = delete @hash{qw(foo bar)};     # $scalar is 22
+                   @array  = delete @hash{qw(foo bar baz)}; # @array  is (undef,undef,33)
+
+               The following (inefficiently) deletes all the values of %HASH
+               and @ARRAY:
+
+                   foreach $key (keys %HASH) {
+                       delete $HASH{$key};
+                   }
+
+                   foreach $index (0 .. $#ARRAY) {
+                       delete $ARRAY[$index];
+                   }
+
+               And so do these:
+
+                   delete @HASH{keys %HASH};
+
+                   delete @ARRAY[0 .. $#ARRAY];
+
+               But both are slower than assigning the empty list or undefining
+               %HASH or @ARRAY, which is the customary way to empty out an
+               aggregate:
+
+                   %HASH = ();     # completely empty %HASH
+                   undef %HASH;    # forget %HASH ever existed
+
+                   @ARRAY = ();    # completely empty @ARRAY
+                   undef @ARRAY;   # forget @ARRAY ever existed
+
+               The EXPR can be arbitrarily complicated provided its final
+               operation is an element or slice of an aggregate:
+
+                   delete $ref->[$x][$y]{$key};
+                   delete @{$ref->[$x][$y]}{$key1, $key2, @morekeys};
+
+                   delete $ref->[$x][$y][$index];
+                   delete @{$ref->[$x][$y]}[$index1, $index2, @moreindices];

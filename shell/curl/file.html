@@ -1,0 +1,628 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="zh-CN">
+
+	<head profile="http://gmpg.org/xfn/11">
+<meta property="qc:admins" content="1161332111106375" />	
+<meta property="wb:webmaster" content="b1906381053a1c93" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<link rel="canonical" href="http://blog.51yip.com/" /><meta name="keywords" content="php开发,服务器架构,seo优化" />
+<meta name="description" content="一个个人开发经验总结的博客" />
+	<title>php开发,服务器架构,seo优化</title>
+<meta name="google-site-verification" content="Z1PF5NCqkdtwbxzUTwlOmG4skCjHJETmCtJKx7U4s4E" />
+	<link rel="stylesheet" href="http://blog.51yip.com/wp-content/themes/drochilli/style.css" type="text/css" media="screen" />
+  <link rel="shortcut icon" type="image/ico" href="http://blog.51yip.com/wp-content/themes/drochilli/images/favicon.ico" />
+	<link rel="alternate" type="application/rss+xml" title="海底苍鹰(tank)博客 RSS Feed" href="http://blog.51yip.com/feed" />
+	<link rel="alternate" type="application/atom+xml" title="海底苍鹰(tank)博客 Atom Feed" href="http://blog.51yip.com/feed/atom" />
+	<link rel="pingback" href="http://blog.51yip.com/xmlrpc.php" />
+		<link rel='archives' title='2013年六月' href='http://blog.51yip.com/date/2013/06' />
+	<link rel='archives' title='2013年五月' href='http://blog.51yip.com/date/2013/05' />
+	<link rel='archives' title='2013年四月' href='http://blog.51yip.com/date/2013/04' />
+	<link rel='archives' title='2013年三月' href='http://blog.51yip.com/date/2013/03' />
+	<link rel='archives' title='2013年二月' href='http://blog.51yip.com/date/2013/02' />
+	<link rel='archives' title='2013年一月' href='http://blog.51yip.com/date/2013/01' />
+	<link rel='archives' title='2012年十二月' href='http://blog.51yip.com/date/2012/12' />
+	<link rel='archives' title='2012年十一月' href='http://blog.51yip.com/date/2012/11' />
+	<link rel='archives' title='2012年十月' href='http://blog.51yip.com/date/2012/10' />
+	<link rel='archives' title='2012年九月' href='http://blog.51yip.com/date/2012/09' />
+	<link rel='archives' title='2012年八月' href='http://blog.51yip.com/date/2012/08' />
+	<link rel='archives' title='2012年七月' href='http://blog.51yip.com/date/2012/07' />
+	<link rel='archives' title='2012年六月' href='http://blog.51yip.com/date/2012/06' />
+	<link rel='archives' title='2012年五月' href='http://blog.51yip.com/date/2012/05' />
+	<link rel='archives' title='2012年四月' href='http://blog.51yip.com/date/2012/04' />
+	<link rel='archives' title='2012年三月' href='http://blog.51yip.com/date/2012/03' />
+	<link rel='archives' title='2012年二月' href='http://blog.51yip.com/date/2012/02' />
+	<link rel='archives' title='2012年一月' href='http://blog.51yip.com/date/2012/01' />
+	<link rel='archives' title='2011年十二月' href='http://blog.51yip.com/date/2011/12' />
+	<link rel='archives' title='2011年十一月' href='http://blog.51yip.com/date/2011/11' />
+	<link rel='archives' title='2011年十月' href='http://blog.51yip.com/date/2011/10' />
+	<link rel='archives' title='2011年九月' href='http://blog.51yip.com/date/2011/09' />
+	<link rel='archives' title='2011年八月' href='http://blog.51yip.com/date/2011/08' />
+	<link rel='archives' title='2011年七月' href='http://blog.51yip.com/date/2011/07' />
+	<link rel='archives' title='2011年六月' href='http://blog.51yip.com/date/2011/06' />
+	<link rel='archives' title='2011年五月' href='http://blog.51yip.com/date/2011/05' />
+	<link rel='archives' title='2011年四月' href='http://blog.51yip.com/date/2011/04' />
+	<link rel='archives' title='2011年三月' href='http://blog.51yip.com/date/2011/03' />
+	<link rel='archives' title='2011年二月' href='http://blog.51yip.com/date/2011/02' />
+	<link rel='archives' title='2011年一月' href='http://blog.51yip.com/date/2011/01' />
+	<link rel='archives' title='2010年十二月' href='http://blog.51yip.com/date/2010/12' />
+	<link rel='archives' title='2010年十一月' href='http://blog.51yip.com/date/2010/11' />
+	<link rel='archives' title='2010年十月' href='http://blog.51yip.com/date/2010/10' />
+	<link rel='archives' title='2010年九月' href='http://blog.51yip.com/date/2010/09' />
+	<link rel='archives' title='2010年八月' href='http://blog.51yip.com/date/2010/08' />
+	<link rel='archives' title='2010年七月' href='http://blog.51yip.com/date/2010/07' />
+	<link rel='archives' title='2010年六月' href='http://blog.51yip.com/date/2010/06' />
+	<link rel='archives' title='2010年五月' href='http://blog.51yip.com/date/2010/05' />
+	<link rel='archives' title='2010年四月' href='http://blog.51yip.com/date/2010/04' />
+	<link rel='archives' title='2010年三月' href='http://blog.51yip.com/date/2010/03' />
+	<link rel='archives' title='2010年二月' href='http://blog.51yip.com/date/2010/02' />
+    
+    
+	
+	<link rel='stylesheet' id='wp-pagenavi-css'  href='http://blog.51yip.com/wp-content/themes/drochilli/pagenavi-css.css?ver=2.70' type='text/css' media='' />
+<script type='text/javascript' src='http://blog.51yip.com/wp-includes/js/jquery/jquery.js?ver=1.3.2'></script>
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://blog.51yip.com/xmlrpc.php?rsd" />
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://blog.51yip.com/wp-includes/wlwmanifest.xml" /> 
+<link rel='index' title='海底苍鹰(tank)博客' href='http://blog.51yip.com' />
+<meta name="generator" content="WordPress 2.9.1" />
+	<link href="http://blog.51yip.com/wp-content/plugins/google-syntax-highlighter/Styles/SyntaxHighlighter.css" type="text/css" rel="stylesheet" />
+	<style type="text/css">
+img.monsterid{float:left;margin: 0}</style>
+	<style type="text/css">.recentcomments a{display:inline !important;padding:0 !important;margin:0 !important;}</style>
+
+	<script type="text/javascript" src="http://blog.51yip.com/wp-includes/js/jquery/jquery.extend.js"></script>
+	<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-16813496-1']);
+  _gaq.push(['_setDomainName', '.51yip.com']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+</head>
+
+<body>
+
+<div id="wrapper">
+
+	<div id="header">
+
+		<div class="headerwrap">
+
+			<div id="logo">
+								<h1>海底苍鹰(tank)博客</h1>
+							</div>
+
+			<div id="search">
+				<form method="get" id="searchform" action="http://blog.51yip.com/">
+	<div>
+		<input type="text" value="" name="s" id="s" />
+		<input type="submit" id="searchsubmit" value="Search" />
+	</div>
+</form>			</div>
+
+
+      
+			<div id="description">
+				<h3>－－一步，二步，三步，N步，二行脚印</h3>
+			</div>
+
+      <div id="blackband_top_right">
+        <h2>
+        <ul id="dropmenu">
+        <li class="page_item_3"><a href="http://blog.51yip.com/feed" title="rss订阅"><img src="http://blog.51yip.com/rss.jpg"></a></li>
+          <li class="page_item"><a href="http://blog.51yip.com/aboutme" title="海底苍鹰(tank)博客">关于我</a></li>
+          <li class="page_item"><a href="http://blog.51yip.com/announce" title="博客声明">博客声明</a></li>
+          <li class="page_item"><a href="http://blog.51yip.com/tag-page" title="标签页">标签页</a></li>
+          <li class="page_item"><a href="http://blog.51yip.com/message" title="留言板">留言板</a></li>      
+          <li class="page_item"><a href="http://blog.51yip.com/manual/jquery" title="jquery手册">开发手册</a></li>
+          <li class="page_item"><a href="http://l.51yip.com" target="_black"  title="linux命令手册">linux命令</a></li>
+          <li class="page_item"><a href="http://blog.51yip.com" title="海底苍鹰(tank)博客">首页</a></li>
+        </ul>
+        </h2>
+      </div>
+      
+      
+		</div>
+
+	</div>
+
+	<div id="page">
+
+		<div class="columns">
+
+<div id="content">
+
+	
+	<div class="posts">
+
+		<div class="navigation">
+			<div class='wp-pagenavi'>
+<span class='pages'>Page 1 of 43</span><span class='current'>1</span><a href='http://blog.51yip.com/page/2' class='page'>2</a><a href='http://blog.51yip.com/page/3' class='page'>3</a><a href='http://blog.51yip.com/page/4' class='page'>4</a><a href='http://blog.51yip.com/page/5' class='page'>5</a><a class="hanzi" href="http://blog.51yip.com/page/2" class="nextpostslink">下一页</a><a href='http://blog.51yip.com/page/20' class='larger page'>20</a><a href='http://blog.51yip.com/page/40' class='larger page'>40</a><span class='extend'>...</span><a href='http://blog.51yip.com/page/43' class='last'>末页</a>
+</div>		</div>
+		<div style="clear:both;"></div>
+		<div class="navigation_line"></div>
+		
+		
+		<div class="post-1518 post sticky hentry category-linux tag-linux tag-700 tag-701 tag-169" id="post-1518">
+
+			<div class="title">
+				<h2><a href="http://blog.51yip.com/linux/1518.html" rel="bookmark" title="Permanent Link to 推荐linux命令在线查，简约而不简单">推荐linux命令在线查，简约而不简单</a></h2>
+			</div>
+
+			<div class="meta">
+				<p>张映 发表于 2013-05-23</p>
+				<p>分类目录： <a href="http://blog.51yip.com/category/linux" title="查看 linux 的全部文章" rel="category tag">linux</a></p>
+							</div>
+			
+			<div class="entry">
+				<p>算一算做技术这一块，七年了。这七年里，一直在学习，说实话比我上学的时候努力多了，google是我最好的老师。但是网上淡疼的资料太多，相互copy，有的时候找一个东西，google前几页都是一样的，这很让人郁闷。</p>
+<p>我是07年的时候，开始玩linux的，刚开始的时候寸步难行，遇到不会的命令，特殊的参数，我都会用txt记录下来，记录的多了，找起来就麻烦了。这也是我做这个linux命令在线查的初忠，主要是给自己用的。就像我的博客一样，记录东西，方便自己以后查阅，顺便可以方便一下别人。</p>
+<p> <a href="http://blog.51yip.com/linux/1518.html#more-1518" class="more-link"><font color='blue'>阅读全文>></font></a></p>
+			</div>
+
+			<div class="link">
+				<a href="http://blog.51yip.com/linux/1518.html#respond">6 条评论</a>
+			</div>
+
+		</div>
+
+		
+		<div class="post-1546 post hentry category-google tag-api tag-google tag-map tag-mysql tag-oracle tag-php tag-731" id="post-1546">
+
+			<div class="title">
+				<h2><a href="http://blog.51yip.com/google/1546.html" rel="bookmark" title="Permanent Link to google map api php 获取 地址坐标">google map api php 获取 地址坐标</a></h2>
+			</div>
+
+			<div class="meta">
+				<p>张映 发表于 2013-06-27</p>
+				<p>分类目录： <a href="http://blog.51yip.com/category/google" title="查看 google 的全部文章" rel="category tag">google</a></p>
+							</div>
+			
+			<div class="entry">
+				<p>写这篇博客，是想分析一下，大众点评，搜房网地图实现原理，以及，找附近的房子，找附近的美食等是怎么实现的。看了这篇博客，你就会明白了。</p>
+<p><strong>一，原理分析</strong></p>
+<p style="padding-left: 30px;">1，录入地址，不管是美食店，还是小区都是有地址。</p>
+<p style="padding-left: 30px;">2，根据地址，通过google map api获取地址的坐标，存到数据库中。</p>
+<p style="padding-left: 30px;">3，在地图上显示时，只要根据坐标，在地图上标出来行。</p>
+<p style="padding-left: 30px;">4，如果要找附近的美食，房子啊，通过算存在数据库中的坐标就可以找出附近房子，美食店。</p>
+<p style="padding-left: 30px;"><span style="color: #800080;"><strong>有人会问，输入地址，直接调用api查不就行了，不需要这么麻烦。这种方式开发起来很简单，但是这种方式是不精确的。如果想做精确，就要按上面的方式来做。</strong></span></p>
+<p> <a href="http://blog.51yip.com/google/1546.html#more-1546" class="more-link"><font color='blue'>阅读全文>></font></a></p>
+			</div>
+
+			<div class="link">
+				<a href="http://blog.51yip.com/google/1546.html#respond">评论暂缺</a>
+			</div>
+
+		</div>
+
+		
+		<div class="post-1545 post hentry category-jsjquery tag-jquery tag-trigger" id="post-1545">
+
+			<div class="title">
+				<h2><a href="http://blog.51yip.com/jsjquery/1545.html" rel="bookmark" title="Permanent Link to jquery trigger 2个用法">jquery trigger 2个用法</a></h2>
+			</div>
+
+			<div class="meta">
+				<p>张映 发表于 2013-06-26</p>
+				<p>分类目录： <a href="http://blog.51yip.com/category/jsjquery" title="查看 js/jquery 的全部文章" rel="category tag">js/jquery</a></p>
+							</div>
+			
+			<div class="entry">
+				<p>jquery的trigger函数用的好，可以节省很多时间。我觉得trigger有2个用法，还是比较实用的。一个是自定议事件，一个是最基本的触发。</p>
+<p> <a href="http://blog.51yip.com/jsjquery/1545.html#more-1545" class="more-link"><font color='blue'>阅读全文>></font></a></p>
+			</div>
+
+			<div class="link">
+				<a href="http://blog.51yip.com/jsjquery/1545.html#respond">评论暂缺</a>
+			</div>
+
+		</div>
+
+		
+		<div class="post-1541 post hentry category-jsjquery tag-alert tag-console-log tag-jquery tag-js tag-728 tag-727" id="post-1541">
+
+			<div class="title">
+				<h2><a href="http://blog.51yip.com/jsjquery/1541.html" rel="bookmark" title="Permanent Link to js console.log 打印 对像 数组 详解">js console.log 打印 对像 数组 详解</a></h2>
+			</div>
+
+			<div class="meta">
+				<p>张映 发表于 2013-06-13</p>
+				<p>分类目录： <a href="http://blog.51yip.com/category/jsjquery" title="查看 js/jquery 的全部文章" rel="category tag">js/jquery</a></p>
+							</div>
+			
+			<div class="entry">
+				<p>console.log是什么东西，其实就是一个打印js数组和对像的函数而已，就像是php的print_r,var_dump。console.log这个函数本身没什么好说的，这篇博客告诉大家怎么去用这个函数。在说这个函数之前，我想大家用的最多查看js输出，是alert吧，但是alert，只能弹string或者是int的</p>
+<p> <a href="http://blog.51yip.com/jsjquery/1541.html#more-1541" class="more-link"><font color='blue'>阅读全文>></font></a></p>
+			</div>
+
+			<div class="link">
+				<a href="http://blog.51yip.com/jsjquery/1541.html#respond">2 条评论</a>
+			</div>
+
+		</div>
+
+		
+		<div class="post-1539 post hentry category-linux tag-centos tag-efi tag-linux tag-win8 tag-722 tag-724" id="post-1539">
+
+			<div class="title">
+				<h2><a href="http://blog.51yip.com/linux/1539.html" rel="bookmark" title="Permanent Link to 预装win8 centos 双系统 双硬盘 efi 启动">预装win8 centos 双系统 双硬盘 efi 启动</a></h2>
+			</div>
+
+			<div class="meta">
+				<p>张映 发表于 2013-06-04</p>
+				<p>分类目录： <a href="http://blog.51yip.com/category/linux" title="查看 linux 的全部文章" rel="category tag">linux</a></p>
+							</div>
+			
+			<div class="entry">
+				<p>刚买的thinkpad t430u 64位的笔记本，发现装linux是一件非常麻烦的事，以前装个linux系统,配置双启，1个小时就能搞定，而这一次我连装centos6.4带配置双启，花了三个星期。双启后成功后又装了arch，现在笔记本是三系统，三周的时间里，笔记本重启不下300次。我也不知道能不能成功，所以事先，并没有做详细的笔记。所以下面，只是大致的记录。注意，在实际操作前，一定要把这篇博客好好看几遍，理解清楚，在操作。</p>
+<p> <a href="http://blog.51yip.com/linux/1539.html#more-1539" class="more-link"><font color='blue'>阅读全文>></font></a></p>
+			</div>
+
+			<div class="link">
+				<a href="http://blog.51yip.com/linux/1539.html#respond">1 条评论</a>
+			</div>
+
+		</div>
+
+		
+		<div class="post-1537 post hentry category-pgsql tag-pgsql tag-postgresql tag-720 tag-708 tag-550" id="post-1537">
+
+			<div class="title">
+				<h2><a href="http://blog.51yip.com/pgsql/1537.html" rel="bookmark" title="Permanent Link to postgresql  删除 数据库,表,索引">postgresql  删除 数据库,表,索引</a></h2>
+			</div>
+
+			<div class="meta">
+				<p>张映 发表于 2013-06-03</p>
+				<p>分类目录： <a href="http://blog.51yip.com/category/pgsql" title="查看 pgsql 的全部文章" rel="category tag">pgsql</a></p>
+							</div>
+			
+			<div class="entry">
+				<p>前面写了一些，关于postgresql，安装配置；创建数据库，表，导入导出等。可以在pgsql分类目录下查看。下面说一下删除。</p>
+<p> <a href="http://blog.51yip.com/pgsql/1537.html#more-1537" class="more-link"><font color='blue'>阅读全文>></font></a></p>
+			</div>
+
+			<div class="link">
+				<a href="http://blog.51yip.com/pgsql/1537.html#respond">评论暂缺</a>
+			</div>
+
+		</div>
+
+		
+		<div class="post-1536 post hentry category-google tag-event-tracking tag-google tag-198" id="post-1536">
+
+			<div class="title">
+				<h2><a href="http://blog.51yip.com/google/1536.html" rel="bookmark" title="Permanent Link to google Event Tracking 页面内部统计 例子">google Event Tracking 页面内部统计 例子</a></h2>
+			</div>
+
+			<div class="meta">
+				<p>张映 发表于 2013-06-03</p>
+				<p>分类目录： <a href="http://blog.51yip.com/category/google" title="查看 google 的全部文章" rel="category tag">google</a></p>
+							</div>
+			
+			<div class="entry">
+				<p>找了半天，网上竟然没有一个google页面内部统计，完整的例子。下面举二种简单用法，js可以自己封闭。</p>
+<p> <a href="http://blog.51yip.com/google/1536.html#more-1536" class="more-link"><font color='blue'>阅读全文>></font></a></p>
+			</div>
+
+			<div class="link">
+				<a href="http://blog.51yip.com/google/1536.html#respond">评论暂缺</a>
+			</div>
+
+		</div>
+
+		
+		<div class="post-1535 post hentry category-pgsql tag-pgsql tag-postgressql tag-41 tag-558 tag-706" id="post-1535">
+
+			<div class="title">
+				<h2><a href="http://blog.51yip.com/pgsql/1535.html" rel="bookmark" title="Permanent Link to postgresql 导出 导入 数据库">postgresql 导出 导入 数据库</a></h2>
+			</div>
+
+			<div class="meta">
+				<p>张映 发表于 2013-06-03</p>
+				<p>分类目录： <a href="http://blog.51yip.com/category/pgsql" title="查看 pgsql 的全部文章" rel="category tag">pgsql</a></p>
+							</div>
+			
+			<div class="entry">
+				<p>数据库的导出和导入很重要，一个网站什么比较值钱，就是数据,做好备份很重要。oracle和mysql请参考，<strong><a title="oracle导入导出数据库" href="http://blog.51yip.com/oracle/1322.html" target="_blank">oracle导入导出数据库</a></strong>，<strong><a title="mysql导入导出数据库" href="http://blog.51yip.com/mysql/139.html" target="_blank">mysql导入导出数据库</a></strong></p>
+<p> <a href="http://blog.51yip.com/pgsql/1535.html#more-1535" class="more-link"><font color='blue'>阅读全文>></font></a></p>
+			</div>
+
+			<div class="link">
+				<a href="http://blog.51yip.com/pgsql/1535.html#respond">评论暂缺</a>
+			</div>
+
+		</div>
+
+		
+		<div class="post-1532 post hentry category-linux tag-centos tag-wireless tag-716 tag-717" id="post-1532">
+
+			<div class="title">
+				<h2><a href="http://blog.51yip.com/linux/1532.html" rel="bookmark" title="Permanent Link to centos 无线网卡驱动 安装 配置">centos 无线网卡驱动 安装 配置</a></h2>
+			</div>
+
+			<div class="meta">
+				<p>张映 发表于 2013-06-02</p>
+				<p>分类目录： <a href="http://blog.51yip.com/category/linux" title="查看 linux 的全部文章" rel="category tag">linux</a></p>
+							</div>
+			
+			<div class="entry">
+				<p><strong>1,查看一下有没有装过无线网卡驱动</strong></p>
+<pre class="php" name=code>[root@localhost network-scripts]# iwconfig
+lo        no wireless extensions.
+
+wlan0     802.11bgn  ESSID:"755"  Nickname:"rtl8192CE"           //如果有这东西出现就说驱动装好了
+ Mode:Managed  Frequency=2.437 GHz  Access Point: 38:83:45:32:2C:6E
+ Bit Rate=150 Mb/s
+ Retry:on   RTS thr:off   Fragment thr:off
+ Encryption key:C9EA-80B7-1756-A1E9-0A03-BE18-02F3-C4A9   Security mode</pre>
+<p> <a href="http://blog.51yip.com/linux/1532.html#more-1532" class="more-link"><font color='blue'>阅读全文>></font></a></p>
+			</div>
+
+			<div class="link">
+				<a href="http://blog.51yip.com/linux/1532.html#respond">评论暂缺</a>
+			</div>
+
+		</div>
+
+		
+		<div class="post-1529 post hentry category-linux tag-centos tag-fcitx tag-14 tag-33" id="post-1529">
+
+			<div class="title">
+				<h2><a href="http://blog.51yip.com/linux/1529.html" rel="bookmark" title="Permanent Link to centos fcitx 安装 配置 详解">centos fcitx 安装 配置 详解</a></h2>
+			</div>
+
+			<div class="meta">
+				<p>张映 发表于 2013-06-02</p>
+				<p>分类目录： <a href="http://blog.51yip.com/category/linux" title="查看 linux 的全部文章" rel="category tag">linux</a></p>
+							</div>
+			
+			<div class="entry">
+				<p>装了一个centos6.4 64位双系统，本想用最新的fcitx，可是装的时候，一堆问题，package 'gio-2.0&gt;=2.26' not found，这个问题就是解决不了，提示的包找不到，包装了，还是找不到。还是老实一点装3系列的。</p>
+<p> <a href="http://blog.51yip.com/linux/1529.html#more-1529" class="more-link"><font color='blue'>阅读全文>></font></a></p>
+			</div>
+
+			<div class="link">
+				<a href="http://blog.51yip.com/linux/1529.html#respond">评论暂缺</a>
+			</div>
+
+		</div>
+
+		
+		<div class="post-1528 post hentry category-pgsql tag-alter tag-pgsql tag-postgresql tag-table tag-708 tag-714" id="post-1528">
+
+			<div class="title">
+				<h2><a href="http://blog.51yip.com/pgsql/1528.html" rel="bookmark" title="Permanent Link to postgresql 修改表结构，添加索引">postgresql 修改表结构，添加索引</a></h2>
+			</div>
+
+			<div class="meta">
+				<p>张映 发表于 2013-05-31</p>
+				<p>分类目录： <a href="http://blog.51yip.com/category/pgsql" title="查看 pgsql 的全部文章" rel="category tag">pgsql</a></p>
+							</div>
+			
+			<div class="entry">
+				<p>玩了一下pgsql的修改表格的命令，感觉和mysql基本上差不多，唯有一些不同的是，alter 只能添加主键和外键，普通索引，唯一索引不能添加，还不能删除。要想删除，就要删除表，重建表。这个有点坑爹，我用的版本是8.1.13，非常低的版本了。不知道高版本有没有解决这个问题。</p>
+<p> <a href="http://blog.51yip.com/pgsql/1528.html#more-1528" class="more-link"><font color='blue'>阅读全文>></font></a></p>
+			</div>
+
+			<div class="link">
+				<a href="http://blog.51yip.com/pgsql/1528.html#respond">评论暂缺</a>
+			</div>
+
+		</div>
+
+		
+		<div class="navigation">
+			<div class='wp-pagenavi'>
+<span class='pages'>Page 1 of 43</span><span class='current'>1</span><a href='http://blog.51yip.com/page/2' class='page'>2</a><a href='http://blog.51yip.com/page/3' class='page'>3</a><a href='http://blog.51yip.com/page/4' class='page'>4</a><a href='http://blog.51yip.com/page/5' class='page'>5</a><a class="hanzi" href="http://blog.51yip.com/page/2" class="nextpostslink">下一页</a><a href='http://blog.51yip.com/page/20' class='larger page'>20</a><a href='http://blog.51yip.com/page/40' class='larger page'>40</a><span class='extend'>...</span><a href='http://blog.51yip.com/page/43' class='last'>末页</a>
+</div>		</div>
+
+	</div>
+
+
+</div>
+
+<div id="aside">
+
+	<ul>
+
+<li class="widget widget_categories" id="categories-3">
+<h3 class="widgettitle">欢迎订阅<span><!-- --></span></h3>		
+<br>
+<div>
+<a href="http://www.xianguo.com/subscribe.php?url=http://feed.feedsky.com/tank_fs4t"><img border="0" src="http://img.feedsky.com/images/icon_subshot02_xianguo.gif" alt="订阅到鲜果"></a>
+<a href="http://www.zhuaxia.com/add_channel.php?url=http://feed.feedsky.com/tank_fs4t"><img border="0" src="http://img.feedsky.com/images/icon_subshot02_zhuaxia.gif" alt="订阅到抓虾"></a>
+<a href="http://mail.qq.com/cgi-bin/feed?u=http://feed.feedsky.com/tank_fs4t"><img border="0" src="http://img.feedsky.com/images/icon_subshot02_qq.gif" alt="订阅到QQ邮箱"></a>
+<a href="http://fusion.google.com/add?feedurl=http://feed.feedsky.com/tank_fs4t"><img border="0" src="http://img.feedsky.com/images/icon_subshot02_google.gif" alt="google reader"></a>
+<a href="http://www.netvibes.com/subscribe.php?url=http://feed.feedsky.com/tank_fs4t"><img border="0" src="http://img.feedsky.com/images/icon_subshot02_netvibes.gif" alt="netvibes"></a>
+<a href="http://add.my.yahoo.com/rss?url=http://feed.feedsky.com/tank_fs4t"><img border="0" src="http://img.feedsky.com/images/icon_subshot02_yahoo.gif" alt="my yahoo"></a>
+<a href="http://www.rojo.com/add-subscription?resource=http://feed.feedsky.com/tank_fs4t"><img border="0" src="http://img.feedsky.com/images/icon_subshot02_rojo.gif" alt="Rojo"></a>
+<a href="http://www.newsgator.com/ngs/subscriber/subfext.aspx?url=http://feed.feedsky.com/tank_fs4t"><img border="0" src="http://img.feedsky.com/images/icon_subshot02_newsgator.gif" alt="Newsgator"></a>
+<!--<a href="http://www.bloglines.com/sub/http://feed.feedsky.com/tank_fs4t"><img border="0" src="http://img.feedsky.com/images/icon_subshot02_bloglines.gif" alt="bloglines"></a>-->
+<a href="http://reader.youdao.com/b.do?keyfrom=feedsky&amp;url=http://feed.feedsky.com/tank_fs4t"><img border="0" src="http://img.feedsky.com/images/icon_subshot02_youdao.gif" alt="订阅到有道"></a>
+<a href="http://www.580k.com/myLook/NewStakeOut_Submit.aspx?cm=1&amp;WebUrl=http://feed.feedsky.com/tank_fs4t"><img border="0" src="http://img.feedsky.com/images/icon_subshot02_580k.gif" alt="订阅到帮看"></a>
+</div>
+</li>
+
+		<li id="categories-3" class="widget widget_categories"><h3 class="widgettitle">分类目录<span><!-- --></span></h3>		<ul>
+	<li class="cat-item cat-item-9"><a href="http://blog.51yip.com/category/apachenginx" title="根apache和nginx有关的文章">apache/nginx</a> (23)
+</li>
+	<li class="cat-item cat-item-7"><a href="http://blog.51yip.com/category/cache" title="根cache有关的文章 ">cache</a> (20)
+</li>
+	<li class="cat-item cat-item-461"><a href="http://blog.51yip.com/category/drupal" title="drupal">drupal</a> (7)
+</li>
+	<li class="cat-item cat-item-13"><a href="http://blog.51yip.com/category/eclipse" title="根eclipse有关的文章">eclipse</a> (8)
+</li>
+	<li class="cat-item cat-item-98"><a href="http://blog.51yip.com/category/google" title="google,google地图,google新闻">google</a> (3)
+</li>
+	<li class="cat-item cat-item-88"><a href="http://blog.51yip.com/category/htmlcss" title="根html和css有关的文章">html/css</a> (11)
+</li>
+	<li class="cat-item cat-item-6"><a href="http://blog.51yip.com/category/jsjquery" title="根js,javascript和jquery有关的文章">js/jquery</a> (33)
+</li>
+	<li class="cat-item cat-item-8"><a href="http://blog.51yip.com/category/linux" title="根linux和windows有关的文章">linux</a> (64)
+</li>
+	<li class="cat-item cat-item-5"><a href="http://blog.51yip.com/category/mysql" title="根mysql有关的文章">mysql</a> (53)
+</li>
+	<li class="cat-item cat-item-520"><a href="http://blog.51yip.com/category/oracle" title="oracle数据库">oracle</a> (9)
+</li>
+	<li class="cat-item cat-item-702"><a href="http://blog.51yip.com/category/pgsql" title="PostgreSQL是以加州大学伯克利分校计算机系开发的 POSTGRES 版本 4.2 为基础的对象关系型数据库管理系统（ORDBMS）,简称pgsql,它支持大部分 SQL">pgsql</a> (7)
+</li>
+	<li class="cat-item cat-item-4"><a href="http://blog.51yip.com/category/php" title="根php有关的文章">php</a> (75)
+</li>
+	<li class="cat-item cat-item-38"><a href="http://blog.51yip.com/category/seo" title="根seo优化有关的文章">seo</a> (16)
+</li>
+	<li class="cat-item cat-item-44"><a href="http://blog.51yip.com/category/shell" title="查看 shell 下的所有文章">shell</a> (11)
+</li>
+	<li class="cat-item cat-item-189"><a href="http://blog.51yip.com/category/smarty" title="smarty学习,smarty使用,smarty技巧">smarty</a> (5)
+</li>
+	<li class="cat-item cat-item-36"><a href="http://blog.51yip.com/category/wordpress" title="根wordpress有关的文章">wordpress</a> (10)
+</li>
+	<li class="cat-item cat-item-135"><a href="http://blog.51yip.com/category/social" title="看到的社会现象">双眼看社会</a> (13)
+</li>
+	<li class="cat-item cat-item-10"><a href="http://blog.51yip.com/category/other" title="杂谈文章">技术其他</a> (20)
+</li>
+	<li class="cat-item cat-item-3"><a href="http://blog.51yip.com/category/server" title="根服务器架构有关的文章，集群，分部式">服务器相关</a> (50)
+</li>
+	<li class="cat-item cat-item-705"><a href="http://blog.51yip.com/category/safe" title="系统安全">系统安全</a> (5)
+</li>
+		</ul>
+</li>		<li id="recent-posts-3" class="widget widget_recent_entries">		<h3 class="widgettitle">最近文章<span><!-- --></span></h3>		<ul>
+				<li><a href="http://blog.51yip.com/google/1546.html" title="google map api php 获取 地址坐标">google map api php 获取 地址坐标 </a></li>
+				<li><a href="http://blog.51yip.com/jsjquery/1545.html" title="jquery trigger 2个用法">jquery trigger 2个用法 </a></li>
+				<li><a href="http://blog.51yip.com/jsjquery/1541.html" title="js console.log 打印 对像 数组 详解">js console.log 打印 对像 数组 详解 </a></li>
+				<li><a href="http://blog.51yip.com/linux/1539.html" title="预装win8 centos 双系统 双硬盘 efi 启动">预装win8 centos 双系统 双硬盘 efi 启动 </a></li>
+				<li><a href="http://blog.51yip.com/pgsql/1537.html" title="postgresql  删除 数据库,表,索引">postgresql  删除 数据库,表,索引 </a></li>
+				<li><a href="http://blog.51yip.com/google/1536.html" title="google Event Tracking 页面内部统计 例子">google Event Tracking 页面内部统计 例子 </a></li>
+				<li><a href="http://blog.51yip.com/pgsql/1535.html" title="postgresql 导出 导入 数据库">postgresql 导出 导入 数据库 </a></li>
+				<li><a href="http://blog.51yip.com/linux/1532.html" title="centos 无线网卡驱动 安装 配置">centos 无线网卡驱动 安装 配置 </a></li>
+				<li><a href="http://blog.51yip.com/linux/1529.html" title="centos fcitx 安装 配置 详解">centos fcitx 安装 配置 详解 </a></li>
+				<li><a href="http://blog.51yip.com/pgsql/1528.html" title="postgresql 修改表结构，添加索引">postgresql 修改表结构，添加索引 </a></li>
+				</ul>
+		</li>		<li id="recent-comments-3" class="widget widget_recent_comments">			<h3 class="widgettitle">最近评论和留言<span><!-- --></span></h3>			<ul id="recentcomments"><li class="recentcomments">wumin 在 <a href="http://blog.51yip.com/php/1039.html/comment-page-1#comment-4828">php curl常用的5个例子</a> 上的评论</li><li class="recentcomments">hardmans 在 <a href="http://blog.51yip.com/linux/1443.html/comment-page-1#comment-4763">linux truecrypt 加密工具</a> 上的评论</li><li class="recentcomments">liuliu 在 <a href="http://blog.51yip.com/php/910.html/comment-page-1#comment-4759">phpmailer,smtp发送邮件实例</a> 上的评论</li><li class="recentcomments"><a href='http://57sy.com' rel='external nofollow' class='url'>wangjian</a> 在 <a href="http://blog.51yip.com/jsjquery/1541.html/comment-page-1#comment-4727">js console.log 打印 对像 数组 详解</a> 上的评论</li><li class="recentcomments">dengyaoqiang 在 <a href="http://blog.51yip.com/message/comment-page-1#comment-4726">留言板</a> 留言了</li><li class="recentcomments">网络雨 在 <a href="http://blog.51yip.com/linux/1518.html/comment-page-1#comment-4671">推荐linux命令在线查，简约而不简单</a> 上的评论</li><li class="recentcomments">zhuxk 在 <a href="http://blog.51yip.com/jsjquery/1541.html/comment-page-1#comment-4647">js console.log 打印 对像 数组 详解</a> 上的评论</li><li class="recentcomments">Q 在 <a href="http://blog.51yip.com/jsjquery/1424.html/comment-page-1#comment-4630">jquery cleditor 中文版 加了下拉功能</a> 上的评论</li><li class="recentcomments"><a href='http://www.enjoydiy.com' rel='external nofollow' class='url'>eric</a> 在 <a href="http://blog.51yip.com/linux/1539.html/comment-page-1#comment-4555">预装win8 centos 双系统 双硬盘 efi 启动</a> 上的评论</li><li class="recentcomments"><a href='http://www.enjoydiy.com' rel='external nofollow' class='url'>eric</a> 在 <a href="http://blog.51yip.com/message/comment-page-1#comment-4554">留言板</a> 留言了</li></ul>
+		</li><li id="archives-3" class="widget widget_archive"><h3 class="widgettitle">文章归档<span><!-- --></span></h3>		<ul>
+			<li><a href='http://blog.51yip.com/date/2013/06' title='2013年六月'>2013年六月</a>&nbsp;(9)</li>
+	<li><a href='http://blog.51yip.com/date/2013/05' title='2013年五月'>2013年五月</a>&nbsp;(7)</li>
+	<li><a href='http://blog.51yip.com/date/2013/04' title='2013年四月'>2013年四月</a>&nbsp;(5)</li>
+	<li><a href='http://blog.51yip.com/date/2013/03' title='2013年三月'>2013年三月</a>&nbsp;(3)</li>
+	<li><a href='http://blog.51yip.com/date/2013/02' title='2013年二月'>2013年二月</a>&nbsp;(2)</li>
+	<li><a href='http://blog.51yip.com/date/2013/01' title='2013年一月'>2013年一月</a>&nbsp;(5)</li>
+	<li><a href='http://blog.51yip.com/date/2012/12' title='2012年十二月'>2012年十二月</a>&nbsp;(2)</li>
+	<li><a href='http://blog.51yip.com/date/2012/11' title='2012年十一月'>2012年十一月</a>&nbsp;(4)</li>
+	<li><a href='http://blog.51yip.com/date/2012/10' title='2012年十月'>2012年十月</a>&nbsp;(6)</li>
+	<li><a href='http://blog.51yip.com/date/2012/09' title='2012年九月'>2012年九月</a>&nbsp;(3)</li>
+	<li><a href='http://blog.51yip.com/date/2012/08' title='2012年八月'>2012年八月</a>&nbsp;(3)</li>
+	<li><a href='http://blog.51yip.com/date/2012/07' title='2012年七月'>2012年七月</a>&nbsp;(14)</li>
+	<li><a href='http://blog.51yip.com/date/2012/06' title='2012年六月'>2012年六月</a>&nbsp;(5)</li>
+	<li><a href='http://blog.51yip.com/date/2012/05' title='2012年五月'>2012年五月</a>&nbsp;(7)</li>
+	<li><a href='http://blog.51yip.com/date/2012/04' title='2012年四月'>2012年四月</a>&nbsp;(6)</li>
+	<li><a href='http://blog.51yip.com/date/2012/03' title='2012年三月'>2012年三月</a>&nbsp;(1)</li>
+	<li><a href='http://blog.51yip.com/date/2012/02' title='2012年二月'>2012年二月</a>&nbsp;(1)</li>
+	<li><a href='http://blog.51yip.com/date/2012/01' title='2012年一月'>2012年一月</a>&nbsp;(1)</li>
+	<li><a href='http://blog.51yip.com/date/2011/12' title='2011年十二月'>2011年十二月</a>&nbsp;(6)</li>
+	<li><a href='http://blog.51yip.com/date/2011/11' title='2011年十一月'>2011年十一月</a>&nbsp;(6)</li>
+	<li><a href='http://blog.51yip.com/date/2011/10' title='2011年十月'>2011年十月</a>&nbsp;(9)</li>
+	<li><a href='http://blog.51yip.com/date/2011/09' title='2011年九月'>2011年九月</a>&nbsp;(1)</li>
+	<li><a href='http://blog.51yip.com/date/2011/08' title='2011年八月'>2011年八月</a>&nbsp;(2)</li>
+	<li><a href='http://blog.51yip.com/date/2011/07' title='2011年七月'>2011年七月</a>&nbsp;(3)</li>
+	<li><a href='http://blog.51yip.com/date/2011/06' title='2011年六月'>2011年六月</a>&nbsp;(13)</li>
+	<li><a href='http://blog.51yip.com/date/2011/05' title='2011年五月'>2011年五月</a>&nbsp;(17)</li>
+	<li><a href='http://blog.51yip.com/date/2011/04' title='2011年四月'>2011年四月</a>&nbsp;(13)</li>
+	<li><a href='http://blog.51yip.com/date/2011/03' title='2011年三月'>2011年三月</a>&nbsp;(9)</li>
+	<li><a href='http://blog.51yip.com/date/2011/02' title='2011年二月'>2011年二月</a>&nbsp;(3)</li>
+	<li><a href='http://blog.51yip.com/date/2011/01' title='2011年一月'>2011年一月</a>&nbsp;(11)</li>
+	<li><a href='http://blog.51yip.com/date/2010/12' title='2010年十二月'>2010年十二月</a>&nbsp;(18)</li>
+	<li><a href='http://blog.51yip.com/date/2010/11' title='2010年十一月'>2010年十一月</a>&nbsp;(26)</li>
+	<li><a href='http://blog.51yip.com/date/2010/10' title='2010年十月'>2010年十月</a>&nbsp;(21)</li>
+	<li><a href='http://blog.51yip.com/date/2010/09' title='2010年九月'>2010年九月</a>&nbsp;(25)</li>
+	<li><a href='http://blog.51yip.com/date/2010/08' title='2010年八月'>2010年八月</a>&nbsp;(24)</li>
+	<li><a href='http://blog.51yip.com/date/2010/07' title='2010年七月'>2010年七月</a>&nbsp;(25)</li>
+	<li><a href='http://blog.51yip.com/date/2010/06' title='2010年六月'>2010年六月</a>&nbsp;(21)</li>
+	<li><a href='http://blog.51yip.com/date/2010/05' title='2010年五月'>2010年五月</a>&nbsp;(26)</li>
+	<li><a href='http://blog.51yip.com/date/2010/04' title='2010年四月'>2010年四月</a>&nbsp;(28)</li>
+	<li><a href='http://blog.51yip.com/date/2010/03' title='2010年三月'>2010年三月</a>&nbsp;(14)</li>
+	<li><a href='http://blog.51yip.com/date/2010/02' title='2010年二月'>2010年二月</a>&nbsp;(21)</li>
+		</ul>
+</li><li id="linkcat-2" class="widget widget_links"><h3 class="widgettitle">友情链接<span><!-- --></span></h3>
+	<ul class='xoxo blogroll'>
+<li><a href="http://www.enjoydiy.com/" target="_blank">Enjoy Diy</a></li>
+<li><a href="http://blog.itblood.com" target="_blank">IT热血青年</a></li>
+<li><a href="http://www.magentonotes.com/" target="_blank">Magento架构师</a></li>
+<li><a href="http://www.mysql100.com" target="_blank">mysql100</a></li>
+<li><a href="http://www.php10086.com/" target="_blank">PHP10086博客网</a></li>
+<li><a href="http://www.fresh3g.org/blog/index.php" rel="friend" target="_blank">开源坊工作室</a></li>
+<li><a href="http://www.52gvim.com" target="_blank">我爱Gvim</a></li>
+<li><a href="http://www.wenxuezhe.com/" target="_blank">文学者</a></li>
+<li><a href="http://blog.fity.cn" rel="friend" target="_blank">未来往事</a></li>
+<li><a href="http://www.iitshare.com/" target="_blank">爱积累爱分享</a></li>
+<li><a href="http://www.nowamagic.net/" rel="friend" target="_blank">简明现代魔法</a></li>
+<li><a href="http://www.qianyunlai.com/blog/" target="_blank">钱运来的php博客</a></li>
+
+	</ul>
+</li>
+<li id="meta-3" class="widget widget_meta"><h3 class="widgettitle">登录<span><!-- --></span></h3>			<ul>
+						<li><a href="http://blog.51yip.com/wp-login.php">登录</a></li>
+			<li><a href="http://blog.51yip.com/feed" title="使用 RSS 2.0 同步此内容">文章 <abbr title="Really Simple Syndication">RSS</abbr></a></li>
+			<!--<li><a href="http://blog.51yip.com/comments/feed" title="RSS 上的最近评论"><abbr title="Really Simple Syndication">RSS</abbr> 评论</a></li>
+			<li><a href="http://wordpress.org/" title="基于 WordPress，优美的个人信息发布平台。">WordPress.org</a></li>-->
+						</ul>
+</li>
+	</ul>
+
+</div>
+		</div>
+
+	</div>
+
+	<div id="footer">
+
+		<div class="columns">
+			<div class="right">
+				<p>&copy; 2010 海底苍鹰(tank)博客 ٠ Powered by 51yip.com ٠<a href="http://www.miitbeian.gov.cn" target="_black"> 沪ICP备12010825号-1</a>  <script language="javascript" type="text/javascript" src="http://js.users.51.la/15916984.js"></script> </p>
+			</div>
+			<div class="left">
+
+			</div>
+		</div>
+
+	</div>
+
+</div>
+
+<script class="javascript" src="http://blog.51yip.com/wp-content/plugins/google-syntax-highlighter/Scripts/shCore.js"></script>
+<script class="javascript" src="http://blog.51yip.com/wp-content/plugins/google-syntax-highlighter/Scripts/shBrushCSharp.js"></script>
+<script class="javascript" src="http://blog.51yip.com/wp-content/plugins/google-syntax-highlighter/Scripts/shBrushPhp.js"></script>
+<script class="javascript" src="http://blog.51yip.com/wp-content/plugins/google-syntax-highlighter/Scripts/shBrushJScript.js"></script>
+<script class="javascript" src="http://blog.51yip.com/wp-content/plugins/google-syntax-highlighter/Scripts/shBrushJava.js"></script>
+<script class="javascript" src="http://blog.51yip.com/wp-content/plugins/google-syntax-highlighter/Scripts/shBrushVb.js"></script>
+<script class="javascript" src="http://blog.51yip.com/wp-content/plugins/google-syntax-highlighter/Scripts/shBrushSql.js"></script>
+<script class="javascript" src="http://blog.51yip.com/wp-content/plugins/google-syntax-highlighter/Scripts/shBrushXml.js"></script>
+<script class="javascript" src="http://blog.51yip.com/wp-content/plugins/google-syntax-highlighter/Scripts/shBrushDelphi.js"></script>
+<script class="javascript" src="http://blog.51yip.com/wp-content/plugins/google-syntax-highlighter/Scripts/shBrushPython.js"></script>
+<script class="javascript" src="http://blog.51yip.com/wp-content/plugins/google-syntax-highlighter/Scripts/shBrushRuby.js"></script>
+<script class="javascript" src="http://blog.51yip.com/wp-content/plugins/google-syntax-highlighter/Scripts/shBrushCss.js"></script>
+<script class="javascript" src="http://blog.51yip.com/wp-content/plugins/google-syntax-highlighter/Scripts/shBrushCpp.js"></script>
+<script class="javascript">
+dp.SyntaxHighlighter.ClipboardSwf = 'http://blog.51yip.com/wp-content/plugins/google-syntax-highlighter/Scripts/clipboard.swf';
+dp.SyntaxHighlighter.HighlightAll('code');
+</script>
+<!-- Generated in 0.670 seconds. Made 7 queries to database and 37 cached queries. Memory used - 13.85MB -->
+<!-- Cached by DB Cache Reloaded -->
+
+</body>
+</html>
+
+<!-- 7 queries. 0.670 seconds. -->
+
+<script type="text/javascript">
+	jQuery(".akst_share_link").each(function(){
+		jQuery(this).showneedthing();
+	});
+
+</script>

@@ -1,0 +1,34 @@
+As we mentioned in a previous section, the do( ) method supplied by the DBI makes executing non-SELECT statements much simpler than repeatedly preparing and executing statements. This is achieved by simply wrapping the prepare and execute stages into one composite method. 
+
+There is a drawback to doing this, however: performance. If you invoked do( ) repeatedly to insert a huge number of rows into a table, you 
+could be preparing a statement handle many times more than is required, especially if the statement contained placeholder variables. For 
+example, the following script inserts some rows into the megaliths table:
+
+    ### Iterate through the various bits of data...
+    foreach $name ( qw( Stonehenge Avebury Castlerigg Sunhoney ) ) {
+        ### ... and insert them into the table
+        $dbh->do( "INSERT INTO megaliths ( name ) VALUES ( ? )", undef, $name );
+    }
+
+上述代码需要生成4个sth，并且执行4次execute，最后释放4个sth
+Internally, what happens is that for each row being inserted, a new statement handle is created, and the statement is prepared, executed, 
+and finally destroyed. Therefore, this loop has four prepare calls, four executes, and four destroys. However, since we're using a bind 
+value for each loop, the database will likely need to parse the statement only once and use that statement again from the Shared SQL
+Cache. Therefore, in essence, our program is "wasting" three prepares of that statement. This is a rather inefficient process. In this 
+case, it would be better to hand-prepare and re-execute the statement handle for each iteration of the loop. For example:
+
+    ### Setup the statement for repeated execution
+    $sth = $dbh->prepare( "INSERT INTO megaliths ( name ) VALUES ( ? )" );
+
+    ### Iterate through the various bits of data...
+    foreach $name ( qw( Stonehenge Avebury Castlerigg Sunhoney ) ) {
+        ### ... and insert them into the table
+        $sth->execute( $name );
+    }
+
+上述代码需要生成一个sth，执行4次execute，最后释放一个sth
+This code prepares the statement only once and executes it four times, once per row to be inserted. This is slightly less convenient to 
+write, but typically significantly faster to execute.
+
+
+两者相比，第二种代码的写法比较省资源，执行效率也高

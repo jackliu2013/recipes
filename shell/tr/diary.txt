@@ -1,0 +1,7 @@
+monday  10:50
+Tuesday 15:30
+Wednesday   10:30
+Thursday    11:00
+Friday  12:00
+Saturday    14:45
+Sunday  20:00

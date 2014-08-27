@@ -1,0 +1,6 @@
+hello world. 100
+Jack. 100
+tom,tom,how old are you? 100
+tom,tom,how old are you? 100
+hello,tom,tom,how old are you? 100
+hello,tom,tom,how old are you? 400

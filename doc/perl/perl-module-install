@@ -1,0 +1,129 @@
+Perl 到了第五版增加了模块的概念，用来提供面向对象编程的能力。这是 Perl 语言发展史上的一个里程碑。此后，广大自由软件爱好者开发了大量功能强大、构思精巧的 Perl 模块，极大地扩展了 Perl 语言的功能。CPAN(Comprehensive Perl Archive Network)是Perl模块最大的集散地，包含了现今公布的几乎所有的perl模块。
+
+安装方法
+
+我在这里介绍一下各种平台下 perl 模块的安装方法。以安装Net-Server模块为例。
+
+一 Linux/Unix下安装Perl模块有两种方法：手工安装和自动安装。
+
+第一种方法是从CPAN上下载您需要的模块，手工编译、安装。第二种方法是使用CPAN模块自动完成下载、编译、安装的全过程。
+
+A、手工安装的步骤：
+
+　　从 CPAN(http://search.cpan.org/)下载了Net-Server模块0.97版的压缩文件Net-Server-0.97.tar.gz，假设放在/usr/local/src/下。
+
+　　cd /usr/local/src
+
+　　解压缩这个文件,这时会新建一个Net-Server-0.97的目录。
+
+　　tar xvzf Net-Server-0.97.tar.gz
+
+　　换到解压后的目录：
+
+　　cd Net-Server-0.97
+
+　　生成 makefile：
+
+　　perl Makefile.PL
+
+　　生成模块：make
+
+　　测试模块(这步可有可无)：
+
+　　make test
+　　
+　　如果测试结果报告“all test ok”，您就可以放心地安装编译好的模块了。
+
+　　安装模块前，先要确保您对 perl5 安装目录有可写权限(通常以 su 命令获得)，执行：
+
+　　make install
+
+　　现在，试试 DBI 模块吧。如果下面的命令没有给出任何输出，那就没问题。
+
+　　$>perl -MNet::Server -e1
+
+　　上述步骤适合于 Linux/Unix下绝大多数的Perl模块。可能还有少数模块的安装方法略有差别，所以最好先看看安装目录里的 README 或 INSTALL。
+
+ 
+
+ 有的时候如果是build.pl的需要以下安装步骤：（需要Module::Build模块支持）
+
+   perl Build.PL
+    ./Build
+     ./Build test
+      ./Build install 
+
+       
+
+       B、使用CPAN模块自动安装方法一：
+
+       　　安装前需要先联上网，并且您需要取得root权限。
+
+       　　perl -MCPAN -e shell
+
+       　　初次运行CPAN时需要做一些设置，如果您的机器是直接与因特网相联(拨号上网、专线，etc.)，那么一路回车就行了，只需要在最后一步选一个离您最近的 CPAN 镜像站点。例如我选的是位于国内的http://www.cnblogs.com/itech/admin/ftp://www.perl87.cn/CPAN/ 。否则，如果您的机器位于防火墙之后，还需要设置ftp代理或http代理。下面是常用 cpan 命令。
+
+       　　获得帮助
+       　　cpan>help
+
+       　　列出CPAN上所有模块的列表
+       　　cpan>m
+
+       　　安装模块，自动完成Net::Server模块从下载到安装的全过程。
+       　　cpan>install Net::Server
+
+       　　退出
+       　　cpan>quit
+
+       C、使用CPAN模块自动安装方法二：
+
+       　　cpan -i 模块名
+
+       　　例如：cpan -i Net::Server
+
+        
+
+        二 windows上perl模块安装　
+
+        A 手动（跟Linux类似） [解压后 perl makefile.pl nmake/dmake nmake/dmake install]
+
+        nmake需要cd C:\Program Files\Microsoft Visual Studio X\VC\bin and execute vcvars32.bat;然后执行nmake；
+
+        dmake 貌似是cpan环境配置好就有了在C:\Perl\site\bin下。
+        B Cpan （安装前需要对cpan配置，cpan需要安装其他的模块dmake和MinGw gcc compiler） （跟Linux类似）
+
+         
+
+         C 如果使用ActivePerl，可以使用PPM来安装，使用PPM GUI或PPM Commandline，PPM commandline实例如下：
+
+         a) add correct repositories..
+
+         c:\perl\bin\ppm repo add http://theoryx5.uwinnipeg.ca/ppms/package.lst
+
+         c:\perl\bin\ppm repo add http://www.roth.net/perl/packages/
+
+          b) add the packages
+
+          c:\perl\bin\ppm install Carp-Assert
+
+          c:\perl\bin\ppm install Log-Log4perl
+
+          c:\perl\bin\ppm install YAML-Syck
+
+           
+
+            
+
+            三 几个主要的CPAN站点有：
+
+            　　国内：
+
+            　　最新更新请查阅 http://cpan.org/SITES.html
+
+            　　http://www.perl87.cn/CPAN/  网页镜像
+            　　http://www.cnblogs.com/itech/admin/
+                ftp://www.perl87.cn/CPAN/   模块镜像
+            　　
+            　　国外：http://www.cpan.org/
+
+            四 使用cpan和ppm安装时要注意模块名字的大小写

@@ -1,0 +1,306 @@
+物化查询表MQT简介
+
+物化查询表（MQT）是一种以一次查询的结果为基础定义的表。包含在物化查询表中的数据来自定义物化查询表时所基于的一个或多个表。而 总结表（也称自动总结表，AST）对于 IBM® DB2® Universal Database™（UDB）for Linux、 UNIX® 和 Windows®（DB2 UDB）的用户来说应该感到比较熟悉，它们可以看作是特殊的 MQT。fullselect 是总结表定义的一部分，它包含一个 GROUP BY 子句，该子句总结 fullselect 中所引用表中的数据。
+
+您可以将 MQT 看作一种物化的视图。视图和 MQT 都是基于一个查询来定义的。每当视图被引用时，视图所基于的查询便会运行。但是，MQT 实际上则是将查询结果保存为数据，您可以使用 MQT 中的这些数据，而不是使用底层表中的数据。
+
+物化查询表可以显著提高查询的性能，尤其是提高复杂查询的性能。如果优化器确定查询或查询的一部分可以用一个 MQT 来解决，那么就会重写查询，以便利用 MQT。
+
+MQT 可以在创建表时定义，或者定义为系统维护的 MQT，或者定义为用户维护的 MQT。下面的几个小节将介绍这两种类型的 MQT，另外再介绍总结表和 staging 表。后面的例子要求连接到 SAMPLE 数据库。如果您系统上还没有创建 SAMPLE 数据库，那么可以通过在命令行提示符下输入 db2sampl 命令来创建这个数据库。
+系统维护的 MQT
+
+这种物化查询表中的数据是由系统维护的。当创建这种类型的 MQT 时，可以指定表数据是 REFRESH IMMEDIATE 还是 REFRESH DEFERRED。通过 REFRESH 关键字可以指定如何维护数据。DEFERRED 的意思是，表中的数据可以在任何时候通过 REFRESH TABLE 语句来刷新。不管是 REFRESH DEFERRED 还是 REFRESH IMMEDIATE 类型的系统维护的 MQT，对它们的 insert、update 或 delete 操作都是不允许的。但是，对于 REFRESH IMMEDIATE 类型的系统维护的 MQT，可以通过 对底层表的更改（即 insert、update 或 delete 操作）来更新。
+
+清单 1 展示了一个创建 REFRESH IMMEDIATE 类型的系统维护的 MQT 的例子。这个表名为 EMP，它基于 SAMPLE 数据库中的底层表 EMPLOYEE 和 DEPARTMENT。由于 REFRESH IMMEDIATE MQT 要求查询的 select 列表中引用的每个表中至少有一个惟一键，所以我们首先在 EMPLOYEE 表的 EMPNO 列上定义一个惟一性约束，另外还在 DEPARTMENT 表的 DEPTNO 列上定义一个惟一性约束。DATA INITIALLY DEFERRED 子句的意思是，在执行 CREATE TABLE 语句的时候，并不将数据插入到表中。MQT 被创建好之后，就处于检查暂挂（check pending）状态（请参阅 DB2 基础: 阐明表和表空间的状态），在对它执行 SET INTEGRITY 语句之前，不能查询它。IMMEDIATE CHECKED 子句规定，根据用于定义该 MQT 的查询对数据进行检查，并刷新数据。NOT INCREMENTAL 子句规定对整个表进行完整性检查。通过查询 EMP 物化查询表发现，它现在已经填入了数据。
+清单 1. 创建由系统维护的 MQT
+
+connect to sample
+...
+
+alter table employee add unique (empno)
+alter table department add unique (deptno)
+
+create table emp as (select e.empno, e.firstnme, e.lastname, e.phoneno, d.deptno,
+ substr(d.deptname, 1, 12) as department, d.mgrno from employee e, department d
+   where e.workdept = d.deptno)
+      data initially deferred refresh immediate
+
+      set integrity for emp immediate checked not incremental
+
+      select * from emp
+
+      EMPNO  FIRSTNME     LASTNAME        PHONENO DEPTNO DEPARTMENT   MGRNO
+      ------ ------------ --------------- ------- ------ ------------ ------
+      000010 CHRISTINE    HAAS            3978    A00    SPIFFY COMPU 000010
+      000020 MICHAEL      THOMPSON        3476    B01    PLANNING     000020
+      000030 SALLY        KWAN            4738    C01    INFORMATION  000030
+      000050 JOHN         GEYER           6789    E01    SUPPORT SERV 000050
+      000060 IRVING       STERN           6423    D11    MANUFACTURIN 000060
+      000070 EVA          PULASKI         7831    D21    ADMINISTRATI 000070
+      000090 EILEEN       HENDERSON       5498    E11    OPERATIONS   000090
+      000100 THEODORE     SPENSER         0972    E21    SOFTWARE SUP 000100
+      000110 VINCENZO     LUCCHESSI       3490    A00    SPIFFY COMPU 000010
+      000120 SEAN         O'CONNELL       2167    A00    SPIFFY COMPU 000010
+      000130 DOLORES      QUINTANA        4578    C01    INFORMATION  000030
+      ...
+      000340 JASON        GOUNOT          5698    E21    SOFTWARE SUP 000100
+
+        32 record(s) selected.
+
+        connect reset
+
+        回页首
+        用户维护的 MQT
+
+        这种物化查询表中的数据是由用户维护的。只有 REFRESH DEFERRED 物化查询表可以定义为 MAINTAINED BY USER。不能对用户维护的 MQT 发出 REFRESH TABLE 语句（用于系统维护的 MQT）。但是，用户维护的 MQT 却 允许对它们执行 insert、update 或 delete 操作。
+
+        清单 2 展示了一个创建 REFRESH DEFERRED 类型的用户维护的 MQT 的例子。这个表名为 ONTARIO_1995_SALES_TEAM，它基于数据库 SAMPLE 中的底层表 EMPLOYEE 和 SALES。同样，DATA INITIALLY DEFERRED 子句的意思是，在执行 CREATE TABLE 语句的时候，并不将数据插入到表中。MQT 被创建之后，便处于检查暂挂状态（请参阅 DB2 基础: 阐明表和表空间的状态），在对它执行 SET INTEGRITY 语句之前，不能查询它。MATERIALIZED QUERY IMMEDIATE UNCHECKED 子句规定，该表将启用完整性检查，但是不必检查它是否违反了完整性约束，便可以使之脱离检查暂挂状态。
+
+        接下来，为了填充数据到 MQT 中，我们将导入从 EMPLOYEE 和 SALES 表中导出的数据。用于导出数据的查询与用于定义 MQT 的查询是一致的。然后，我们将插入另外一条记录到 ONTARIO_1995_SALES_TEAM 表中。
+
+        通过查询 ONTARIO_1995_SALES_TEAM 物化查询表发现，它现在已经填入了刚才导入的和插入的数据，这表明用户维护的 MQT 的确可以直接被修改。
+        清单 2. 创建由用户维护的 MQT
+
+        connect to sample
+        ...
+
+        create table ontario_1995_sales_team as (select distinct e.empno, e.firstnme,
+         e.lastname, e.workdept, e.phoneno, 'Ontario' as region,
+           year(s.sales_date) as year from employee e, sales s
+              where e.lastname = s.sales_person and year(s.sales_date) = 1995
+                  and left(s.region, 3) = 'Ont')
+                       data initially deferred refresh deferred maintained by user
+
+                       set integrity for ontario_1995_sales_team materialized query immediate
+                        unchecked
+
+                        export to ontario_1995_sales_team.del of del
+                         select distinct e.empno, e.firstnme, e.lastname, e.workdept, e.phoneno,
+                           'Ontario' as region, year(s.sales_date) as year from employee e, 
+                             sales s
+                                where e.lastname = s.sales_person and year(s.sales_date) = 1995
+                                    and left(s.region, 3) = 'Ont'
+                                    ...
+                                    Number of rows exported: 2
+
+                                    import from ontario_1995_sales_team.del of del insert into 
+                                    ontario_1995_sales_team
+                                    ...
+                                    Number of rows committed    = 2
+
+                                    insert into ontario_1995_sales_team
+                                     values ('006900', 'RUSS', 'DYERS', 'D44', '1234', 'Ontario', 1995)
+
+                                     select * from ontario_1995_sales_team
+
+                                     EMPNO  FIRSTNME     LASTNAME        WORKDEPT PHONENO REGION  YEAR
+                                     ------ ------------ --------------- -------- ------- ------- -----------
+                                     000110 VINCENZO     LUCCHESSI       A00      3490    Ontario        1995
+                                     000330 WING         LEE             E21      2103    Ontario        1995
+                                     006900 RUSS         DYERS           D44      1234    Ontario        1995
+
+                                       3 record(s) selected.
+
+                                       connect reset
+
+                                       回页首
+                                       总结表
+
+                                       您应该记得，总结表是一种特殊类型的 MQT，它们的 fullselect 包含一个 GROUP BY 子句，该子句总结 fullselect 中所引用表中的数据。清单 3 展示了一个简单的创建总结表的例子。该表名为 SALES_SUMMARY，它基于 SAMPLE 数据库中的底层表 SALES。同样，DATA INITIALLY DEFERRED 子句的意思是，在执行 CREATE TABLE 语句的时候，并不将数据插入到表中。REFRESH DEFERRED 子句的意思是，在任何时候都可以用 REFRESH TABLE 语句刷新该表中的数据。当这个 MQT 刚创建且还没有发出 REFRESH TABLE 语句的时候，对它的查询将返回一个错误。而执行了 REFRESH TABLE 语句之后，对它的查询可以成功运行。
+
+                                       在对 SALES 表执行插入操作，再刷新总结表之后，对总结表的查询表明，对底层表的更改已经反映到总结表中：销售员 Lee 在 Ontario-South 地区的总销售量增加了 100。类似地，在对底层表执行 update 或 delete 操作之后，也可以在总结表中观察到相应的变化。
+                                       清单 3. 创建总结表
+
+                                       connect to sample
+                                       ...
+
+                                       create table sales_summary as (select sales_person, region, sum(sales)
+                                        as total_sales
+                                         from sales group by sales_person, region)
+                                           data initially deferred refresh deferred
+
+                                           select * from sales_summary
+
+                                           SALES_PERSON    REGION          TOTAL_SALES
+                                           --------------- --------------- -----------
+                                           SQL0668N  Operation not allowed for reason code "1" on table
+                                           "MELNYK.SALES_SUMMARY".  SQLSTATE=57016
+
+                                           refresh table sales_summary
+
+                                           select * from sales_summary
+
+                                           SALES_PERSON    REGION          TOTAL_SALES
+                                           --------------- --------------- -----------
+                                           GOUNOT          Manitoba                 15
+                                           GOUNOT          Ontario-North             1
+                                           GOUNOT          Ontario-South            10
+                                           GOUNOT          Quebec                   24
+                                           LEE             Manitoba                 23
+                                           LEE             Ontario-North             8
+                                           LEE             Ontario-South            34
+                                           LEE             Quebec                   26
+                                           LUCCHESSI       Manitoba                  3
+                                           LUCCHESSI       Ontario-South             8
+                                           LUCCHESSI       Quebec                    3
+
+                                             11 record(s) selected.
+
+                                             insert into sales values ('06/28/2005', 'LEE', 'Ontario-South', 100)
+
+                                             refresh table sales_summary
+
+                                             select * from sales_summary
+
+                                             SALES_PERSON    REGION          TOTAL_SALES
+                                             --------------- --------------- -----------
+                                             ...
+                                             LEE             Ontario-North             8
+                                             LEE             Ontario-South           134
+                                             LEE             Quebec                   26
+                                             ...
+
+                                               11 record(s) selected.
+
+                                               update sales set sales = 50 where sales_date = '06/28/2005' and 
+                                               sales_person = 'LEE'
+                                                and region = 'Ontario-South'
+
+                                                refresh table sales_summary
+
+                                                select * from sales_summary
+
+                                                SALES_PERSON    REGION          TOTAL_SALES
+                                                --------------- --------------- -----------
+                                                ...
+                                                LEE             Ontario-North             8
+                                                LEE             Ontario-South            84
+                                                LEE             Quebec                   26
+                                                ...
+
+                                                  11 record(s) selected.
+
+                                                  delete from sales where sales_date = '06/28/2005' and sales_person = 'LEE'
+                                                   and region = 'Ontario-South'
+
+                                                   refresh table sales_summary
+
+                                                   select * from sales_summary
+
+                                                   SALES_PERSON    REGION          TOTAL_SALES
+                                                   --------------- --------------- -----------
+                                                   ...
+                                                   LEE             Ontario-North             8
+                                                   LEE             Ontario-South            34
+                                                   LEE             Quebec                   26
+                                                   ...
+
+                                                     11 record(s) selected.
+
+                                                     connect reset
+
+                                                     回页首
+                                                     staging 表
+
+                                                     如果 REFRESH DEFERRED MQT 有一个相关联的 staging 表，那么可以对其执行增量刷新。staging 表 收集更改，以便应用这些更改，使得 MQT 与它的底层表同步。可以使用 CREATE TABLE 语句创建一个 staging 表。然后，当 MQT 的底层表被修改时，变化就会传播过来，并立即被添加到 staging 表中。其思想是，使用 staging 表增量式地刷新 MQT，而不是从头开始重新生成 MQT。增量式维护这种方式可以显著提高性能。当刷新操作完成时，staging 表就会被删除。
+
+                                                     staging 表被创建之后，便处于悬挂（不一致）状态。在开始收集底层表上的更改之前，它必须脱离这种状态。为此，可以使用 SET INTEGRITY 语句。
+
+                                                     清单 4 展示了一个使用有关联总结表的 staging 表的例子。总结表名为 EMP_SUMMARY，它基于 SAMPLE 数据库中的底层表 EMPLOYEE。您应该还记得，DATA INITIALLY DEFERRED 子句的意思是，在执行 CREATE TABLE 语句的时候，并不将数据插入到表中。而 REFRESH DEFERRED 子句的意思是，在任何时候都可以使用 REFRESH TABLE 语句刷新该表中的数据。staging 表名为 EMP_SUMMARY_S，它与总结表 EMP_SUMMARY 相关联。PROPAGATE IMMEDIATE 子句规定，在 insert、update 或 delete 操作中对底层表做出的任何更改，都将被累积在 staging 表中。对于这两个表，都发出 SET INTEGRITY 语句，以便使它们都脱离悬挂状态。
+
+                                                     不出所料，此时对总结表的查询没有返回任何数据。REFRESH TABLE 语句返回一条警告，提示说 "integrity of non-incremental data remains unverified"。这也不值得惊讶。再次查询总结表，仍然没有返回任何数据。但是，当我们插入新的一行数据到底层的 EMPLOYEE 表之后，再次查询 staging 表 EMP_SUMMARY_S 便返回一行记录，这行数据与刚才插入的数据是一致的。staging 表中有三个列与其底层总结表中的三列相同，另外还有两个由系统使用的列：GLOBALTRANSID（每个被传播的行对应的全局事务 ID）和 GLOBALTRANSTIME（事务的时间戳）。再次查询总结表，又是没有返回数据，但是当执行了 REFRESH TABLE 语句之后，查询得以成功运行。
+                                                     清单 4. 使用有关联总结表的 staging 表
+
+                                                     connect to sample
+                                                     ...
+
+                                                     create table emp_summary as (select workdept, job, count(*) as count
+                                                      from employee group by workdept, job)
+                                                        data initially deferred refresh deferred
+
+                                                        create table emp_summary_s for emp_summary propagate immediate
+
+                                                        set integrity for emp_summary materialized query immediate unchecked
+
+                                                        set integrity for emp_summary_s staging immediate unchecked
+
+                                                        select * from emp_summary
+
+                                                        WORKDEPT JOB      COUNT
+                                                        -------- -------- -----------
+
+                                                          0 record(s) selected.
+
+                                                          refresh table emp_summary
+                                                          SQL1594W  Integrity of non-incremental data remains unverified by the 
+                                                          database manager.  SQLSTATE=01636
+
+                                                          select * from emp_summary
+
+                                                          WORKDEPT JOB      COUNT
+                                                          -------- -------- -----------
+
+                                                            0 record(s) selected.
+
+                                                            insert into employee
+                                                             values ('006900', 'RUSS', 'L', 'DYERS', 'D44', '1234', '1960-05-05', 
+                                                              'FIELDREP', 5, 'M', '1940-04-02', 10000, 100, 1000)
+
+                                                              select * from emp_summary_s
+
+                                                              WORKDEPT JOB      COUNT       GLOBALTRANSID          GLOBALTRANSTIME
+                                                              -------- -------- ----------- -------------------... -----------------------------...
+                                                              D44      FIELDREP           1 x'00000000000000CD'    x'20050822201344536158000000'
+
+                                                                1 record(s) selected.
+
+                                                                select * from emp_summary
+
+                                                                WORKDEPT JOB      COUNT
+                                                                -------- -------- -----------
+
+                                                                  0 record(s) selected.
+
+                                                                  refresh table emp_summary
+                                                                  SQL1594W  Integrity of non-incremental data remains unverified by the database
+                                                                  manager.  SQLSTATE=01636
+
+                                                                  select * from emp_summary
+
+                                                                  WORKDEPT JOB      COUNT
+                                                                  -------- -------- -----------
+                                                                  D44      FIELDREP           1
+
+                                                                    1 record(s) selected.
+
+                                                                    connect reset
+
+                                                                    回页首
+                                                                    结束语
+
+                                                                    在 SYSCAT.TABDEP 系统编目视图中，对于一个物化查询表在其他对象上的每个依赖关系，都有相应的一行。您可以查询这个视图，获得对我们创建的 MQT（清单 5）的依赖关系的总结。MQT 有一个值为 'S' 的 DTYPE。TABNAME 列列出 MQT 的名称，BNAME 列列出相应的 MQT 所依赖的数据库对象的名称。BTYPE 列显示对象类型：'T' 表示表，'I' 表示索引，'F' 表示函数实例。
+                                                                    清单 5. 查询 SYSCAT.TABDEP 系统编目视图，以查看 MQT 在其他数据库对象上的依赖关系
+
+                                                                    connect to sample
+                                                                    ...
+
+                                                                    select substr(tabname,1,24) as tabname, dtype, substr(bname,1,24) as bname, btype
+                                                                     from syscat.tabdep where tabschema = 'MELNYK' and dtype = 'S'
+
+                                                                     TABNAME                  DTYPE BNAME                    BTYPE
+                                                                     ------------------------ ----- ------------------------ -----
+                                                                     EMP                      S     DEPARTMENT               T
+                                                                     EMP                      S     EMPLOYEE                 T
+                                                                     EMP                      S     SQL050829104058970       I
+                                                                     EMP                      S     SQL050829104058800       I
+                                                                     EMP_SUMMARY              S     EMPLOYEE                 T
+                                                                     ONTARIO_1995_SALES_TEAM  S     LEFT1                    F
+                                                                     ONTARIO_1995_SALES_TEAM  S     SALES                    T
+                                                                     ONTARIO_1995_SALES_TEAM  S     EMPLOYEE                 T
+                                                                     SALES_SUMMARY            S     SALES                    T
+
+                                                                       9 record(s) selected.
+
+                                                                       connect reset
+
+                                                                       我们看到了一个物化查询表，其定义基于某个查询的结果，可以将它看作一种物化视图。MQT 很重要，因为它们可以显著减少复杂查询的响应时间。本文介绍了系统维护的 MQT 和用户维护的 MQT 的基本概念，另外还介绍了总结表和 staging 表，并且通过实用的例子对这些概念加以说明，您可以亲自运行这些例子。要学习更多关于物化查询表的知识，或者获得关于本文提及的各种主题的详细信息，请参考 DB2 Information Center。 

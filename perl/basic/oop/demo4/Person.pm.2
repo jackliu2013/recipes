@@ -1,0 +1,14 @@
+#
+# 使用Class::Struct 生成类
+#
+package Person;
+
+use Class::Struct;
+struct Person => {    #创建一个Person的定义
+    name    => '$',    #name域是一个标量
+    race    => '$',    #race域是一个标量
+    aliases => '@',    #aliases域是一个数组引用
+};
+
+
+1;

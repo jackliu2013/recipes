@@ -1,0 +1,355 @@
+本文编辑整理自：http://guibin.iteye.com/blog/1014369
+http://hi.baidu.com/tiger_tnt/blog/item/a0464ffa6a8115d9b58f314d.html
+http://web.mit.edu/~mkgray/project/silk/root/afs/sipb/project/git/git-doc/git-reset.html
+一、基本篇
+在git的一般使用中，如果发现错误的将不想staging的文件add进入index之后，想回退取消，则可以使用命令：git reset HEAD <file>...，同时git add完毕之后，git也会做相应的提示，比如：
+引用
+
+# Changes to be committed: 
+#   (use "git reset HEAD <file>..." to unstage) 
+# 
+# new file:   Test.scala 
+
+git reset [--hard|soft|mixed|merge|keep] [<commit>或HEAD]：将当前的分支重设（reset）到指定的<commit>或者HEAD（默认，如果不显示指定commit，默认是HEAD，即最新的一次提交），并且根据[mode]有可能更新index和working directory。mode的取值可以是hard、soft、mixed、merged、keep。下面来详细说明每种模式的意义和效果。
+A). --hard：重设（reset） index和working directory，自从<commit>以来在working directory中的任何改变都被丢弃，并把HEAD指向<commit>。 
+具体一个例子，假设有三个commit， git st:
+
+commit3: add test3.c
+commit2: add test2.c
+commit1: add test1.c
+
+执行git reset --hard HEAD~1后，
+显示：HEAD is now at commit2，运行git log
+
+commit2: add test2.c
+commit1: add test1.c
+
+运行git st， 没有任何变化
+B). --soft：index和working directory中的内容不作任何改变，仅仅把HEAD指向<commit>。这个模式的效果是，执行完毕后，自从<commit>以来的所有改变都会显示在git status的"Changes to be committed"中。 
+具体一个例子，假设有三个commit， git st:
+
+commit3: add test3.c
+commit2: add test2.c
+commit1: add test1.c
+
+执行git reset --soft(默认) HEAD~1后，运行git log
+
+commit2: add test2.c
+commit1: add test1.c
+
+运行git status， 则test3.c处于暂存区，处于准备提交状态。即此时git commit就会提交它。
+  在使用git进行协作开发时，我们经常需要将自己的修改生成patch发给被人，但是在修改代码的过程中我们进行了很多次的提交，如何生成从最初的代码状态到最终代码状态的patch呢？下面要介绍的功能是应对这中情况。
+现假设我们git软件仓库中的分支情况如下：
+a-->b-->c
+也就是说我们的代码从状态a修改到状态b，进行一次提交，然后再修改到状态c，进行一次提交。这时我们已经肯定由a到c的修改是正确的，不再需要状态b了，并且要把从a到c的变化生成一个patch发送给别人。如果直接打包的话会生成两个path，那么如何生成一个patch呢，这时就需要git-reset命令。
+首先给状态a创建一个tag，假设名称为A，然后执行
+git-reset --soft A
+这样我们的软件仓库就变为
+a
+状态b和状态c都已经被删除了，但是当前的代码并没有被改变，还是状态c的代码，这时我们做一次提交，软件仓库变成下面的样子：
+a-->d
+状态d和状态c所对应的代码是完全相同的，只是名字不同。现在就可以生成一个patch打包发给别人了
+C). --mixed：仅reset index，但是不reset working directory。这个模式是默认模式，即当不显示告知git reset模式时，会使用mixed模式。这个模式的效果是，working directory中文件的修改都会被保留，不会丢弃，但是也不会被标记成"Changes to be committed"，但是会打出什么还未被更新的报告。报告如下： 
+引用
+Unstaged changes after reset: 
+M Test.Scala 
+M test.txt
+
+D). --merge和--keep用的不多，在下面的例子中说明。 
+二、常用示例
+下面列出一些git reset的典型的应用场景： 
+A) 回滚add操纵 
+引用
+$ edit                                     (1) 
+$ git add frotz.c filfre.c 
+$ mailx                                    (2) 
+$ git reset                                (3) 
+$ git pull git://info.example.com/ nitfol  (4) 
+
+(1) 编辑文件frotz.c, filfre.c，做了些更改，并把更改添加到了index 
+(2) 查看邮件，发现某人要你pull，有一些改变需要你merge下来 
+(3) 然而，你已经把index搞乱了，因为index同HEAD commit不匹配了，但是你知道，即将pull的东西不会影响已经修改的frotz.c和filfre.c，因此你可以revert这两个文件的改变。revert后，那些改变应该依旧在working directory中，因此执行git reset。 
+(4) 然后，执行了pull之后，自动merge，frotz.c和filfre.c这些改变依然在working directory中。 
+
+B) 回滚最近一次commit 
+引用
+$ git commit ... 
+$ git reset --soft HEAD^      (1) 
+$ edit                        (2) 
+$ git commit -a -c ORIG_HEAD  (3) 
+
+(1) 当提交了之后，你又发现代码没有提交完整，或者你想重新编辑一下提交的comment，执行git reset --soft HEAD^，让working tree还跟reset之前一样，不作任何改变。 
+HEAD^指向HEAD之前最近的一次commit。 
+(2) 对working tree下的文件做修改 
+(3) 然后使用reset之前那次commit的注释、作者、日期等信息重新提交。注意，当执行git reset命令时，git会把老的HEAD拷贝到文件.git/ORIG_HEAD中，在命令中可以使用ORIG_HEAD引用这个commit。commit 命令中 -a 参数的意思是告诉git，自动把所有修改的和删除的文件都放进stage area，未被git跟踪的新建的文件不受影响。commit命令中-c <commit> 或者 -C <commit>意思是拿已经提交的commit对象中的信息（作者，提交者，注释，时间戳等）提交，那么这条commit命令的意思就非常清晰了，把所有更改的文件加入stage area，并使用上次的提交信息重新提交。 
+
+C) 回滚最近几次commit，并把这几次commit放到叫做topic的branch上去。 
+引用
+$ git branch topic/wip     (1) 
+$ git reset --hard HEAD~3  (2) 
+$ git checkout topic/wip   (3)
+
+(1) 你已经提交了一些commit，但是此时发现这些commit还不够成熟，不能进入master分支，但你希望在新的branch上润色这些commit改动。因此执行了git branch命令在当前的HEAD上建立了新的叫做 topic/wip的分支。 
+(2) 然后回滚master branch上的最近三次提交。HEAD~3指向当前HEAD-3个commit的commit，git reset --hard HEAD~3即删除最近的三个commit（删除HEAD, HEAD^, HEAD~2），将HEAD指向HEAD~3。 
+
+D) 永久删除最后几个commit 
+引用
+$ git commit ... 
+$ git reset --hard HEAD~3   (1)
+
+(1) 最后三个commit（即HEAD, HEAD^和HEAD~2）提交有问题，你想永久删除这三个commit。 
+
+E) 回滚merge和pull操作 
+引用
+$ git pull                         (1) 
+Auto-merging nitfol 
+CONFLICT (content): Merge conflict in nitfol 
+Automatic merge failed; fix conflicts and then commit the result. 
+$ git reset --hard                 (2) 
+$ git pull . topic/branch          (3) 
+Updating from 41223... to 13134... 
+Fast-forward 
+$ git reset --hard ORIG_HEAD       (4)
+
+(1) 从origin拉下来一些更新，但是产生了很多冲突，你暂时没有这么多时间去解决这些冲突，因此你决定稍候有空的时候再重新pull。 
+(2) 由于pull操作产生了冲突，因此所有pull下来的改变尚未提交，仍然再stage area中，这种情况下git reset --hard 与 git reset --hard HEAD意思相同，即都是清除index和working tree中被搞乱的东西。 
+(3) 将topic/branch合并到当前的branch，这次没有产生冲突，并且合并后的更改自动提交。 
+(4) 但是此时你又发现将topic/branch合并过来为时尚早，因此决定退滚merge，执行git reset --hard ORIG_HEAD回滚刚才的pull/merge操作。说明：前面讲过，执行git reset时，git会把reset之前的HEAD放入.git/ORIG_HEAD文件中，命令行中使用ORIG_HEAD引用这个commit。同样的，执行pull和merge操作时，git都会把执行操作前的HEAD放入ORIG_HEAD中，以防回滚操作。 
+
+F) 在被污染的working tree中回滚merge或者pull 
+引用
+$ git pull                         (1) 
+Auto-merging nitfol 
+Merge made by recursive. 
+nitfol                |   20 +++++---- 
+... 
+$ git reset --merge ORIG_HEAD      (2)
+
+(1) 即便你已经在本地更改了一些你的working tree，你也可安全的git pull，前提是你知道将要pull的内容不会覆盖你的working tree中的内容。 
+(2) git pull完后，你发现这次pull下来的修改不满意，想要回滚到pull之前的状态，从前面的介绍知道，我们可以执行git reset --hard ORIG_HEAD，但是这个命令有个副作用就是清空你的working tree，即丢弃你的本地未add的那些改变。为了避免丢弃working tree中的内容，可以使用git reset --merge ORIG_HEAD，注意其中的--hard 换成了 --merge，这样就可以避免在回滚时清除working tree。 
+
+G) 被中断的工作流程 
+在实际开发中经常出现这样的情形：你正在开发一个大的feature，此时来了一个紧急的bug需要修复，但是目前在working tree中的内容还没有成型，还不足以commit，但是你又必须切换的另外的branch去fix bug。请看下面的例子 
+引用
+$ git checkout feature ;# you were working in "feature" branch and 
+$ work work work       ;# got interrupted 
+$ git commit -a -m "snapshot WIP"                 (1) 
+$ git checkout master 
+$ fix fix fix 
+$ git commit ;# commit with real log 
+$ git checkout feature 
+$ git reset --soft HEAD^ ;# go back to WIP state  (2) 
+$ git reset                                       (3)
+
+(1) 这次属于临时提交，因此随便添加一个临时注释即可。 
+(2) 这次reset删除了WIP commit，并且把working tree设置成提交WIP快照之前的状态。 
+(3) 此时，在index中依然遗留着“snapshot WIP”提交时所做的uncommit changes，git reset将会清理index成为尚未提交"snapshot WIP"时的状态便于接下来继续工作。 
+
+(H) Reset单独的一个文件 
+假设你已经添加了一个文件进入index，但是而后又不打算把这个文件提交，此时可以使用git reset把这个文件从index中去除。 
+引用
+$ git reset -- frotz.c                      (1) 
+$ git commit -m "Commit files in index"     (2) 
+$ git add frotz.c                           (3)
+
+(1) 把文件frotz.c从index中去除， 
+(2) 把index中的文件提交 
+(3) 再次把frotz.c加入index 
+
+(I) 保留working tree并丢弃一些之前的commit 
+假设你正在编辑一些文件，并且已经提交，接着继续工作，但是现在你发现当前在working tree中的内容应该属于另一个branch，与这之前的commit没有什么关系。此时，你可以开启一个新的branch，并且保留着working tree中的内容。 
+引用
+$ git tag start 
+$ git checkout -b branch1 
+$ edit 
+$ git commit ...                            (1) 
+$ edit 
+$ git checkout -b branch2                   (2) 
+$ git reset --keep start                    (3)
+
+(1) 这次是把在branch1中的改变提交了。 
+(2) 此时发现，之前的提交不属于这个branch，此时你新建了branch2，并切换到了branch2上。 
+(3) 此时你可以用reset --keep把在start之后的commit清除掉，但是保持working tree不变。 
+三、高级篇
+语法
+git reset [-q] [<commit>] [--] <paths>… git reset (--patch | -p) [<commit>] [--] [<paths>…] git reset (--soft | --mixed | --hard | --merge | --keep) [-q] [<commit>]
+DESCRIPTION
+
+In the first and second form, copy entries from <commit> to the index. In the third form, set the current branch head (HEAD) to <commit>, optionally modifying index and working tree to match. The <commit> defaults to HEAD in all forms.
+
+git reset [-q] [<commit>] [--] <paths>…
+
+    This form resets the index entries for all <paths> to their state at <commit>. (It does not affect the working tree, nor the current branch.)
+
+    This means that git reset <paths> is the opposite of git add <paths>.
+
+    After running git reset <paths> to update the index entry, you can use git-checkout(1) to check the contents out of the index to the working tree. Alternatively, using git-checkout(1) and specifying a commit, you can copy the contents of a path out of a commit to the index and to the working tree in one go.
+git reset (--patch | -p) [<commit>] [--] [<paths>…]
+
+    Interactively select hunks in the difference between the index and <commit> (defaults to HEAD). The chosen hunks are applied in reverse to the index.
+
+    This means that git reset -p is the opposite of git add -p, i.e. you can use it to selectively reset hunks. See the “Interactive Mode” section of git-add(1) to learn how to operate the --patch mode.
+git reset --<mode> [<commit>]
+
+    This form resets the current branch head to <commit> and possibly updates the index (resetting it to the tree of <commit>) and the working tree depending on <mode>, which must be one of the following:
+
+    --soft
+
+        Does not touch the index file nor the working tree at all (but resets the head to <commit>, just like all modes do). This leaves all your changed files "Changes to be committed", as git status would put it.
+    --mixed
+
+        Resets the index but not the working tree (i.e., the changed files are preserved but not marked for commit) and reports what has not been updated. This is the default action.
+    --hard
+
+        Resets the index and working tree. Any changes to tracked files in the working tree since <commit> are discarded.
+    --merge
+
+        Resets the index and updates the files in the working tree that are different between <commit> and HEAD, but keeps those which are different between the index and working tree (i.e. which have changes which have not been added). If a file that is different between <commit> and the index has unstaged changes, reset is aborted.
+
+        In other words, --merge does something like a git read-tree -u -m <commit>, but carries forward unmerged index entries.
+    --keep
+
+        Resets index entries and updates files in the working tree that are different between <commit> and HEAD. If a file that is different between <commit> and HEAD has local changes, reset is aborted.
+
+If you want to undo a commit other than the latest on a branch, git-revert(1) is your friend.
+OPTIONS
+
+-q
+--quiet
+
+    Be quiet, only report errors.
+
+EXAMPLES
+
+Undo add
+
+    $ edit <1> $ git add frotz.c filfre.c $ mailx <2> $ git reset <3> $ git pull git://info.example.com/ nitfol <4>
+
+        You are happily working on something, and find the changes in these files are in good order. You do not want to see them when you run "git diff", because you plan to work on other files and changes with these files are distracting.
+
+        Somebody asks you to pull, and the changes sounds worthy of merging.
+
+        However, you already dirtied the index (i.e. your index does not match the HEAD commit). But you know the pull you are going to make does not affect frotz.c nor filfre.c, so you revert the index changes for these two files. Your changes in working tree remain there.
+
+        Then you can pull and merge, leaving frotz.c and filfre.c changes still in the working tree.
+
+Undo a commit and redo
+
+    $ git commit ... $ git reset --soft HEAD^ <1> $ edit <2> $ git commit -a -c ORIG_HEAD <3>
+
+        This is most often done when you remembered what you just committed is incomplete, or you misspelled your commit message, or both. Leaves working tree as it was before "reset".
+
+        Make corrections to working tree files.
+
+        "reset" copies the old head to .git/ORIG_HEAD; redo the commit by starting with its log message. If you do not need to edit the message further, you can give -C option instead.
+
+        See also the --amend option to git-commit(1).
+
+Undo a commit, making it a topic branch
+
+    $ git branch topic/wip <1> $ git reset --hard HEAD~3 <2> $ git checkout topic/wip <3>
+
+        You have made some commits, but realize they were premature to be in the "master" branch. You want to continue polishing them in a topic branch, so create "topic/wip" branch off of the current HEAD.
+
+        Rewind the master branch to get rid of those three commits.
+
+        Switch to "topic/wip" branch and keep working.
+
+Undo commits permanently
+
+    $ git commit ... $ git reset --hard HEAD~3 <1>
+
+        The last three commits (HEAD, HEAD^, and HEAD~2) were bad and you do not want to ever see them again. Do not do this if you have already given these commits to somebody else. (See the "RECOVERING FROM UPSTREAM REBASE" section in git-rebase(1) for the implications of doing so.)
+
+Undo a merge or pull
+
+    $ git pull <1> Auto-merging nitfol CONFLICT (content): Merge conflict in nitfol Automatic merge failed; fix conflicts and then commit the result. $ git reset --hard <2> $ git pull . topic/branch <3> Updating from 41223... to 13134... Fast-forward $ git reset --hard ORIG_HEAD <4>
+
+        Try to update from the upstream resulted in a lot of conflicts; you were not ready to spend a lot of time merging right now, so you decide to do that later.
+
+        "pull" has not made merge commit, so "git reset --hard" which is a synonym for "git reset --hard HEAD" clears the mess from the index file and the working tree.
+
+        Merge a topic branch into the current branch, which resulted in a fast-forward.
+
+        But you decided that the topic branch is not ready for public consumption yet. "pull" or "merge" always leaves the original tip of the current branch in ORIG_HEAD, so resetting hard to it brings your index file and the working tree back to that state, and resets the tip of the branch to that commit.
+
+Undo a merge or pull inside a dirty working tree
+
+    $ git pull <1> Auto-merging nitfol Merge made by recursive. nitfol | 20 +++++---- ... $ git reset --merge ORIG_HEAD <2>
+
+        Even if you may have local modifications in your working tree, you can safely say "git pull" when you know that the change in the other branch does not overlap with them.
+
+        After inspecting the result of the merge, you may find that the change in the other branch is unsatisfactory. Running "git reset --hard ORIG_HEAD" will let you go back to where you were, but it will discard your local changes, which you do not want. "git reset --merge" keeps your local changes.
+
+Interrupted workflow
+
+    Suppose you are interrupted by an urgent fix request while you are in the middle of a large change. The files in your working tree are not in any shape to be committed yet, but you need to get to the other branch for a quick bugfix.
+
+    $ git checkout feature ;# you were working in "feature" branch and $ work work work ;# got interrupted $ git commit -a -m "snapshot WIP" <1> $ git checkout master $ fix fix fix $ git commit ;# commit with real log $ git checkout feature $ git reset --soft HEAD^ ;# go back to WIP state <2> $ git reset <3>
+
+        This commit will get blown away so a throw-away log message is OK.
+
+        This removes the WIP commit from the commit history, and sets your working tree to the state just before you made that snapshot.
+
+        At this point the index file still has all the WIP changes you committed as snapshot WIP. This updates the index to show your WIP files as uncommitted.
+
+        See also git-stash(1).
+
+Reset a single file in the index
+
+    Suppose you have added a file to your index, but later decide you do not want to add it to your commit. You can remove the file from the index while keeping your changes with git reset.
+
+    $ git reset -- frotz.c <1> $ git commit -m "Commit files in index" <2> $ git add frotz.c <3>
+
+        This removes the file from the index while keeping it in the working directory.
+
+        This commits all other changes in the index.
+
+        Adds the file to the index again.
+
+Keep changes in working tree while discarding some previous commits
+
+    Suppose you are working on something and you commit it, and then you continue working a bit more, but now you think that what you have in your working tree should be in another branch that has nothing to do with what you committed previously. You can start a new branch and reset it while keeping the changes in your working tree.
+
+    $ git tag start $ git checkout -b branch1 $ edit $ git commit ... <1> $ edit $ git checkout -b branch2 <2> $ git reset --keep start <3>
+
+        This commits your first edits in branch1.
+
+        In the ideal world, you could have realized that the earlier commit did not belong to the new topic when you created and switched to branch2 (i.e. "git checkout -b branch2 start"), but nobody is perfect.
+
+        But you can use "reset --keep" to remove the unwanted commit after you switched to "branch2".
+
+DISCUSSION
+
+The tables below show what happens when running:
+
+git reset --option target
+
+to reset the HEAD to another commit (target) with the different reset options depending on the state of the files.
+
+In these tables, A, B, C and D are some different states of a file. For example, the first line of the first table means that if a file is in state A in the working tree, in state B in the index, in state C in HEAD and in state D in the target, then "git reset --soft target" will leave the file in the working tree in state A and in the index in state B. It resets (i.e. moves) the HEAD (i.e. the tip of the current branch, if you are on one) to "target" (which has the file in state D).
+
+working index HEAD target         working index HEAD ----------------------------------------------------  A       B     C    D     --soft   A       B     D                           --mixed  A       D     D                           --hard   D       D     D                           --merge (disallowed)                           --keep  (disallowed)
+
+working index HEAD target         working index HEAD ----------------------------------------------------  A       B     C    C     --soft   A       B     C                           --mixed  A       C     C                           --hard   C       C     C                           --merge (disallowed)                           --keep   A       C     C
+
+working index HEAD target         working index HEAD ----------------------------------------------------  B       B     C    D     --soft   B       B     D                           --mixed  B       D     D                           --hard   D       D     D                           --merge  D       D     D                           --keep  (disallowed)
+
+working index HEAD target         working index HEAD ----------------------------------------------------  B       B     C    C     --soft   B       B     C                           --mixed  B       C     C                           --hard   C       C     C                           --merge  C       C     C                           --keep   B       C     C
+
+working index HEAD target         working index HEAD ----------------------------------------------------  B       C     C    D     --soft   B       C     D                           --mixed  B       D     D                           --hard   D       D     D                           --merge (disallowed)                           --keep  (disallowed)
+
+working index HEAD target         working index HEAD ----------------------------------------------------  B       C     C    C     --soft   B       C     C                           --mixed  B       C     C                           --hard   C       C     C                           --merge  B       C     C                           --keep   B       C     C
+
+"reset --merge" is meant to be used when resetting out of a conflicted merge. Any mergy operation guarantees that the working tree file that is involved in the merge does not have local change wrt the index before it starts, and that it writes the result out to the working tree. So if we see some difference between the index and the target and also between the index and the working tree, then it means that we are not resetting out from a state that a mergy operation left after failing with a conflict. That is why we disallow --merge option in this case.
+
+"reset --keep" is meant to be used when removing some of the last commits in the current branch while keeping changes in the working tree. If there could be conflicts between the changes in the commit we want to remove and the changes in the working tree we want to keep, the reset is disallowed. That’s why it is disallowed if there are both changes between the working tree and HEAD, and between HEAD and the target. To be safe, it is also disallowed when there are unmerged entries.
+
+The following tables show what happens when there are unmerged entries:
+
+working index HEAD target         working index HEAD ----------------------------------------------------  X       U     A    B     --soft  (disallowed)                           --mixed  X       B     B                           --hard   B       B     B                           --merge  B       B     B                           --keep  (disallowed)
+
+working index HEAD target         working index HEAD ----------------------------------------------------  X       U     A    A     --soft  (disallowed)                           --mixed  X       A     A                           --hard   A       A     A                           --merge  A       A     A                           --keep  (disallowed)
+
+X means any state and U means an unmerged index.
+结束

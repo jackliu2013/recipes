@@ -1,0 +1,7 @@
+[Tue Jan 21 10:38:40 2014] [info] Listening at "http://*:3000".
+[Tue Jan 21 10:38:43 2014] [debug] Your secret passphrase needs to be changed!!!
+[Tue Jan 21 10:38:43 2014] [debug] GET "/".
+[Tue Jan 21 10:38:43 2014] [debug] Routing to controller "Myapp::Example" and action "welcome".
+[Tue Jan 21 10:38:43 2014] [debug] Rendering template "example/welcome.html.ep".
+[Tue Jan 21 10:38:43 2014] [debug] Rendering template "layouts/default.html.ep".
+[Tue Jan 21 10:38:43 2014] [debug] 200 OK (0.025365s, 39.424/s).

@@ -1,0 +1,130 @@
+do {
+  require MIME::Base64;
+  (
+    "Data::Dump",
+    [
+      "acct                          ",
+      MIME::Base64::decode("6LWE6YeR6LSm5Y+377yMIOWMheaLrOiHquaciei1hOmHkeS4juWkh+S7mOmHkei0puWPtw=="),
+      undef,
+      "2013-10-17 16:01:54.202535",
+    ],
+  );
+}
+(
+  "Data::Dump",
+  [
+    "bfj_acct                      ",
+    pack("H*","e5a487e4bb98e98791e8b4a6e58fb76964"),
+    undef,
+    "2013-10-17 16:01:54.202535",
+  ],
+)
+(
+  "Data::Dump",
+  [
+    "bi                            ",
+    pack("H*","e993b6e8a18ce68ea5e58fa3e7bc96e58fb7"),
+    undef,
+    "2013-10-17 16:01:54.202535",
+  ],
+)
+(
+  "Data::Dump",
+  [
+    "c                             ",
+    "\xE5\xAE\xA2\xE6\x88\xB7id",
+    undef,
+    "2013-10-17 16:01:54.202535",
+  ],
+)
+(
+  "Data::Dump",
+  [
+    "cust_proto                    ",
+    pack("H*","e5aea2e688b7e58d8fe8aeae"),
+    undef,
+    "2013-10-17 16:01:54.202535",
+  ],
+)
+(
+  "Data::Dump",
+  [
+    "e_date                        ",
+    pack("H*","e5b7aee99499e697a5e69c9f"),
+    undef,
+    "2013-10-17 16:01:54.202535",
+  ],
+)
+(
+  "Data::Dump",
+  [
+    "fp                            ",
+    pack("H*","e591a8e69c9fe7a1aee8aea4e8a784e58899"),
+    undef,
+    "2013-10-17 16:01:54.202535",
+  ],
+)
+(
+  "Data::Dump",
+  [
+    "p                             ",
+    "\xE4\xBA\xA7\xE5\x93\x81id",
+    undef,
+    "2013-10-17 16:01:54.202535",
+  ],
+)
+(
+  "Data::Dump",
+  [
+    "period                        ",
+    pack("H*","e69c9fe997b4e697a5e69c9f"),
+    undef,
+    "2013-10-17 16:01:54.202535",
+  ],
+)
+(
+  "Data::Dump",
+  [
+    "tx_date                       ",
+    pack("H*","e4baa4e69893e697a5e69c9f"),
+    undef,
+    "2013-10-17 16:01:54.202535",
+  ],
+)
+(
+  "Data::Dump",
+  [
+    "wlzj_type                     ",
+    pack("H*","e5be80e69da5e8b584e98791e7b1bbe59e8b"),
+    undef,
+    "2013-10-17 16:01:54.202535",
+  ],
+)
+(
+  "Data::Dump",
+  [
+    "zjbd_date                     ",
+    pack("H*","e8b584e98791e58f98e58aa8e697a5e69c9f"),
+    undef,
+    "2013-10-17 16:01:54.202535",
+  ],
+)
+(
+  "Data::Dump",
+  [
+    "zjbd_type                     ",
+    pack("H*","e8b584e98791e58f98e58aa8e7b1bbe59e8b"),
+    undef,
+    "2013-10-17 16:01:54.202535",
+  ],
+)
+(
+  "Data::Dump",
+  [
+    "zyzj_acct                     ",
+    pack("H*","e887aae69c89e8b584e98791e8b4a6e58fb76964"),
+    undef,
+    "2013-10-17 16:01:54.202535",
+  ],
+)
+-----break while----- at fetchrow_arrayref.pl line 42.

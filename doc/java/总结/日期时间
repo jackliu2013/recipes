@@ -1,0 +1,400 @@
+Java 语言的Calendar，GregorianCalendar (日历),Date(日期), 和DateFormat(日期格式)组成了Java标准的一个基本但是非常重要的部分. 日期是商业逻辑计算一个关键的部分. 所有的开发者都应该能够计算未来的日期, 定制日期的显示格式, 并将文本数据解析成日期对象。学习日期, 日期格式, 日期的解析和日期的计算。 
+我们将讨论下面的类: 
+1、  具体类(和抽象类相对)java.util.Date 
+2、  抽象类java.text.DateFormat 和它的一个具体子类,java.text.SimpleDateFormat 
+3、  抽象类java.util.Calendar 和它的一个具体子类,java.util.GregorianCalendar 
+具体类可以被实例化, 但是抽象类却不能. 你首先必须实现抽象类的一个具体子类.
+1.   java.util.Date及其格式化
+Date 类从Java 开发包(JDK) 1.0 就开始进化, 当时它只包含了几个取得或者设置一个日期数据的各个部分的方法, 比如说月, 日, 和年. 这些方法现在遭到了批评并且已经被转移到了Calendar类里去了, 我们将在本文中进一步讨论它. 这种改进旨在更好的处理日期数据的国际化格式. 就象在JDK 1.1中一样, Date 类实际上只是一个包裹类, 它包含的是一个长整型数据, 表示的是从GMT(格林尼治标准时间)1970年, 1 月 1日00:00:00这一刻之前或者是之后经历的毫秒数. 
+1.1. 创建java.util.Date
+Java统计从1970年1月1日起的毫秒的数量表示日期。也就是说，例如，1970年1月2日，是在1月1日后的86，400，000毫秒。同样的，1969年12月31日是在1970年1月1日前86，400，000毫秒。Java的Date类使用long类型纪录这些毫秒值.因为long是有符号整数，所以日期可以在1970年1月1日之前，也可以在这之后。Long类型表示的最大正值和最大负值可以轻松的表示290，000，000年的时间，这适合大多数人的时间要求。
+让我们看一个使用系统的当前日期和时间创建一个日期对象并返回一个长整数的简单例子. 这个时间通常被称为Java 虚拟机(JVM)主机环境的系统时间. 
+import java.util.Date; 
+public class DateExample1 { 
+public static void main(String[] args) { 
+// Get the system date/time 
+Date date = new Date(); 
+// 打印出具体的年，月，日，小时，分钟，秒钟以及时区
+System.out.println(date.getTime()); 
+}   
+} 
+在星期六, 2001年9月29日, 下午大约是6:50的样子, 上面的例子在系统输出设备上显示的结果是 1001803809710. 在这个例子中,值得注意的是我们使用了Date 构造函数创建一个日期对象, 这个构造函数没有接受任何参数. 而这个构造函数在内部使用了System.currentTimeMillis() 方法来从系统获取日期. 
+//1年前日期
+   java.util.Date myDate=new java.util.Date();  
+   long myTime=(myDate.getTime()/1000)-60*60*24*365;
+   myDate.setTime(myTime*1000);
+   String mDate=formatter.format(myDate);
+//明天日期
+   myDate=new java.util.Date(); 
+   myTime=(myDate.getTime()/1000)+60*60*24;
+   myDate.setTime(myTime*1000);
+   mDate=formatter.format(myDate);
+//两个时间之间的天数
+   SimpleDateFormat myFormatter = new SimpleDateFormat("yyyy-MM-dd");
+   java.util.Date date= myFormatter.parse("2003-05-1"); 
+   java.util.Date mydate= myFormatter.parse("1899-12-30");
+   long  day=(date.getTime()-mydate.getTime())/(24*60*60*1000);
+//加半小时
+SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+java.util.Date date1 = format.parse("2002-02-28 23:16:00");
+long Time=(date1.getTime()/1000)+60*30;
+date1.setTime(Time*1000);
+String mydate1=formatter.format(date1);
+//年月周求日期
+SimpleDateFormat formatter2 = new SimpleDateFormat("yyyy-MM F E");
+java.util.Date date2= formatter2.parse("2003-05 5 星期五"); 
+SimpleDateFormat formatter3 = new SimpleDateFormat("yyyy-MM-dd");
+String mydate2=formatter3.format(date2);
+//求是星期几
+mydate= myFormatter.parse("2001-1-1");
+SimpleDateFormat formatter4 = new SimpleDateFormat("E");
+String mydate3=formatter4.format(mydate);
+1.2. Date格式化
+能以一种用户明白的格式来显示这个日期呢? 在这里类java.text.SimpleDateFormat 和它的抽象基类 java.text.DateFormat。那么, 现在我们已经知道了如何获取从1970年1月1日开始经历的毫秒数了. 我们如何才format 就派得上用场了. 
+// 我们能不能用下面的代码构件出 2001/8/8 8:8
+    import java.io.*;
+    import java.util.*;
+    public class WhatIsDate
+    {
+        public static void main(String[] args) {
+            Date date = new Date(2001, 8, 8, 8, 8, 8);
+            System.out.println(date);
+        }
+    }
+Java 的编译器竟然报如下信息 (Sun JDK1.3, Windows 2000 中文下)
+注意：
+WhatIsDate.java 使用或覆盖一个不鼓励使用的API。
+注意：
+使用-deprecation重新编译，以得到详细信息。！
+那么 Date 对象究竟是为了满足哪个需求呢？看来它不是用来实现基于年/月/日小时:分钟 的时间表述。我们查看 Java 的文档，我们看到有 getTime() 方法，它返回的竟然是一个 long 值。
+文档进一步又告诉我们这个值代表了当前系统的时间离1970/1/1 0:0 的毫秒差，而且是在 GMT 时区下(也被称为 EPOC)。如果我们指定的时间是在此之前的，那它将返回一个负数值。
+这个发现让我们对 Date 对象有了一个全新的认识-Date 存放的是与 EPOC 的偏差值。换而言之我们也可通过 long 类型来表示时间？对了，这个猜想是得到了 Java 的支持：
+   // 第二种获得当前时间的方法
+    long dateInMilliSeconds = System.currentTimeMillis();
+    // 这时候打印出的只是一串数字而已
+    System.out.println(dateInMilliSeconds);
+对程序执行效率敏感的程序员可以发现这个方法只是生成一个 Java 的原始类型 (primitive type) long, 不需要实例化一个对象。因此如果我们对时间的处理只是在内部进行时，可以用 long 来代替 Date 对象。
+最典型的应用就是在一段代码开始和结束时,分别获得系统当前的时间,然后计算出代码执行所需的时间(微秒级)。
+   long start = System.currentTimeMillis();
+    // 代码段
+    System.out.println("需要 "+(System.currentTimeMillis()-start)+" 微秒");
+那么当我们要把这个 long 值已更为友好的表现形式显示处理的时候，我们可以用它来构造 Date 对象：
+Date date = new Date(dateInMilliSeconds);
+System.out.println(date);
+我们看到了在 Java 中对时间最为基本的表示，有通过对EPOC 的偏差值进行处理。Date 对象是对它的一个对象的封装。我们同时也看到了，在现时世界中我们对时间的描述通常是通过"某年某月某日某时某分"来定义的。Date 的显示(实际上是 toString() 方法)描述了这些信息，但 Java 并不建议我们用这种方式直接来构件 Date 对象。因此我们需要找出哪个对象可以实现这个需求。这就是我们下面就要讲述的 Calendar 对象的功能。
+在我们进一步研究 Calendar 之前，请记住 Date 只是一个对 long 值(基于 GMT 时区)的对象封装。它所表现出来的年/月/日小时:分钟时区的时间表述，只是它的 toString() 方法所提供的。千万不要为这个假象所迷惑。
+假如我们希望定制日期数据的格式, 比方星期六-9月-29日-2001年. 下面的例子展示了如何完成这个工作: 
+import java.text.SimpleDateFormat; 
+import java.util.Date; 
+public class DateExample2 { 
+public static void main(String[] args) { 
+SimpleDateFormat bartDateFormat = new SimpleDateFormat("EEEE-MMMM-dd-yyyy"); Date date = new Date(); 
+System.out.println(bartDateFormat.format(date)); 
+}
+}
+只要通过向SimpleDateFormat 的构造函数传递格式字符串"EEE-MMMM-dd-yyyy", 我们就能够指明自己想要的格式. 你应该可以看见, 格式字符串中的ASCII 字符告诉格式化函数下面显示日期数据的哪一个部分. EEEE是星期, MMMM是月, dd是日, yyyy是年. 字符的个数决定了日期是如何格式化的.传递"EE-MM-dd-yy"会显示 Sat-09-29-01. 请察看Sun 公司的Web 站点获取日期格式化选项的完整的指示. 
+1.3. 文本数据解析成日期对象 
+假设我们有一个文本字符串包含了一个格式化了的日期对象, 而我们希望解析这个字符串并从文本日期数据创建一个日期对象. 我们将再次以格式化字符串"MM-dd-yyyy" 调用SimpleDateFormat类, 但是这一次, 我们使用格式化解析而不是生成一个文本日期数据. 我们的例子, 显示在下面, 将解析文本字符串"9-29-2001"并创建一个值为001736000000 的日期对象. 
+通过parse()方法，DateFormat能够以一个字符串创立一个Date对象。这个方法能抛出ParseException异常，所以你必须使用适当的异常处理技术。
+例子程序: 
+import java.text.SimpleDateFormat; 
+import java.util.Date; 
+public class DateExample3 { 
+public static void main(String[] args) { 
+// Create a date formatter that can parse dates of 
+// the form MM-dd-yyyy. 
+SimpleDateFormat bartDateFormat = new SimpleDateFormat("MM-dd-yyyy"); 
+// Create a string containing a text date to be parsed. 
+String dateStringToParse = "9-29-2001"; 
+try { 
+// Parse the text version of the date. 
+// We have to perform the parse method in a 
+// try-catch construct in case dateStringToParse 
+// does not contain a date in the format we are expecting. 
+Date date = bartDateFormat.parse(dateStringToParse); 
+// Now send the parsed date as a long value 
+// to the system output. 
+System.out.println(date.getTime()); 
+}catch (Exception ex) { 
+System.out.println(ex.getMessage()); 
+}
+} 
+} 
+1.4. 使用标准的日期格式化过程 
+既然我们已经可以生成和解析定制的日期格式了, 让我们来看一看如何使用内建的格式化过程. 方法 DateFormat.getDateTimeInstance() 让我们得以用几种不同的方法获得标准的日期格式化过程. 在下面的例子中, 我们获取了四个内建的日期格式化过程. 它们包括一个短的, 中等的, 长的, 和完整的日期格式. 
+import java.text.DateFormat; 
+import java.util.Date; 
+public class DateExample4 { 
+public static void main(String[] args) { 
+Date date = new Date(); 
+DateFormat shortDateFormat = DateFormat.getDateTimeInstance( 
+DateFormat.SHORT, DateFormat.SHORT); 
+DateFormat mediumDateFormat = DateFormat.getDateTimeInstance( 
+DateFormat.MEDIUM, DateFormat.MEDIUM); 
+DateFormat longDateFormat = DateFormat.getDateTimeInstance( 
+DateFormat.LONG, DateFormat.LONG); 
+DateFormat fullDateFormat = DateFormat.getDateTimeInstance( 
+DateFormat.FULL, DateFormat.FULL); 
+System.out.println(shortDateFormat.format(date)); System.out.println(mediumDateFormat.format(date)); System.out.println(longDateFormat.format(date)); System.out.println(fullDateFormat.format(date)); 
+} 
+} 
+注意我们在对 getDateTimeInstance的每次调用中都传递了两个值. 第一个参数是日期风格, 而第二个参数是时间风格. 它们都是基本数据类型int(整型). 考虑到可读性, 我们使用了DateFormat 类提供的常量: SHORT, MEDIUM, LONG, 和 FULL. 要知道获取时间和日期格式化过程的更多的方法和选项, 请看Sun 公司Web 站点上的解释. 
+运行我们的例子程序的时候, 它将向标准输出设备输出下面的内容: 
+9/29/01 8:44 PM 
+Sep 29, 2001 8:44:45 PM 
+September 29, 2001 8:44:45 PM EDT 
+Saturday, September 29, 2001 8:44:45 PM EDT 
+2.   Calendar 日历类 
+首先请记住 Calendar 只是一个抽象类, 也就是说你无法直接获得它的一个实例，换而言之你可以提供一个自己开发的 Calendar 对象。
+那究竟什么是一个 Calendar 呢？中文的翻译就是日历，那我们立刻可以想到我们生活中有阳(公)历、阴(农)历之分。它们的区别在哪呢？
+比如有：
+月份的定义 - 阳`(公)历 一年12 个月，每个月的天数各不同；阴(农)历，每个月固定28天,每周的第一天 - 阳(公)历星期日是第一天；阴(农)历，星期一是第一天
+实际上，在历史上有着许多种纪元的方法。它们的差异实在太大了，比如说一个人的生日是"八月八日" 那么一种可能是阳(公)历的八月八日，但也可以是阴(农)历的日期。所以为了计时的统一，必需指定一个日历的选择。那现在最为普及和通用的日历就是 "Gregorian Calendar"。也就是我们在讲述年份时常用 "公元几几年"。Calendar 抽象类定义了足够的方法，让我们能够表述日历的规则。Java 本身提供了对 "Gregorian Calendar" 规则的实现。我们从 Calendar.getInstance() 中所获得的实例就是一个 "GreogrianCalendar" 对象(与您通过 new GregorianCalendar() 获得的结果一致)。
+下面的代码可以证明这一点：
+   import java.io.*;
+    import java.util.*;
+    public class WhatIsCalendar
+    {
+        public static void main(String[] args) {
+            Calendar calendar = Calendar.getInstance();
+            if (calendar instanceof GregorianCalendar)
+                System.out.println("It is an instance of GregorianCalendar");
+        }
+    }
+Calendar 在 Java 中是一个抽象类(Abstract Class)，GregorianCalendar 是它的一个具体实现。
+Calendar 与 Date 的转换非常简单：
+   Calendar calendar = Calendar.getInstance();
+    // 从一个 Calendar 对象中获取 Date 对象
+    Date date = calendar.getTime();
+    // 将 Date 对象反应到一个 Calendar 对象中，
+    // Calendar/GregorianCalendar 没有构造函数可以接受 Date 对象
+    // 所以我们必需先获得一个实例，然后设置 Date 对象
+    calendar.setTime(date);
+Calendar 对象在使用时，有一些值得注意的事项：
+1. Calendar 的 set() 方法
+set(int field, int value) - 是用来设置"年/月/日/小时/分钟/秒/微秒"等值
+field 的定义在 Calendar 中
+set(int year, int month, int day, int hour, int minute, int second) 但没有set(int year, int month, int day, int hour, int minute, int second, int millisecond) 前面 set(int,int,int,int,int,int) 方法不会自动将 MilliSecond 清为 0。
+另外，月份的起始值为０而不是１，所以要设置八月时，我们用７而不是8。
+calendar.set(Calendar.MONTH, 7);
+我们通常需要在程序逻辑中将它清为 0，否则可能会出现下面的情况：
+   import java.io.*;
+    import java.util.*;
+    public class WhatIsCalendarWrite
+    {
+        public static void main(String[] args) throws Exception{
+            ObjectOutputStream out =
+                new ObjectOutputStream(
+                    new FileOutputStream("calendar.out"));
+            Calendar cal1 = Calendar.getInstance();
+            cal1.set(2000, 7, 1, 0, 0, 0);
+            out.writeObject(cal1);
+            Calendar cal2 = Calendar.getInstance();
+            cal2.set(2000, 7, 1, 0, 0, 0);
+            cal2.set(Calendar.MILLISECOND, 0);
+            out.writeObject(cal2);
+            out.close();
+        }
+    }
+我们将 Calendar 保存到文件中
+   import java.io.*;
+    import java.util.*;
+    public class WhatIsCalendarRead
+    {
+        public static void main(String[] args) throws Exception{
+            ObjectInputStream in =
+                new ObjectInputStream(
+                    new FileInputStream("calendar.out"));
+            Calendar cal2 = (Calendar)in.readObject();
+            Calendar cal1 = Calendar.getInstance();
+            cal1.set(2000, 7, 1, 0, 0, 0);
+            if (cal1.equals(cal2))
+                System.out.println("Equals");
+            else
+                System.out.println("NotEqual");
+            System.out.println("Old calendar "+cal2.getTime().getTime());
+            System.out.println("New calendar "+cal1.getTime().getTime());
+            cal1.set(Calendar.MILLISECOND, 0);
+            cal2 = (Calendar)in.readObject();
+            if (cal1.equals(cal2))
+                System.out.println("Equals");
+            else
+                System.out.println("NotEqual");
+            System.out.println("Processed Old calendar "+cal2.getTime().getTime());
+            System.out.println("Processed New calendar "+cal1.getTime().getTime());
+        }
+    }
+然后再另外一个程序中取回来（模拟对数据库的存储），但是执行的结果是：
+NotEqual
+Old calendar 965113200422 <------------ 最后三位的MilliSecond与当前时间有关
+New calendar 965113200059 <-----------/
+Equals
+Processed Old calendar 965113200000
+Processed New calendar 965113200000
+另外我们要注意的一点是，Calendar 为了性能原因对 set() 方法采取延缓计算的方法。在 JavaDoc 中有下面的例子来说明这个问题：
+
+Calendar cal1 = Calendar.getInstance();
+    cal1.set(2000, 7, 31, 0, 0 , 0); //2000-8-31
+    cal1.set(Calendar.MONTH, Calendar.SEPTEMBER); //应该是 2000-9-31，也就是 2000-10-1
+    cal1.set(Calendar.DAY_OF_MONTH, 30); //如果 Calendar 转化到 2000-10-1，那么现在的结果就该是 2000-10-30
+    System.out.println(cal1.getTime()); //输出的是2000-9-30，说明 Calendar 不是马上就刷新其内部的记录
+在 Calendar 的方法中，get() 和 add() 会让 Calendar 立刻刷新。Set() 的这个特性会给我们的开发带来一些意想不到的结果。我们后面会看到这个问题。
+2. Calendar 对象的容错性，Lenient 设置
+我们知道特定的月份有不同的日期，当一个用户给出错误的日期时，Calendar 如何处理的呢？
+   import java.io.*;
+    import java.util.*;
+    public class WhatIsCalendar
+    {
+        public static void main(String[] args) throws Exception{
+            Calendar cal1 = Calendar.getInstance();
+            cal1.set(2000, 1, 32, 0, 0, 0);
+            System.out.println(cal1.getTime());
+            cal1.setLenient(false);
+            cal1.set(2000, 1, 32, 0, 0, 0);
+            System.out.println(cal1.getTime());
+        }
+    }
+它的执行结果是：
+   Tue Feb 01 00:00:00 PST 2000
+    Exception in thread "main" java.lang.IllegalArgumentException
+        at java.util.GregorianCalendar.computeTime(GregorianCalendar.java:1368)
+        at java.util.Calendar.updateTime(Calendar.java:1508)
+        at java.util.Calendar.getTimeInMillis(Calendar.java:890)
+        at java.util.Calendar.getTime(Calendar.java:871)
+        at WhatIsCalendar.main(WhatIsCalendar.java:12)
+当我们设置该 Calendar 为 Lenient false 时，它会依据特定的月份检查出错误的赋值。
+3. 不稳定的 Calendar
+我们知道 Calendar 是可以被 serialize 的，但是我们要注意下面的问题
+   import java.io.*;
+    import java.util.*;
+    public class UnstableCalendar implements Serializable
+    {
+        public static void main(String[] args) throws Exception{
+            Calendar cal1 = Calendar.getInstance();
+            cal1.set(2000, 7, 1, 0, 0 , 0);
+            cal1.set(Calendar.MILLISECOND, 0);
+            ObjectOutputStream out =
+                new ObjectOutputStream(
+                new FileOutputStream("newCalendar.out"));
+            out.writeObject(cal1);
+            out.close();
+            ObjectInputStream in =
+                new ObjectInputStream(
+                new FileInputStream("newCalendar.out"));
+            Calendar cal2 = (Calendar)in.readObject();
+            cal2.set(Calendar.MILLISECOND, 0);
+            System.out.println(cal2.getTime());
+        }
+    }
+运行的结果竟然是: Thu Jan 01 00:00:00 PST 1970
+它被复原到 EPOC 的起始点，我们称该 Calendar 是处于不稳定状态。这个问题的根本原因是 Java 在 serialize GregorianCalendar 时没有保存所有的信息，所以当它被恢复到内存中，又缺少足够的信息时，Calendar 会被恢复到 EPOCH 的起始值。Calendar 对象由两部分构成：字段和相对于 EPOC 的微秒时间差。字段信息是由微秒时间差计算出的，而 set() 方法不会强制 Calendar 重新计算字段。这样字段值就不对了。
+下面的代码可以解决这个问题：
+   import java.io.*;
+    import java.util.*;
+    public class StableCalendar implements Serializable
+    {
+        public static void main(String[] args) throws Exception{
+            Calendar cal1 = Calendar.getInstance();
+            cal1.set(2000, 7, 1, 0, 0 , 0);
+            cal1.set(Calendar.MILLISECOND, 0);
+            ObjectOutputStream out =
+                new ObjectOutputStream(
+                new FileOutputStream("newCalendar.out"));
+            out.writeObject(cal1);
+            out.close();
+            ObjectInputStream in =
+                new ObjectInputStream(
+                new FileInputStream("newCalendar.out"));
+            Calendar cal2 = (Calendar)in.readObject();
+            cal2.get(Calendar.MILLISECOND); //先调用 get()，强制 Calendar 刷新
+            cal2.set(Calendar.MILLISECOND, 0);  //再设值
+            System.out.println(cal2.getTime());
+        }
+    }
+运行的结果是: Tue Aug 01 00:00:00 PDT 2000,这个问题主要会影响到在 EJB 编程中，参数对象中包含 Calendar 时。经过 Serialize/Deserialize 后，直接操作 Calendar 会产生不稳定的情况。
+4. add() 与 roll() 的区别
+add() 的功能非常强大，add 可以对 Calendar 的字段进行计算。如果需要减去值，那么使用负数值就可以了，如 add(field, -value)。
+add() 有两条规则：
+当被修改的字段超出它可以的范围时，那么比它大的字段会自动修正。如：
+Calendar cal1 = Calendar.getInstance();
+cal1.set(2000, 7, 31, 0, 0 , 0); //2000-8-31
+cal1.add(Calendar.MONTH, 1); //2000-9-31 => 2000-10-1，对吗？System.out.println(cal1.getTime()); //结果是 2000-9-30
+另一个规则是，如果比它小的字段是不可变的（由 Calendar 的实现类决定），那么该小字段会修正到变化最小的值。
+以上面的例子，9-31 就会变成 9-30，因为变化最小。
+Roll() 的规则只有一条：当被修改的字段超出它可以的范围时，那么比它大的字段不会被修正。如：
+Calendar cal1 = Calendar.getInstance();
+cal1.set(1999, 5, 6, 0, 0, 0); //1999-6-6, 周日
+cal1.roll(Calendar.WEEK_OF_MONTH, -1); //1999-6-1, 周二
+cal1.set(1999, 5, 6, 0, 0, 0); //1999-6-6, 周日
+cal1.add(Calendar.WEEK_OF_MONTH, -1); //1999-5-30, 周日
+WEEK_OF_MONTH 比 MONTH 字段小，所以 roll 不能修正 MONTH 字段。
+我们现在已经能够格式化并创建一个日期对象了, 但是我们如何才能设置和获取日期数据的特定部分呢, 比如说小时, 日, 或者分钟? 我们又如何在日期的这些部分加上或者减去值呢? 答案是使用Calendar 类. 就如我们前面提到的那样, Calendar 类中的方法替代了Date 类中被人唾骂的方法. 
+假设你想要设置, 获取, 和操纵一个日期对象的各个部分, 比方一个月的一天或者是一个星期的一天. 为了演示这个过程, 我们将使用具体的子类 java.util.GregorianCalendar. 考虑下面的例子, 它计算得到下面的第十个星期五是13号. 
+import java.util.GregorianCalendar; 
+import java.util.Date; 
+import java.text.DateFormat; 
+public class DateExample5 { 
+public static void main(String[] args) { 
+DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.FULL); 
+// Create our Gregorian Calendar. 
+GregorianCalendar cal = new GregorianCalendar(); 
+// Set the date and time of our calendar 
+// to the system&s date and time 
+cal.setTime(new Date()); 
+System.out.println("System Date: " + dateFormat.format(cal.getTime())); // Set the day of week to FRIDAY 
+cal.set(GregorianCalendar.DAY_OF_WEEK, GregorianCalendar.FRIDAY); System.out.println("After Setting Day of Week to Friday: " + dateFormat.format(cal.getTime())); 
+int friday13Counter = 0; 
+while (friday13Counter <= 10) { 
+// Go to the next Friday by adding 7 days. cal.add(GregorianCalendar.DAY_OF_MONTH, 7); 
+// If the day of month is 13 we have 
+// another Friday the 13th. 
+if (cal.get(GregorianCalendar.DAY_OF_MONTH) == 13) { 
+friday13Counter++; System.out.println(dateFormat.format(cal.getTime())); 
+} 
+} 
+} 
+} 
+在这个例子中我们作了有趣的函数调用: 
+cal.set(GregorianCalendar.DAY_OF_WEEK, GregorianCalendar.FRIDAY); 
+和:cal.add(GregorianCalendar.DAY_OF_MONTH, 7); 
+set 方法能够让我们通过简单的设置星期中的哪一天这个域来将我们的时间调整为星期五. 注意到这里我们使用了常量 DAY_OF_WEEK 和 FRIDAY来增强代码的可读性. add 方法让我们能够在日期上加上数值. 润年的所有复杂的计算都由这个方法自动处理. 
+我们这个例子的输出结果是: 
+System Date: Saturday, September 29, 2001 
+当我们将它设置成星期五以后就成了: Friday, September 28, 2001 
+Friday, September 13, 2002 
+Friday, December 13, 2002 
+Friday, June 13, 2003 
+Friday, February 13, 2004 
+Friday, August 13, 2004 
+Friday, May 13, 2005 
+Friday, January 13, 2006 
+Friday, October 13, 2006 
+Friday, April 13, 2007 
+Friday, July 13, 2007 
+Friday, June 13, 2008 
+Calendar类的基础即有变量域的观念。每个类元素都是域，并且这些域在Calendar类中表现为静态变量。这些变量域，可以通过get/set类方法来获得或者设置域值。
+// 获得默认的Calendar实例，给它设置时间
+Calendarcal = Calendar.getInstance();
+intyear = cal.get(Calendar.YEAR);
+cal.set(Calendar.MONTH,Calendar.NOVEMBER); 
+Calendar类的add和roll方法提供在日期之间转换的能力。每个方法都由一个参数变量和一个参数值来修改，通过这个可为正数或负数的参数值来修改它。仅仅不同的是，add方法可以向高阶的变量域溢出。例如，如果从九月三号向后倒退三天，将得到：
+Calendar cal = Calendar.getInstance();
+cal.add(Calendar.DATE,-3);
+// 值为: 星期六八月 31 23:43:19 EDT 2002 
+然而使用roll方法向后回滚三天得出：
+Calendar cal = Calendar.getInstance();
+cal.roll(Calendar.DATE,-3);
+// 值为: 星期一九月 30 23:43:47 EDT 2002 
+这就是为什么通常主要使用add方法的原因。
+还有一个隐藏在最通用的Calendar的子类中的功能性方法--isLeapYear（判断是否为闰年）方法。
+Calendar cal = Calendar.getInstance();
+booleanleapYear = ( (GregorianCalendar)cal ).isLeapYear(2002);
+// 这个值是false 
+尽管它是一个实例方法，isLeapYear方法的行为表现像静态方法，需要提供年份的参数传值给日历。
+其实求几天几月几年前/后的方法，应该用Calendar类比较好的（比Date）。
+Calendar cal = Calendar.getInstance();
+cal.setTime(date);
+cal.add(Calendar.MONTH,1);
+cal.add(Calendar.YEAR,2000);
+date = cal.getTime();
+通过接管日期修改的功能，java.util.Calendar类看上去更像是Data类的复杂版本。但是它还提供额外的功能，更不用说它的国际化支持，使得它值得拥有学习的难度曲线。 

@@ -1,0 +1,12 @@
+[Tue Jan 21 10:11:59 2014] [debug] Starting application.
+[Tue Jan 21 10:12:04 2014] [debug] Starting application.
+[Tue Jan 21 10:12:04 2014] [info] Listening at "http://*:3000".
+[Tue Jan 21 10:12:10 2014] [debug] Your secret passphrase needs to be changed!!!
+[Tue Jan 21 10:12:10 2014] [debug] GET "/".
+[Tue Jan 21 10:12:10 2014] [debug] Routing to a callback.
+[Tue Jan 21 10:12:10 2014] [debug] Rendering mode specific message.
+[Tue Jan 21 10:12:10 2014] [debug] 200 OK (0.001618s, 618.047/s).
+[Tue Jan 21 10:12:16 2014] [debug] GET "/".
+[Tue Jan 21 10:12:16 2014] [debug] Routing to a callback.
+[Tue Jan 21 10:12:16 2014] [debug] Rendering mode specific message.
+[Tue Jan 21 10:12:16 2014] [debug] 200 OK (0.000523s, 1912.046/s).

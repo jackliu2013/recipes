@@ -1,0 +1,12 @@
+1. 生成简单的应用程序
+    mojo generate myapp -- mojo generate app_name
+
+
+Routes 只是请求过来的基本的路径。可以在路径中包含不同的占位符。$self 是 Mojolicious::Controller 对象其中包含着 HTTP request 和 HTTP response。
+
+
+GET/POST parameters
+全部的 GET 和 POST 的参数只需要通过 "param" in Mojolicious::Controller 来访问.
+
+Stash and templates
+这个 "stash" in Mojolicious::Controller 是用来传一些数据给模板技术使用,在这我们使用的是 DATA 这个部分的模板.

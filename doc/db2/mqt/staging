@@ -1,0 +1,54 @@
+staging 表
+
+如果 REFRESH DEFERRED MQT 有一个相关联的 staging 表，那么可以对其执行增量刷新。staging 表 收集更改，以便应用这些更改，使得 MQT 与它的底层表同步。可以使用 CREATE TABLE 语句创建一个 staging 表。然后，当 MQT 的底层表被修改时，变化就会传播过来，并立即被添加到 staging 表中。其思想是，使用 staging 表增量式地刷新 MQT，而不是从头开始重新生成 MQT。增量式维护这种方式可以显著提高性能。当刷新操作完成时，staging 表就会被删除。
+
+staging 表被创建之后，便处于悬挂（不一致）状态。在开始收集底层表上的更改之前，它必须脱离这种状态。为此，可以使用 SET INTEGRITY 语句。
+
+清单 4 展示了一个使用有关联总结表的 staging 表的例子。总结表名为 EMP_SUMMARY，它基于 SAMPLE 数据库中的底层表 EMPLOYEE。您应该还记得，DATA INITIALLY DEFERRED 子句的意思是，在执行 CREATE TABLE 语句的时候，并不将数据插入到表中。而 REFRESH DEFERRED 子句的意思是，在任何时候都可以使用 REFRESH TABLE 语句刷新该表中的数据。staging 表名为 EMP_SUMMARY_S，它与总结表 EMP_SUMMARY 相关联。PROPAGATE IMMEDIATE 子句规定，在 insert、update 或 delete 操作中对底层表做出的任何更改，都将被累积在 staging 表中。对于这两个表，都发出 SET INTEGRITY 语句，以便使它们都脱离悬挂状态。
+
+不出所料，此时对总结表的查询没有返回任何数据。REFRESH TABLE 语句返回一条警告，提示说 "integrity of non-incremental data remains unverified"。这也不值得惊讶。再次查询总结表，仍然没有返回任何数据。但是，当我们插入新的一行数据到底层的 EMPLOYEE 表之后，再次查询 staging 表 EMP_SUMMARY_S 便返回一行记录，这行数据与刚才插入的数据是一致的。staging 表中有三个列与其底层总结表中的三列相同，另外还有两个由系统使用的列：GLOBALTRANSID（每个被传播的行对应的全局事务 ID）和 GLOBALTRANSTIME（事务的时间戳）。再次查询总结表，又是没有返回数据，但是当执行了 REFRESH TABLE 语句之后，查询得以成功运行
+
+
+此次实验是在sample数据库上做的
+
+
+--创建employee的MQT表 emp_summary
+create table emp_summary as (select workdept, job, count(*) as count
+ from employee group by workdept, job) 
+data initially deferred refresh deferred ;
+
+-- 创建MQT表emp_summary的staging表emp_summary_s
+create table emp_summary_s for emp_summary propagate immediate ;
+
+set integrity for emp_summary materialized query immediate unchecked ;
+
+set integrity for emp_summary_s staging immediate unchecked ;
+
+
+-- 1. 查询物化表数据，此时是空的
+select * from emp_summary ;
+
+--2. 刷新物化表
+refresh table emp_summary       ;
+
+--3.刷新物化表后，查询物化表仍然是空的
+select * from emp_summary ;
+
+--4. 向基本表employee 插入数据
+insert into employee  values ('006900', 'RUSS', 'L', 'DYERS', 'D21', '1234', '1960-05-05', 'FIELDREP', 5, 'M', '1940-04-02', 10000, 100, 1000); 
+ 
+--5.查询物化表emp_summary的staging表 emp_summary_s，此时该表里有一条数据
+select * from emp_summary_s ;
+    
+--6.查询物化表emp_summary，该表的数据仍然是空的
+select * from emp_summary ;
+
+
+
+当执行 refresh table emp_summary 命令时，会报警告:
+SQL1594W  Integrity of non-incremental data remains unverified by the database
+manager.  SQLSTATE=01636
+
+此时需要执行 set integrity for sum_$book immediate checked not incremental; 
+来增加对mqt进行完整性检查
+

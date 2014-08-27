@@ -1,0 +1,42 @@
+<html>
+<head>
+	<script language="javascript">
+function load(){
+     var tab=document.getElementById("grid");
+     var rows=tab.rows;
+     //alert(rows.length);
+     for(var i=0;i<rows.length;i++)
+     {
+        for(var j=0;j<rows[i].cells.length;j++)
+        {
+       alert("第"+(i+1)+"行，第"+(j+1)+"列的值是:"+rows[i].cells[j].innerHTML);
+        }
+     }
+   }
+   </script>
+</head>
+<body>
+	<table id="grid">
+		<tr>
+			<td>
+				1
+			</td>
+			<td>2
+			</td>
+				<td>3
+			</td>
+		</tr>
+		<tr>
+			<td>4
+			</td>
+				<td>5
+			</td>
+				<td>6
+			</td>
+		</tr>
+		<tr>
+			<input type="button" onclick="load();" value="submit" />
+		</tr>
+	</table>
+</body>
+</html>

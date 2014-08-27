@@ -1,0 +1,42 @@
+
+1. 修改表中某列的数据类型
+    语法: alter table table_name alter column column_name set data type 
+
+    Demo:
+        alter table bip alter column content set data type BOLB (102400) 
+
+        alter table table_name alter column column_test set data type VARCHAR(30);
+
+        注意: 更改字段类型是有操作限制的. 将字段改为比之前类型长度大的可以,如果要改小,必须先drop掉原来的column,然后再重新添加.
+
+        例如我要将一个Varchar(50)的column改为Varchar(30) ,这样采用以上的sql是不能成功的. 另外改为不同的类型,也需要先drop掉column.
+
+2. 在表中添加一列
+    语法: alter table 表名称 add 字段名称 类型
+
+    Demo:
+        alter table table_name  add  column_test VARCHAR(50);
+
+3. 去掉表中的某列
+    语法: alter table 表名称 drop column 字段名
+
+    Demo:
+        alter table table_name drop column column_test;
+
+        注意:drop掉字段之后,可能会导致表查询/插入操作不能执行,需要执行一下reorg命令才可以.
+
+        reorg table table_name;
+
+4.为字段添加默认值
+    语法: alter table 表名称 alter column 字段名 set default 值
+
+    Demo:
+        alter table table_name alter column column_test set default  'value';
+
+5. 添加带默认值的字段
+    Demo:
+        alter table table_name add column column_test vachar(20) not null with default  'value';
+
+6. 设置字段默认时间为当前时间 
+   Demo:
+        alter table table_name alter column column_test set default  current date;

@@ -1,0 +1,12 @@
+#!/usr/bin/env perl
+#
+# 测试用Class::Struct生成类
+#
+use Person;
+use Data::Dump;
+
+my $mage = Person->new();
+$mage->name("jackliu");
+$mage->race("hello");
+$mage->aliases( [ "hello", "world", "jackliu" ] );
+Data::Dump->dump($mage);

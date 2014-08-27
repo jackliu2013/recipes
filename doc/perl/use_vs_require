@@ -1,0 +1,91 @@
+use 和 require 的区别
+
+相同：
+
+都可以用来引用模块module（.PM）。
+
+ 
+
+不同：
+
+1） 区别在于USE是在当前默认的@INC里面去寻找,一旦模块不在@INC中的话,用USE是不可以引入的，但是require可以指定路径；
+
+2）use引入的名称不需要后缀名,默认找.PM文件，而require需要后缀名，且后缀名可以为.PM或.PL；
+
+实例：perl目录下3个文件如下（且module文件的最后必须有1;）
+#file : CallModule.pl
+use strict;
+
+BEGIN {
+    my $scriptDir = $0;
+    $scriptDir =~ s:\\:/:g;
+    $scriptDir =~ s,/?[^/]+$,,;
+    $scriptDir = "." if ($scriptDir eq "");
+    unshift(@INC, $scriptDir);
+}
+
+
+#require "perl/pmodule1.pl";
+
+require "pmodule1.pl";
+use pmodule2;
+
+Hello1();
+Hello2();
+
+print "I am caller!\n";
+
+exit 0;
+
+#file : pmodule1.pl
+use strict;
+
+sub Hello1
+{
+  print "Hello1\n";
+}
+
+1;
+
+#file : pmodule2.pm
+use strict;
+
+sub Hello2
+{
+   print "Hello2\n";
+}
+
+1;
+
+
+3）use语句是编译时引入的，require是运行时引入的； 下面的例子是错误的：
+use Config;
+if( $Config{'osname'} eq "MSWin32" ) {
+    use Win32Module;
+}
+else {
+    use UnixModule;
+}
+
+正因为use是发生在编译期，代码没有执行，所以$Config变量的值是无法判断的。在内部，use其实调用了require和import静态函数。
+import()函数告诉包哪些特征将要被导入当前包中，这意味着用之前不必验证函数或者变量是否合法。而require是不会调用import()的。
+
+4）use引入模块的同时，也引入了模块的子模块。而require则不能引入，要在重新声明；例如
+
+use my
+
+my中包含了一个Module.pm
+而require 则需要引入
+
+require my
+
+require my::Module.pm
+如果不想让use引入Module.pm则可以用 use require（） 加一对括号来说明即可。
+
+5）USE引用模块时，如果模块名称中包含::双冒号，该双冒号将作为路径分隔符，相当于Unix下的/或者Windows下的\。 如：
+use MyDirectory::MyModule;
+编译器将从@INC指定的目录下的MyDirectory子目录去寻找MyModule模块, 类似
+如下路径：
+Perl/lib/MyDirectory
+Perl/ext/lib/MyDirectory
+Perl/site/lib/MyDirectory

@@ -1,0 +1,21 @@
+# 
+# logrotate Linux系统的日志管理模块，通过进行配置文件实现系统对日志文件的转存
+# 管理，如下是vsftpd的配置文件
+#
+# /etc/logrotate.d 目录下面是logrotate的配置文件目录
+# /etc/logrotate.conf是系统默认的logrotate配置文件
+#
+/var/log/vsftpd.log
+{
+	create 640 root adm
+
+    # ftpd doesn't handle SIGHUP properly
+    daily       # 每天都进行转存
+    dateext     # 转存的文件后缀带上日期
+    rotate 30   # 保存一个月的日志
+    olddir /var/vsftpd  # 转存后的日志放进的目录
+    nocompress      # 不压缩
+    notifempty      # 如果文件为空 不进行转存
+    missingok       # 如果日志丢失，不报错继续滚动下一个日志
+}
+

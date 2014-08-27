@@ -1,0 +1,6 @@
+# db_load 根据文本文件生成hash用的db
+# 文本文件里面用户名/密码成对出现
+db_load -T -t hash -f /etc/ftpvuser.txt /etc/vsftpd_ftpvuser.db 
+
+# 打印db里面的数据
+db_dump -d a /etc/vsftpd_ftpvuser.db

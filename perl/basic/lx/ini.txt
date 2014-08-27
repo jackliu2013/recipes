@@ -1,0 +1,7 @@
+[section_1]
+s1k1 = s1v1
+s1k2 = s1v2
+
+[section_2]
+s2k1 = s2v1
+s2k2 = s2v2

@@ -1,0 +1,52 @@
+
+
+安装DB2数据库服务器
+
+sudo su
+tar -zxvf v9.7fp5_linuxx64_server.tar.gz
+cd server
+./db2_install
+
+#############################################################
+# 中间有报依赖性问题， 请自行通过apt-get安装解决(libaio libstdc++)
+#############################################################
+
+# 建立数据库实例
+## 1. 添加数据管理组
+groupadd db2fadm
+groupadd db2iadm
+groupadd dasadm
+
+## 2. 添加数据库用户
+useradd -m -s /bin/bash -d /home/db2inst -g db2iadm db2inst
+useradd -m -s /bin/bash -d /home/db2fenc -g db2fadm db2fenc
+
+## 3. 建立数据库实例(服务器实例 && 客户端实例, 如开发者用户为hary)
+#/opt/ibm/db2/V9.7/instance/db2icrt -a server -s ese -u db2fenc db2inst	(ese)
+#/opt/ibm/db2/V9.7/instance/db2icrt -a client -s client hary (ese)
+/opt/ibm/db2/V9.7/instance/db2icrt -a server -u db2fenc db2inst	(express-c)
+/opt/ibm/db2/V9.7/instance/db2icrt -a client -s client jackliu  (express-c)
+
+## 4. 设置数据库实例
+su - db2inst
+db2 update dbm cfg using SVCENAME 6666
+db2set db2comm=tcpip
+
+## 5. 启动数据库(在db2inst用户下)
+db2start
+
+## 6. 在开发用户下编目数据库(开发,测试,生产)
+db2 catalog tcpip node hnode remote 127.0.0.1 server 6666
+db2 catalog tcpip node cnode remote canna server 6666
+db2 catalog tcpip node tnode remote tulip server 6666
+
+db2 catalog db zdb as zdb_dev at node hnode
+db2 catalog db zdb as zdb_uat at node cnode
+db2 catalog db zdb as zdb_pat at node cnode
+db2 catalog db zdb as zdb_prd at node tnode
+
+##########################################
+# 32位主机系统请安装db2 express-c, 方法类似
+##########################################
+
+

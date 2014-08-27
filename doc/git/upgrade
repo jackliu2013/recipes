@@ -1,0 +1,8 @@
+1.先对上线的分支打包
+    --format=tar.gz  指定包的格式
+    -o 指定tar包的输出路径
+git archive --format=tar.gz -o /tmp/zark-2_0.tar.gz 2.0
+ 
+2.在UAT环境解压tar包
+tar zxvf zark-2_0.tar.gz -C zark_2.0 
+

@@ -1,0 +1,49 @@
+1. 自动渲染
+
+渲染可以通过调用方法 "render" in Mojolicious::Controller 手动启动，但通常没有必要，因为路由完后会自动调用。 This also means you can have routes pointing only to templates without actual actions.
+
+$self->render;
+
+这有个区别，在手动调用它时，是使用的当前的控制器对象，并不是 "controller_class" in Mojolicious 中指定的默认的。
+
+
+2. 渲染模板
+
+渲染器会自动的检查合适的模板，当然你也可以使用 stash 中的变量 template 来指定一个。
+
+$self->render(template => 'foo/bar');
+
+选择特定的 format 和 handler 也很容易.
+$self->render(template => 'foo/bar', format => 'txt', handler => 'epl');
+
+因为最常用的功能是显示指定的模板，所以上面的太过于复杂，可以使用下面的做为代替.
+$self->render('foo/bar');
+
+3. 渲染 inline 模板
+
+象 ep 之内，也可以允许内联来使用.
+
+$self->render(inline => 'The result is <%= 1 + 1%>.');
+
+默认是使用自动来决定 handler 来做解析，你也可以指定 handler。
+
+$self->render(inline => "<%= shift->param('foo') %>", handler => 'epl');
+
+4. 渲染文本
+
+在这我们可以直接显示 Perl 中的字符，只要使用 text 就行了，这个会自动编码成字节数据。
+
+$self->render(text => 'Hello Wörld!');
+
+5. 渲染 data
+原始字节可以使用 data 的选项，这样不会对数据进行编码。
+$self->render(data => $octets);
+
+6. 渲染 JSON
+这个只需要给使用 json 的参数。然后提供一个 Perl 的数据结构就行了。
+$self->render(json => {foo => [1, 'test', 3]});
+
+7. Partial rendering
+Sometimes you might want to access the rendered result, for example to generate emails, this can be done using the partial stash value.
+
+my $html = $self->render('mail', partial => 1);

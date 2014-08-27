@@ -1,0 +1,5 @@
+# catalog node
+db2 catalog tcpip node uat_node remote 172.17.2.129 server 6666
+
+# catalog db
+db2 catalog db zdb as zdb_uat at node uat_node

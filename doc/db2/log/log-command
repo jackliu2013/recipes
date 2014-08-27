@@ -1,0 +1,20 @@
+-- 查看数据库zdb所有的归档日志记录
+db2 list history archive log all for zdb
+
+-- 清除指定时间戳及之前的所有条目（不只是归档日志的）
+/* 
+    PRUNE HISTORY timestamp [WITH FORCE OPTION] [AND DELETE]
+
+    PRUNE LOGFILE PRIOR TO log-file-name
+*/
+
+db2 prune history 20100103235553
+
+使用 db2 prune logfile 命令可以清除活动日志目录下的在线归档日志文件，但对离线归档日志文件无效
+
+
+-- 对数据库进行一次全备，再次尝试清除(在线备份)
+db2 backup db zdb online to /data/backup
+
+
+使用 db2 prune logfile 命令可以清除活动日志目录下的在线归档日志文件，但对离线归档日志文件无效

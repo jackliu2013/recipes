@@ -1,0 +1,26 @@
+Linux下如何查看系统启动时间和运行时间
+
+1.uptime命令
+输出:16:11:40 up 59 days, 4:21, 2 users, load average: 0.00, 0.01, 0.00
+
+2.查看/proc/uptime文件计算系统启动时间
+cat /proc/uptime
+输出: 5113396.94 575949.85
+第一数字即是系统已运行的时间5113396.94 秒，运用系统工具date即可算出系统启动时间
+
+代码: 全选
+    date -d "$(awk -F. '{print $1}' /proc/uptime) second ago" +"%Y-%m-%d %H:%M:%S"
+
+
+    输出: 2008-11-09 11:50:31
+
+3.查看/proc/uptime文件计算系统运行时间
+
+代码: 全选
+        cat /proc/uptime| awk -F. '{run_days=$1 / 86400;run_hour=($1 % 86400)/3600;run_minute=($1 % 3600)/60;run_second=$1 % 60;printf("系统已运行：%d天%d时%d分%d秒",run_days,run_hour,run_minute,run_second)}'
+
+
+输出:系统已运行：59天4时13分9秒
+
+查看系统日志
+/var/log/messages

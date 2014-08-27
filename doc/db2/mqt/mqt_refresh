@@ -1,0 +1,440 @@
+物化查询表（MQT）是以一次查询的结果为基础定义的表，可以显著提高查询的性能尤其是提高复杂查询的性能，在数据仓库等大型系统中有着广泛的应用。要使 MQT 正常工作必须对其进行刷新，刷新的方式有多种，每一种方式其内部机制也各不相同，相应的其性能也有差别。
+
+在本文中，我们将利用 DB2 说明（explain）工具获取 MQT 刷新时相应的访问方案（access plan），通过分析访问方案来理解刷新机制，从而使读者能够在实际应用中合理的选择刷新方式，更大程度的发挥 MQT 在性能提高方面的优势。
+
+开始之前
+
+在开始讨论之前如果有需要可以复习一下物化查询表的基本概念，可以参考这篇文章《 DB2 基础 : 物化查询表简介》，或者在 DB2 9.7 信息中心上查找相关主题。
+
+DB2 提供多种方式使用说明工具，如 Visual Explain，EXPLAIN 命令 , db2expln 工具等，在本文中我们将使用的是设置 CURRENT EXPLAIN MODE 然后用 db2exfmt 命令来格式化说明表的内容来获取访问方案。关于说明工具的更多信息，请参考 DB2 Information Center 上“说明工具”主题。
+
+回页首
+
+MQT 刷新方式
+
+MQT 可以分为两种类型，一种是系统维护的 MQT，一种是用户维护的 MQT，其中前者有着广泛的应用，因此在本文只讨论系统维护的 MQT。
+
+对于系统维护的 MQT 的刷新方式，根据刷新时间的不同可以分为两种，一种是 REFRESH IMMEDIATE 也就是即时刷新，一种是 REFRESH DEFERRED 也就是延迟刷新。
+
+    使用即时刷新的方式，当对基表进行任何 insert/update/delete 等操作时，MQT 中的数据也自动的进行相应的刷新，其优点是能保证 MQT 中的数据总是最新的，但是由于对基表进行操作的同时还需要维护 MQT，负载有所增加。
+        使用延迟刷新的方式，当对基表进行任何 insert/update/delete 等操作时，MQT 中的数据没有进行相应的刷新，而是等到用户（DBA）阶段性的执行刷新命令时才进行刷新。这种方式适合用在绝大部分时间都是只读的应用系统中，或者数据的更新只发生维护窗口时间。
+
+    MQT 刷新方式还可以从数据刷新范围的角度分成两类，一类是完全刷新，一类是增量刷新。
+
+    完全刷新方式是将基表中的所有数据重新进行计算和处理从而更新 MQT 的数据。这种方式的缺点是 当基表的数据量大而且 MQT 定义复杂时，刷新过程可能会比较慢。
+    增量更新方式是针对 insert/update/delete 等操作更新过的基表中的那一部分数据，对 MQT 中相应数据进行刷新，而不需要访问基表中所有数据。
+
+    将两种分类方法结合在一起讨论，即时刷新方式必然是增量刷新方式，延迟刷新方式采用的是完全刷新，但不是所有的延迟刷新方式都是完全刷新，有一种特殊的延迟刷新即“使用登台表（staging table）的延迟刷新”采用的是增量更新。当 MQT 的基表被修改时，变化就会传播过来，并立即被添加到 staging 表中，这样就可以利用 staging 表增量刷新，而不是从头开始重新生成 MQT，从而可以显著提高性能。当刷新操作完成时，staging 表中的数据就会被删除。
+
+    接下来我们对以上几种刷新方式，通过其访问方案来进行深入的讨论。
+
+    回页首
+
+    准备工作
+
+    我们先创建一个新的数据库名字叫做 MYDB，或者也可以使用一个已有的数据库。本文中所有操作都是在 LinuxAMD64 平台上的 DB2 9.7 版本进行，在其他的版本上也可以得到相似的结果，但不能保证完全一致。
+
+    连接到数据库之后，创建说明表（explain tables），使用的命令如清单 1 所示。
+
+    清单 1. 创建数据库，说明表，基表
+    db2start 
+    db2 CREATE DB MYDB 
+    db2 CONNECT TO MYDB 
+    db2 – tvf ~/sqllib/misc/EXPLAIN.DDL 
+
+    对于不同的平台如 Windows 平台或者安装路径的不同，EXPLAIN.DDL 文件的位置会有相应的不同， 但都是在 sqllib 目录中。
+    回页首
+    REFRESH IMMEDIATE 方式
+    创建一个基表并插入若干数据，然后创建一个即时刷新的 MQT，使用的语句如清单 2 所示。
+    清单 2. 创建即时刷新的 MQT
+    create table basetable 
+        (c1 int not null primary key, c2 int, c3 int, c4 int); 
+
+    insert into basetable values(1,1,1,1),(2,2,2,2),(3,3,3,3),(11,11,11,11); 
+
+    create table mqttab as 
+         (select c1, c2, c3 from basetable where c1 > 10) 
+         data initially deferred refresh immediate; 
+    set integrity for mqttab immediate checked not incremental; 
+
+    在清单 2 中创建一个 MQT 名字是 mqttab，其数据是基表中 c1>10 的行并只取每一行的前三个 column。 需要说明一下的是，这个 MQT 非常的简单甚至于没有任何应用的价值，但是已经可以满足本文中所讨论问题的需求，这里我们的目标是探讨 MQT 的刷新机制，为了便于理解我们没有使用总结表等类型的 MQT。
+
+    上文中提到即时刷新的 MQT 能够始终保证数据都是最新的，也就是在任何对基表的 insert/update/delete 等操作时，MQT 中的数据也自动的进行相应的刷新。接下来我们设置 CURRENT EXPLAIN MODE，并向基表 basetable 中插入一条数据，这条数据满足 c1>10，然后来看这个操作的访问方案，使用的命令和访问方案如清单 3 所示。
+
+    清单 3. 基表的 insert 操作时的访问方案
+    db2 set current explain mode explain 
+    db2 "insert into basetable values(12,12,12,12)"
+    db2exfmt -d MYDB -1 -e -o insert1.exfmt 
+    db2 set current explain mode no 
+    Rows
+    RETURN
+    (   1)
+    Cost
+    I/O
+    |
+    1
+    INSERT
+    (   2)
+    16.1648
+    2
+    /---+---\
+    1           1
+    INSERT  TABLE: HQY
+    (   3)      MQTTAB
+    8.0848        Q1
+    1
+    /---+---\
+    1           4
+    TBSCAN  TABLE: HQY
+    (   4)     BASETABLE
+    0.0048        Q4
+    0
+    |
+    1
+    TABFNC: SYSIBM
+    GENROW
+    2) INSERT: (Insert) 
+   Input Streams: 
+   ------------- 
+   4) From Operator #3 
+    Estimated number of rows: 1
+    Number of columns: 3 
+    Subquery predicate ID: Not Applicable 
+    Column Names: 
+    ------------ 
+    +Q6.$C0+Q6.$C1+Q6.$C2 
+    在清单 3 的访问方案中我们可以看到，DB2 数据库管理器在执行这条 insert 语句的时候，不但向基表 basetable 中插入了数据（INSERT 操作符 3），而且同时向 MQT mqttab 执行了插入操作（INSERT 操作符 2），这就充分说明了采用即时刷新方式时对 MQT 的刷新是与基表的操作同时完成的。另外在 INSERT 操作符 2 的 detail 中可以看到 Estimated number of rows: 1，说明对于 MQT 的刷新是增量刷新。
+    需要提醒一下的是，由于是在 explain mode 下使用了插入操作，但实际上该插入操作并没有真正执行而只是生成了访问方案，所以如果此时查询 MQT 会发现无法找到这条新数据，下文中的各项操作都是与此类的情况。
+    接下来我们来看对基表的 update 和 delete 操作时的访问方案，使用的命令如清单 4 所示。
+    清单 4. 基表的 update 和 delete 操作
+    db2 set current explain mode explain 
+    db2 "update basetable set c2=100 where c1=11"
+    db2exfmt -d MYDB -1 -e -o update1.exfmt 
+    db2 "delete from basetable where c1=11"
+    db2exfmt -d MYDB -1 -e -o delete1.exfmt 
+    db2 set current explain mode no 
+    观察对基表的 update 和 delete 操作时的访问方案，我们会发现与清单 3 中 insert 操作时的访问方案相似，都是在对基表完成 update 或 delete 操作的同时相应的完成对 MQT 的刷新操作。读者可以在本文最后的下载链接中找到 update1.exfmt 和 delete1.exfmt 中的访问方案，限于篇幅不在正文部分显示。
+
+    最后，我们来看一下当用户手动的刷新 MQT 时其执行方案，使用的命令和访问方案如清单 5 所示。
+
+    清单 5. 手动刷新采用即时更新方式的 MQT
+    db2 set current explain mode explain
+    db2 "refresh table mqttab"
+    db2exfmt -d MYDB -1 -e -o refresh1.exfmt
+    db2 set current explain mode no
+    Rows
+    RETURN
+    (   1)
+    Cost
+    I/O
+    |
+    1
+    TBSCAN
+    (   2)
+    0.0048
+    0
+    |
+    1
+    TABFNC: SYSIBM
+    GENROW
+
+    在清单 5 的执行计划可以看到，对于采用即时刷新方式的 MQT，当用户手动刷新时并没有对该 MQT 进行任何操作。访问方案中的 SYSIBM.GENROW 是一个内置函数，它可生成行的表而不使用任何输入，它可以用来生成数据行，然后 TBSCAN 操作符读取数据行。
+    至此，我们已经通过访问方案理解了 MQT 的即时刷新方式，接下来我们继续讨论 MQT 的延迟刷新方式。
+    回页首
+    
+    REFRESH DEFERRED 方式（无登台表，即完全刷新）
+    创建一个基表并插入若干数据，然后创建一个延迟刷新的 MQT，这里基表和 MQT 的表结构与之前的相同，这样也便于我们比较不同刷新方式的异同。使用的语句如清单 6 所示。
+清单 6. 创建延迟刷新的 MQT
+create table basetab2 
+    (c1 int not null primary key, c2 int, c3 int, c4 int); 
+    insert into basetab2  values(1,1,1,1),(2,2,2,2),(3,3,3,3),(11,11,11,11); 
+    create table mqttab2 as (select c1, c2, c3 from basetab2 where c1 > 10) 
+    data initially deferred refresh deferred; 
+    set integrity for mqttab2 immediate checked not incremental 
+    本文开始部分提到，对于延迟刷新方式，当对基表进行任何 insert/update/delete 等操作时，MQT 中的数据没有进行相应的刷新，而是等到用户手动的执行刷新命令时才进行刷新。现在我们设置 CURRENT EXPLAIN MODE，并向基表 basetab2 中插入一条数据，查看其访问方案，使用的命令及得到的访问方案如清单 7 所示。
+
+   清单 7. 基表的 insert 操作时的访问方案
+    db2 set current explain mode explain 
+    db2 "insert into basetab2 values(12,12,12,12)"
+    db2exfmt -d MYDB -1 -e -o insert2.exfmt 
+    db2 set current explain mode no 
+    Rows
+    RETURN
+    (   1)
+    Cost
+    I/O
+    |
+    1
+    INSERT
+    (   2)
+    8.0848
+    1
+    /---+---\
+    1           4
+    TBSCAN  TABLE: HQY
+    (   3)     BASETAB2
+    0.0048        Q3
+    0
+    |
+    1
+    TABFNC: SYSIBM
+    GENROW
+
+    我们发现清单 7 中访问方案就是一个普通的 insert 操作，只对基表 basetab2 进行了插入操作，并没有对 MQT mqttab2 进行任何的操作，这就可以说明采用延迟更新方式的 MQT 在基表有变化时并没有即时刷新。
+
+    接下来我们来看对基表的 update 和 delete 操作时的访问方案，使用的命令如清单 8 所示。
+    清单 8. 基表的 update 和 delete 操作
+    db2 set current explain mode explain 
+    db2 "update basetab2 set c2=100 where c1=11"
+    db2exfmt -d MYDB -1 -e -o update2.exfmt 
+    db2 "delete from basetab2 where c1=11"
+    db2exfmt -d MYDB -1 -e -o delete2.exfmt 
+    db2 set current explain mode no 
+
+    同样的我们可以发现，对基表的 update 和 delete 操作时的访问方案也没有对 MQT 的刷新操作。读者可以在本文最后的下载链接中找到 update2.exfmt 和 delete2.exfmt 中的访问方案，限于篇幅不在正文部分显示。
+
+    最后，我们来看一下当用户手动的刷新 MQT 时其执行方案，在刷新之前我们首先向基表中插入了几条数据并修改了部分已有数据，使用的命令和访问方案如清单 9 所示。
+
+    清单 9. 手动刷新采用延迟更新方式的 MQT
+    db2 "insert into basetab2 values(12,12,12,12)" 
+    db2 "insert into basetab2 values(13,12,12,12)" 
+    db2 "insert into basetab2 values(14,12,12,12)" 
+    db2 "insert into basetab2 values(15,12,12,12)" 
+    db2 "update basetab2 set c2=100 where c1=11" 
+    db2 runstats on table hqy.basetab2 
+    db2 set current explain mode explain 
+    db2 "refresh table mqttab2" 
+    db2exfmt -d MYDB -1 -e -o refresh2.exfmt 
+    db2 set current explain mode no 
+    Rows
+    RETURN
+    (   1)
+    Cost
+    I/O
+    |
+    0.333333
+    FILTER
+    (   2)
+    35.9682
+    4
+    +------------+------------------+-----+-------------------------+
+    1            0                     1.33333                      1
+    TBSCAN       FILTER                   INSERT                    DELETE
+    (   3)       (   4)                   (   6)                    (   9)
+    0.0048       0.0404                   17.979                    17.8015
+    0            0                        2                         2
+    |            |                    /---+----\                /---+----\
+    1            1               1.33333         1            1            1
+    TABFNC: SYSIBM    TBSCAN             FETCH    TABLE: HQY       TBSCAN   TABLE: HQY
+    GENROW       (   5)             (   7)       MQTTAB2      (  10)       MQTTAB2
+    0.0048             9.89896        Q6         9.72148        Q10
+    0                  1                         1
+    |              /---+----\                    |
+    1         1.33333         4                  1
+    TABFNC: SYSIBM    IXSCAN   TABLE: HQY         TABLE: HQY
+    GENROW       (   8)      BASETAB2            MQTTAB2
+    1.73403        Q7                 Q11
+    0
+    |
+    4
+    INDEX: SYSIBM
+    SQL091124002956410
+    Q7
+
+    在清单 11 中我们得到了一个与清单 5 中完全不同而且比较复杂的访问方案，在本文中不会详细解释该访问方案的具体细节，通过观察发现在这个访问方案中对 MQT mqttab2 执行了 INSERT 操作（操作符 6）和 DELETE 操作（操作符 9），其中 INSERT 操作的输入是 FETCH（操作符 7）也就是从基表 basetab2 中获取数据并插入到 mqttab2 中，DELETE 操作的输入是 TBSCAN( 操作符 10) 也就是从 MQT mqttab2 中找到相应的数据进行删除。这个过程就是根据基表的最新数据向 MQT 中插入新数据或者删除无效的数据，这也是为什么只有 INSERT 操作和 DELETE 操作而没有 UPDATE 操作。
+
+   至此，我们已经通过访问方案理解了 MQT 的延迟刷新方式，接下来我们继续讨论当有登台（staging）表时的 MQT 延迟刷新方式。
+    回页首
+
+    有登台表的 REFRESH DEFERRED 方式
+    创建一个基表并插入若干数据，然后创建一个延迟刷新的 MQT，并创建一个登台表，基表和 MQT 的表结构与上文相同，差别在于这里创建了登台表 mqttab3_stg，也由此需要多执行一条 SET INTEGRITY 命令，使用的语句如清单 10 所示。
+
+    清单 10. 创建延迟刷新的 MQT 并创建登台表
+    create table basetab3 
+    (c1 int not null primary key, c2 int, c3 int, c4 int); 
+    
+    insert into basetab3 
+    values(1,1,1,1),(2,2,2,2),(3,3,3,3),(11,11,11,11); 
+    create table mqttab3 as 
+    (select c1, c2, c3 from basetab3 where c1 > 10)" 
+    data initially deferred refresh deferred; 
+    create table mqttab3_stg for mqttab3 propagate immediate; 
+    set integrity for mqttab3 materialized query immediate unchecked; 
+    set integrity for mqttab3_stg staging immediate unchecked; 
+    db2 describe table hqy.MQTTAB3_STG 
+    Data type Column 
+    Column name schema Data type name Length Scale Nulls 
+    ---------- ------- ----------- ------- ----- ------ 
+    C1 SYSIBM INTEGER 4 0 No 
+    C2 SYSIBM INTEGER 4 0 Yes 
+    C3 SYSIBM INTEGER 4 0 Yes 
+    GLOBALTRANSID SYSIBM CHARACTER 8 0 No 
+    GLOBALTRANSTIME SYSIBM CHARACTER 13 0 No 
+    OPERATIONTYPE SYSIBM INTEGER 4 0 No 
+    6 record(s) selected. 
+
+    在清单 10 的最后描述了登台表 mqttab3_stg 的表结构，可以看到登台表中包括了 MQT mqttab3 的所有的列，也就是说登台表能够捕捉基表的变化并保存更新 MQT 所需的所有数据。
+    我们来看一下，同样是延迟更新，有了登台表之后会有什么样的变化。设置 CURRENT EXPLAIN MODE，向基表 basetab3 中插入一条数据然后来看这个操作的访问方案，使用的命令和得到的访问方案如清单 11 所示。
+清单 11. 基表的 insert 操作时的访问方案
+    db2 set current explain mode explain 
+    db2 "insert into basetab3 values(12,12,12,12)"
+    db2exfmt -d MYDB -1 -e -o insert3.exfmt 
+    db2 set current explain mode no 
+    Rows
+    RETURN
+    (   1)
+    Cost
+    I/O
+    |
+    1
+    INSERT
+    (   2)
+    16.236
+    2
+    /---+---\
+    1          58
+    INSERT  TABLE: HQY
+    (   3)    MQTTAB3_STG
+    8.0848        Q1
+    1
+    /---+---\
+    1         1000
+    TBSCAN  TABLE: HQY
+    (   4)     BASETAB3
+    0.0048        Q4
+    0
+    |
+    1
+    TABFNC: SYSIBM
+    GENROW
+    
+    在清单 11 中我们得到了一个与清单 7 完全不同却与清单 3 十分类似的访问方案。清单 3 中的 MQT 采用即时刷新方式，对基表 insert 操作时同时向 MQT mqttab 进行了操作，而在清单 11 中的 MQT 采用的是延迟刷新方式，在访问方案中唯一的差别是其没有同时更新 MQT，而是同时对登台表进行了操作。
+接下来我们来看对基表的 update 和 delete 操作时的访问方案，使用的命令如清单 12 所示。
+清单 12. 基表的 update 和 delete 操作
+db2 set current explain mode explain 
+db2 "update basetab2 set c2=100 where c1=11"
+db2exfmt -d MYDB -1 -e -o update2.exfmt 
+db2 "delete from basetab2 where c1=11"
+db2exfmt -d MYDB -1 -e -o delete2.exfmt 
+db2 set current explain mode no 
+同样的我们可以发现，对基表的 update 和 delete 操作时的访问方案也没有对 MQT 的刷新操作，而是对登台表进行了相应的操作。读者可以在本文最后的下载链接中找到 update3.exfmt 和 delete3.exfmt 中的访问方案，限于篇幅不在正文部分显示。
+最后，我们来看一下当用户手动的刷新 MQT 时其执行方案，使用的命令和访问方案如清单 13 所示。
+清单 13. 手动刷新采用延迟更新方式并有登台表的 MQT
+    db2 "insert into basetab3 values(12,12,12,12)"
+    db2 "insert into basetab3 values(13,12,12,12)"
+    db2 "insert into basetab3 values(14,12,12,12)"
+    db2 "insert into basetab3 values(15,12,12,12)"
+    db2 "update basetab3 set c2=100 where c1=11"
+    db2 runstats on table hqy.basetab3 
+    db2 set current explain mode explain 
+    db2 "refresh table mqttab3"
+    db2exfmt -d MYDB -1 -e -o refresh3.exfmt 
+    db2 set current explain mode no 
+    Rows
+    RETURN
+    (   1)
+    Cost
+    I/O
+    |
+    0.333333
+    FILTER
+    (   2)
+    514.308
+    61.0015
+    +------------+------+-------------------+
+    1            0                     8.02174e-07
+    TBSCAN       FILTER                     INSERT
+    (   3)       (   4)                     (   6)
+    0.0048        0.076                     514.124
+    0            0                       61.0015
+    |            |                     /----+-----\
+    1            1              8.02174e-07       1000
+    TABFNC: SYSIBM    TBSCAN              FILTER     TABLE: HQY
+    GENROW       (   5)              (   7)         MQTTAB3
+    0.0048              506.044          Q6
+    0                60.0015
+    |                   |
+    1              0.000501359
+    TABFNC: SYSIBM           DELETE
+    GENROW              (   8)
+    506.044
+    60.0015
+    /----+-----\
+    0.000501359       1000
+    UPDATE     TABLE: HQY
+    (   9)         MQTTAB3
+    506.04           Q7
+    60.001
+    /----+-----\
+    0.000501359       1000
+    FETCH      TABLE: HQY
+    (  10)         MQTTAB3
+    506.036          Q8
+    60.0005
+    /----+-----\
+    0.000501359       1000
+    TBSCAN     TABLE: HQY
+    (  11)         MQTTAB3
+    505.995
+    60
+    |
+    0.000501359
+    TEMP
+    (  12)
+    504.729
+    60
+    |
+    0.000501359
+    >^NLJOIN
+    (  13)
+    504.271
+    60
+    /----+-----\
+    0.000501359        40
+    FILTER         TBSCAN
+    (  14)         (  20)
+    491.357        144.813
+    59              7
+    |              |
+    0.000501359       1000
+    FILTER     TABLE: HQY
+    (  15)         MQTTAB3
+    491.168          Q19
+    59
+    |
+    58
+    TBSCAN
+    (  16)
+    487.826
+    59
+    |
+    58
+    SORT
+    (  17)
+    487.184
+    59
+    |
+    58
+    DELETE
+    (  18)
+    482.288
+    59
+    /---+----\
+    58           58
+    TBSCAN   TABLE: HQY
+    (  19)     MQTTAB3_STG
+    13.6476        Q9
+    1
+    |
+    58
+    TABLE: HQY
+    MQTTAB3_STG
+    Q10
+
+在清单 13 中我们看到了一个非常复杂的访问方案，限于篇幅不能详细的解释，简要的说，在这个访问方案中，首先读取了登台表 mqttab3_stg 并删除了登台表的数据（DELETE 操作符 18），接着用登台表中读取的数据与 MQT mqttab3 进行合并（NLJOIN 操作符 13）并放入临时表中（TEMP 操作符 12），然后根据临时表中的数据对 MQT mqttab3 依次进行了更新（UPDATE 操作符 9）、删除（DELETE 操作符 8）和插入（INSERT 操作符 6）。在整个过程中没有任何用到基表 basetab3 的操作，这就说明此时的刷新是完全基于登台表 mqttab3_stg 进行的延迟刷新。
+
+至此，我们已经通过访问方案理解了 MQT 的即时刷新方式、延迟刷新方式以及有登台表的延迟刷新方式的特点和机制，读者还可以继续深入探讨其他情景，如定义复杂的 MQT（如使用 COUNT 和 GROUP BY），或者使用 LOAD 装载数据等情景的各种刷新方式。
+
+回页首
+总结
+在文中介绍了 MQT的刷新方式并利用说明工具获取其访问方案，使读者能够较为深入的理解这些刷新方式，从而能够在实际应用中选择合适的刷新方式，更大程度的提高应用系统的性能。

@@ -1,0 +1,67 @@
+sencha extjs 的安装需要先下载并安装ruby1.9.3。
+
+ruby1.9.3的安装
+1.首先安装yaml 库，避免以后的麻烦。 不装此库会让你安装不上rubygems
+
+wget -c http://pyyaml.org/download/libyaml/yaml-0.1.4.tar.gz
+
+tar xzvf yaml-0.1.4.tar.gz
+
+cd yaml-0.1.4
+
+sudo ./configure --prefix=/usr/local #注意此处请勿修改路径，否则库文件无法写入正确目录 (非root用户请进行执行sudo)
+
+sudo make && sudo make install
+
+2. 2.安装zlib1g  和 zlib1g-dev，防止以后运行gem 出现 no such file to load zlib(LoadError)
+
+sudo apt-get install zlib1g zlib1g-dev
+
+3.安装Ruby 
+
+wget -c http://ftp.ruby-lang.org/pub/ruby/1.9/ruby-1.9.3-rc1.tar.gz
+
+tar xzcf ruby-1.9.3-rc1.tar.gz
+
+cd ruby-1.9.3-rc1
+
+sudo ./configure --prefix=/usr/local --enable-shared --disable-install-doc --with-opt-dir=/usr/local/lib
+
+sudo make && sudo make install
+
+安装好ruby之后，执行ruby --version命令看ruby是否安装成功。
+
+4.ruby安装成功后，要安装Sencha Cmd。
+ubuntu下执行
+./SenchaCmd-3.1.2.342-linux.run 命令来进行安装。
+
+
+
+5. clone 前台界面相关的项目
+	1) 在自己开发用户的环境下，执行mkdir workspace命令，创建workspace目录
+	2) cd workspace
+	3) 执行 sencha -sdk ~/ext-4.2.0 generate workspace my-workspace 设置extjs开发的workspace,
+		注意: -sdk 后面的路径是extjs的包解压后的路径
+	4) cd my-workspace
+	5) 执行 git clone git@github.com:hamer0515/Zixweb-sencha-cmd.git Zixweb 命令clone zixweb sencha项目, 然后 cd Zixweb; git fetch origin 2.7:2.7 ; git checkout 2.7
+	6) cd packages
+	7) 执行 git clone git@github.com:hamer0515/my-custom-theme.git 命令clone zixweb的界面主题
+	8) cd my-custom-theme
+	9) 执行 sencha package build --clean 命令编译zixweb的界面主题
+	10) cd ../../Zixweb/
+	11) 执行 sencha app refresh
+	12) 执行 sencha app build
+	13) 执行 ln -s packages ../packages 
+	14) 执行 ln -s ext ../ext
+	15) 执行 ln -s build ../build
+	16) cd ~/workspace
+	17) 执行 git clone git@github.com:hamer0515/zixweb_extjs_mojo.git zixweb-extjs 命令clone zixweb mojo项目, 然后 cd zixweb-extjs ; git fetch origin 2.7:2.7 ; git checkout 2.7
+	18) 执行 ln -s zixweb zixweb-extjs
+	19) cd zixweb
+	20) 执行 ln -s ../my-workspace/Zixweb public
+	21) 执行 cd ~/workspace/zixweb
+	22) 执行 . etc/profile.dev
+	23) cd sql
+	24) 执行 ./tbl_crt.sh 创建前台界面用到的库表及视图
+	25) cd ..
+	26) 执行 zixweb start 命令开启前台服务(执行过程中缺少的包，请利用cpan install 命令进行安装)

@@ -1,0 +1,10 @@
+#!/usr/bin/env perl
+#
+# 测试用 use fields定义的域
+#
+use Person;
+use Data::Dump;
+
+my $p = Person->new();
+$p->name("jackliu");
+Data::Dump->dump($p);

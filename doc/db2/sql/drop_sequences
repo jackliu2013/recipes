@@ -1,0 +1,9 @@
+#!/bin/bash
+
+db2 connect to zdb_dev user db2inst using db2inst ;
+db2 set current schema fhyd;
+
+for file in `db2 -x "select seqname from syscat.sequences where seqschema = 'FHYD'"`
+do 
+    db2 "drop sequence $file";
+done

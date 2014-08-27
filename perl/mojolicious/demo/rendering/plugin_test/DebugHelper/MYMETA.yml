@@ -1,0 +1,22 @@
+---
+abstract: unknown
+author:
+  - 'A Good Programmer <nospam@cpan.org>'
+build_requires:
+  ExtUtils::MakeMaker: 0
+configure_requires:
+  ExtUtils::MakeMaker: 0
+dynamic_config: 0
+generated_by: 'ExtUtils::MakeMaker version 6.68, CPAN::Meta::Converter version 2.112621'
+license: unknown
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Mojolicious-Plugin-DebugHelper
+no_index:
+  directory:
+    - t
+    - inc
+requires:
+  Mojolicious: 4.18
+version: 0.01

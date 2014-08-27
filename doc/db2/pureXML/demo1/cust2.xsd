@@ -1,0 +1,59 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+xmlns:db2-xdb="http://www.ibm.com/xmlns/prod/db2/xdb1">
+    <xs:annotation>
+        <xs:appinfo>
+        <db2-xdb:defaultSQLSchema>db2inst</db2-xdb:defaultSQLSchema>
+        </xs:appinfo>
+    </xs:annotation>
+    <xs:element name="customerinfo">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="name" type="xs:string" minOccurs="1"
+                 db2-xdb:rowSet="ADDRESS" db2-xdb:column="NAME"/>
+                <xs:element name="addr" minOccurs="1" maxOccurs="unbounded">
+                 <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="street" type="xs:string"
+                        minOccurs="1" db2-xdb:rowSet="ADDRESS"
+                        db2-xdb:column="STREET"/>
+                        <xs:element name="city" type="xs:string"
+                        minOccurs="1" db2-xdb:rowSet="ADDRESS"
+                        db2-xdb:column="CITY"/>
+                        <xs:element name="prov-state" type="xs:string"
+                        minOccurs="1" /> 
+                        <xs:element name="pcode-zip" type="xs:string"
+                        minOccurs="1" /> 
+                    </xs:sequence>
+                    <xs:attribute name="country" type="xs:string" />
+                 </xs:complexType>
+                </xs:element>
+                <xs:element name="phone" minOccurs="0" maxOccurs="unbounded"
+                    db2-xdb:rowSet="PHONES" db2-xdb:column="PHONENUM">
+                 <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:string">
+                     <xs:attribute name="type" form="unqualified"
+                        type="xs:string" db2-xdb:rowSet="PHONES"
+                        db2-xdb:column="PHONETYPE" />
+                     </xs:extension>
+                  </xs:simpleContent>
+                 </xs:complexType>
+                </xs:element>
+               </xs:sequence>
+               <xs:attribute name="Cid" type="xs:integer">
+                <xs:annotation>
+                    <xs:appinfo>
+                        <db2-xdb:rowSetMapping>
+                            <db2-xdb:rowSet>ADDRESS</db2-xdb:rowSet> 
+                            <db2-xdb:column>CID</db2-xdb:column>
+                        </db2-xdb:rowSetMapping>
+                        <db2-xdb:rowSetMapping>
+                            <db2-xdb:rowSet>PHONES</db2-xdb:rowSet>
+                            <db2-xdb:column>CID</db2-xdb:column>
+                        </db2-xdb:rowSetMapping>
+                    </xs:appinfo>
+                </xs:annotation>
+               </xs:attribute>
+              </xs:complexType>
+            </xs:element>
+</xs:schema> 

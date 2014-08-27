@@ -1,0 +1,7 @@
+<h1>dd命令制作启动盘</h1>
+
+`
+sudo dd if=ubuntu-12.04.2-desktop-i386.iso of=/dev/sdb
+`
+  - if 指定iso镜像的位置
+  - of 指定要刻的u盘的位置（/dev/sdb，不带字母。带字母的表示分区）

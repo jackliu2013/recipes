@@ -1,0 +1,146 @@
+1、首先备份Ubuntu12.04源列表
+
+sudo cp /etc/apt/sources.list /etc/apt/sources.list.backup （备份下当前的源列表）
+
+ 
+
+2、修改更新源
+
+sudo gedit /etc/apt/sources.list （打开Ubuntu 12.04源列表文件）
+
+ 
+
+3、把里面的列表替换成下面的列表
+
+163源
+复制代码
+
+deb http://mirrors.163.com/ubuntu/ precise main restricted
+deb-src http://mirrors.163.com/ubuntu/ precise main restricted
+deb http://mirrors.163.com/ubuntu/ precise-updates main restricted
+deb-src http://mirrors.163.com/ubuntu/ precise-updates main restricted
+deb http://mirrors.163.com/ubuntu/ precise universe
+deb-src http://mirrors.163.com/ubuntu/ precise universe
+deb http://mirrors.163.com/ubuntu/ precise-updates universe
+deb-src http://mirrors.163.com/ubuntu/ precise-updates universe
+deb http://mirrors.163.com/ubuntu/ precise multiverse
+deb-src http://mirrors.163.com/ubuntu/ precise multiverse
+deb http://mirrors.163.com/ubuntu/ precise-updates multiverse
+deb-src http://mirrors.163.com/ubuntu/ precise-updates multiverse
+deb http://mirrors.163.com/ubuntu/ precise-backports main restricted universe multiverse
+deb-src http://mirrors.163.com/ubuntu/ precise-backports main restricted universe multiverse
+deb http://mirrors.163.com/ubuntu/ precise-security main restricted
+deb-src http://mirrors.163.com/ubuntu/ precise-security main restricted
+deb http://mirrors.163.com/ubuntu/ precise-security universe
+deb-src http://mirrors.163.com/ubuntu/ precise-security universe
+deb http://mirrors.163.com/ubuntu/ precise-security multiverse
+deb-src http://mirrors.163.com/ubuntu/ precise-security multiverse
+deb http://extras.ubuntu.com/ubuntu precise main
+deb-src http://extras.ubuntu.com/ubuntu precise main
+
+复制代码
+
+ 
+
+sohu源
+复制代码
+
+deb http://mirrors.sohu.com/ubuntu/ precise main restricted
+deb-src http://mirrors.sohu.com/ubuntu/ precise main restricted
+deb http://mirrors.sohu.com/ubuntu/ precise-updates main restricted
+deb-src http://mirrors.sohu.com/ubuntu/ precise-updates main restricted
+deb http://mirrors.sohu.com/ubuntu/ precise universe
+deb-src http://mirrors.sohu.com/ubuntu/ precise universe
+deb http://mirrors.sohu.com/ubuntu/ precise-updates universe
+deb-src http://mirrors.sohu.com/ubuntu/ precise-updates universe
+deb http://mirrors.sohu.com/ubuntu/ precise multiverse
+deb-src http://mirrors.sohu.com/ubuntu/ precise multiverse
+deb http://mirrors.sohu.com/ubuntu/ precise-updates multiverse
+deb-src http://mirrors.sohu.com/ubuntu/ precise-updates multiverse
+deb http://mirrors.sohu.com/ubuntu/ precise-backports main restricted universe multiverse
+deb-src http://mirrors.sohu.com/ubuntu/ precise-backports main restricted universe multiverse
+deb http://mirrors.sohu.com/ubuntu/ precise-security main restricted
+deb-src http://mirrors.sohu.com/ubuntu/ precise-security main restricted
+deb http://mirrors.sohu.com/ubuntu/ precise-security universe
+deb-src http://mirrors.sohu.com/ubuntu/ precise-security universe
+deb http://mirrors.sohu.com/ubuntu/ precise-security multiverse
+deb-src http://mirrors.sohu.com/ubuntu/ precise-security multiverse
+deb http://extras.ubuntu.com/ubuntu precise main
+deb-src http://extras.ubuntu.com/ubuntu precise main
+
+复制代码
+
+ 
+
+ubuntu.cn99.com源（推荐）:
+
+deb http://ubuntu.cn99.com/ubuntu/ precise main restricted universe multiverse
+deb http://ubuntu.cn99.com/ubuntu/ precise-updates main restricted universe multiverse
+deb http://ubuntu.cn99.com/ubuntu/ precise-security main restricted universe multiverse
+deb http://ubuntu.cn99.com/ubuntu/ precise-backports main restricted universe multiverse
+deb http://ubuntu.cn99.com/ubuntu-cn/ precise main restricted universe multiverse
+
+ 
+
+教育网源
+如果你是在校大学生，可以使用校园网/教育网，就是用教育网的资源吧，尤其是支持ipv6的，那更新速度就按兆算了。
+
+#电子科技大学
+复制代码
+
+deb http://ubuntu.uestc.edu.cn/ubuntu/ precise main restricted universe multiverse
+deb http://ubuntu.uestc.edu.cn/ubuntu/ precise-backports main restricted universe multiverse
+deb http://ubuntu.uestc.edu.cn/ubuntu/ precise-proposed main restricted universe multiverse
+deb http://ubuntu.uestc.edu.cn/ubuntu/ precise-security main restricted universe multiverse
+deb http://ubuntu.uestc.edu.cn/ubuntu/ precise-updates main restricted universe multiverse
+deb-src http://ubuntu.uestc.edu.cn/ubuntu/ precise main restricted universe multiverse
+deb-src http://ubuntu.uestc.edu.cn/ubuntu/ precise-backports main restricted universe multiverse
+deb-src http://ubuntu.uestc.edu.cn/ubuntu/ precise-proposed main restricted universe multiverse
+deb-src http://ubuntu.uestc.edu.cn/ubuntu/ precise-security main restricted universe multiverse
+deb-src http://ubuntu.uestc.edu.cn/ubuntu/ precise-updates main restricted universe multiverse
+
+复制代码
+
+ 
+
+#中国科技大学
+复制代码
+
+deb http://debian.ustc.edu.cn/ubuntu/ precise main restricted universe multiverse
+deb http://debian.ustc.edu.cn/ubuntu/ precise-backports restricted universe multiverse
+deb http://debian.ustc.edu.cn/ubuntu/ precise-proposed main restricted universe multiverse
+deb http://debian.ustc.edu.cn/ubuntu/ precise-security main restricted universe multiverse
+deb http://debian.ustc.edu.cn/ubuntu/ precise-updates main restricted universe multiverse
+deb-src http://debian.ustc.edu.cn/ubuntu/ precise main restricted universe multiverse
+deb-src http://debian.ustc.edu.cn/ubuntu/ precise-backports main restricted universe multiverse
+deb-src http://debian.ustc.edu.cn/ubuntu/ precise-proposed main restricted universe multiverse
+deb-src http://debian.ustc.edu.cn/ubuntu/ precise-security main restricted universe multiverse
+deb-src http://debian.ustc.edu.cn/ubuntu/ precise-updates main restricted universe multiverse
+
+复制代码
+
+ 
+
+#北京理工大学
+复制代码
+
+deb http://mirror.bjtu.edu.cn/ubuntu/ precise main multiverse restricted universe
+deb http://mirror.bjtu.edu.cn/ubuntu/ precise-backports main multiverse restricted universe
+deb http://mirror.bjtu.edu.cn/ubuntu/ precise-proposed main multiverse restricted universe
+deb http://mirror.bjtu.edu.cn/ubuntu/ precise-security main multiverse restricted universe
+deb http://mirror.bjtu.edu.cn/ubuntu/ precise-updates main multiverse restricted universe
+deb-src http://mirror.bjtu.edu.cn/ubuntu/ precise main multiverse restricted universe
+deb-src http://mirror.bjtu.edu.cn/ubuntu/ precise-backports main multiverse restricted universe
+deb-src http://mirror.bjtu.edu.cn/ubuntu/ precise-proposed main multiverse restricted universe
+deb-src http://mirror.bjtu.edu.cn/ubuntu/ precise-security main multiverse restricted universe
+deb-src http://mirror.bjtu.edu.cn/ubuntu/ precise-updates main multiverse restricted universe
+
+复制代码
+
+ 
+
+4、更新源
+
+sudo apt-get update
+
+

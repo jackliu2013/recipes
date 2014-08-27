@@ -1,0 +1,5 @@
+{
+	hello => "world",
+	weather => "good",
+	jack => "liu",
+}

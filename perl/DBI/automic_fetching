@@ -1,0 +1,24 @@
+
+When you want to fetch only one row, atomic fetching allows you to compress the four-stage data
+fetching cycle (as described earlier) into a single method. 
+The two methods you can use for atomic fetching are 
+selectrow_array( ) and selectrow_arrayref( ) . 
+
+They behave in a similar fashion to their row-oriented cousins, 
+fetchrow_array( ) and fetchrow_arrayref( ), 
+the major differences being that the two atomic methods do not require a prepared and executed statement handle to work,
+and, more importantly, that they will return only one row of data.
+
+Because neither method requires a statement handle to be used, they are actually invoked via a
+database handle. For example, to select the name and type fields from any arbitrary row in our
+megaliths database, we can write the following code:
+
+### Assuming a valid $dbh exists...
+( $name, $mapref ) =    $dbh->selectrow_array( "SELECT name, mapref FROM megaliths" );
+print "Megalith $name is located at $mapref\n";
+
+
+This is far more convenient than using the prepare() and execute() then the fetchrow_array( )
+or fetchrow_arrayref( ) methods for single rows.
+Finally, bind values can be supplied, which again helps with the reuse of database resources.
+

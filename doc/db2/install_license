@@ -1,0 +1,48 @@
+在DB2安装的目录下执行
+
+ 使用db2licm命令为DB2安装许可证
+    db2licm命令提供了添加、移除、列示和修改本地系统上安装的许可证功能。
+
+db2licm [-a filename]
+　　 [-e HARD | SOFT]
+　　 [-p prod-password
+　　 REGISTERED | CONCURRENT |
+　　 INTERNET | MEASURED]
+　　 [-r prod-password]
+　　 [-u prod-password num-users]
+　　 [-n prod-password num-processors]
+　　 [-l]
+　　 [-v]
+　　 [-?]<br>
+
+命令选项详解：
+-a 添加产品的许可证。
+　 指定包含了有效许可证信息的文件名。这可从您的特许产品 CD中获得，或者与 IBM 代表或授权经销商联系。
+
+ 
+
+-n 更新授权的处理器数目。
+　 指定您有权与此产品配合使用的处理器的数目。
+　　
+-e 更新系统上的强制策略。 有效值是：HARD 和 SOFT。HARD
+　指定将不允许没有许可证的请求。 SOFT指定将把没有许可证的请求记录下来，但是不限制。
+　　
+-l 列示具有可用许可证信息的所有产品。
+　　
+-p 更新要在系统上使用的许可证策略类型。 可以指定关键字CONCURRENT、REGISTERED　或 CONCURRENTREGISTERED。另外，可以为“DB2 UDB 工作组服务器”产品
+   指定INTERNET。另外，还可以为 DB2 Connect 非限制产品指定 MEASURED。
+　　
+-r 除去产品的许可证。除去许可证之后，产品就以“先试后买”方式运作。要获取特定产品的密码，使用 -l 选项调用命令。
+　　
+-u 更新已购买的用户许可证的数目。指定已购买其许可证的产品的密码和用户数。
+　　
+-v 显示版本信息。
+　　
+-? 显示帮助信息。
+　指定了此选项时，将忽略其它所有选项，仅显示帮助信息。
+
+ 
+
+使用例子：
+
+  添加license： db2licm -a xxx.lic

@@ -1,0 +1,9 @@
+       join EXPR,LIST
+               Joins the separate strings of LIST into a single string with
+               fields separated by the value of EXPR, and returns that new
+               string.  Example:
+
+                   $rec = join(':', $login,$passwd,$uid,$gid,$gcos,$home,$shell);
+
+               Beware that unlike "split", "join" doesn't take a pattern as
+               its first argument.  Compare "split".

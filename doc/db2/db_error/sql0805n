@@ -1,0 +1,84 @@
+在sqllib/bnd目录下，执行
+
+" db2 bind @db2cli.lst blocking all grant public sqlerror continue CLIPKG 5 "
+
+命令
+
+
+Depending on the type of statement you are executing, DB2 will use a particular package on the server. By default, DB2 creates three packages 
+for each type of package. In this case NULLID.SYSLH2yy is reserved for statements with CURSORHOLD on and isolation level Cursor Stability. 
+The package SYSLH203 means that DB2 is looking for the 4th package (200 is first, 201 is second, etc) of this type, but it does not exist. 
+You can create more packages on the server by connecting to the database and issuing the following bind command from the " /sqllib/bnd " 
+directory:
+
+db2 bind @db2cli.lst blocking all grant public sqlerror continue CLIPKG 5
+
+Note: CLIPKG 5 will create 5 large packages, and will give you the package that your application is looking for, as well as one more in 
+this case.
+
+
+大致的意思是说DB2在执行SQL语句的时候会使用内部定义的包(package)来保持不同级别的游标的稳定性，包的名字就是“NULLID.SYSLH2XX”。DB2里面默认的时候会创建3个这样的包即SYSLH200, SYSLH201, SYSLH202，而当你的程序报“找不到程序包”的错误，并且程序包的名字的序号大于SYSLH202，也就说明DB2默认的包不够用了，DB2要求使用更多的包，但是这些包在DB2中并没有创建，因此DB2抛出了异常。
+
+
+DB2 CLI bind files and package names
+
+DB2® CLI packages are automatically bound to databases when the databases are created or migrated, or a fix pack is applied to either the client or the server. If a user has intentionally dropped a package, then you must rebind db2cli.lst.
+Rebind db2cli.lst by issuing the following command:
+
+Linux and UNIX
+
+    db2 bind BNDPATH/@db2cli.lst blocking all grant public
+
+Windows
+
+    db2 bind "%DB2PATH%\bnd\@db2cli.lst" blocking all grant public
+
+    The db2cli.lst file contains the names of the required bind files for DB2 CLI to connect to DB2 servers on Linux, UNIX, and Windows (db2clipk.bnd and db2clist.bnd).
+
+   For host and iSeries® servers use one of ddcsvm.lst, ddcsmvs.lst, ddcsvse.lst, or ddcs400.lst bind list files.
+
+   Warnings that are generated when binding DB2 CLI packages (such as db2clist.bnd or db2cli.lst) to workstation or host servers are expected. This is because DB2 database systems use generic bind files, but the bind file packages for DB2 CLI packages contain sections that apply to specific platforms. Therefore, a DB2 database system might generate warnings during the binding against a server, when it encounters a platform-specific section that does not apply to the server.
+   The following is an example of a warning that can be ignored which might occur when binding a DB2 CLI package (such as db2clist.bnd or db2cli.lst) to a workstation server:
+
+   LINE    MESSAGES FOR db2clist.bnd
+   ------  --------------------------------------------------------------------
+   235   SQL0440N  No authorized routine named "POSSTR" of type 
+   "FUNCTION" having compatible arguments was found.  
+   SQLSTATE=42884
+
+   Table 1. DB2 CLI bind files and package namesBind file name   Package name    Needed by DB2 servers on Linux, UNIX, and Windows   Needed by host servers  Description
+   db2clipk.bnd  SYSSHxyy    Yes     Yes     dynamic placeholders - small package WITH HOLD
+   SYSSNxyy  Yes     Yes     dynamic placeholders - small Package NOT WITH HOLD
+   SYSLHxyy  Yes     Yes     dynamic placeholders - large package WITH HOLD
+   SYSLNxyy  Yes     Yes     dynamic placeholders - large package NOT WITH HOLD
+   db2clist.bnd  SYSSTAT     Yes     Yes     common static CLI functions
+   db2schema.bnd     SQLL9vyy    Yes     No  catalog function support
+   Note:
+         'S' represents a small package and 'L' represents a large package
+         'H' represents WITH HOLD, and 'N' represents NOT WITH HOLD.
+         'v' represents the DB2 server version: for example, E=Version 8, F=Version 9
+         'x' is the isolation level: 0=NC, 1=UR, 2=CS, 3=RS, 4=RR
+         'yy' is the package iteration 00 through FF
+         'zz' is unique for each platform
+   For example, for the dynamic packages:
+
+        SYSSN100 A small package (65 sections) where all cursor declarations are for non-held cursors. Bound with isolation level UR. This is the first iteration of that package.
+        SYSLH401 A large package (385 sections) where all cursor declarations are for held cursors. Bound with isolation level RS. This is the second iteration of that package.
+
+        Previous versions of DB2 servers do not need all of the bind files and will therefore return errors at bind time. Use the bind option SQLERROR CONTINUE so that the same package can be bound on all platforms and errors will be ignored for any statements not supported there.
+        db2schema.bnd bind file
+
+        The db2schema.bnd bind file is automatically bound when the database is created or migrated, or a fix pack is applied on DB2 servers on Linux, UNIX, and Windows, and exists only on these types of servers. This bind file is located at the server and should be bound manually (from the server), if the package was intentionally dropped by a user or if an SQL1088W (+1088) warning is received after database creation or migration.
+
+        Only the most recent version of this package is needed.
+        If the package is missing, it must be rebound locally on the server. Do not bind this package against remote servers (for example, against a host database). The bind file is found in the sqllib/bnd directory of the instance home directory, and is rebound with the following command:
+
+        bind db2schema.bnd blocking all grant public
+       If an SQL1088W warning was received after database creation or migration, and the db2schema.bnd package is missing, increase the applheapsz database configuration parameter to 128 or greater, and attempt to rebind. No errors should be reported during binding.
+       Related concepts:
+            Packages
+       Related reference:
+            BIND command
+       参考主题( 反馈 )
+        http://publib.boulder.ibm.com/infocenter/db2luw/v9r5/topic/com.ibm.db2.luw.apdv.cli.doc/doc/r0007866.html
+

@@ -1,0 +1,9 @@
+# select  tbspaceid,  tableid, substr(tabschema,1,18) as tabschema, substr(tabname,1,18) as tabname
+from syscat.tables where tbspaceid=3 and tableid=1422
+  
+   
+#  select all tables
+select * from syscat.tables;
+
+
+select name from sysibm.systables where type='T' and creator='DB2INST'  and name = 'YP_SUIT';  # 查询对应实例下面是否存在某张表的SQL

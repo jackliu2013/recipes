@@ -1,0 +1,67 @@
+ -- 离线备份数据库test
+db2 backup database test to . compress
+--使用db2ckbkp 测试备份映像完整性，备份信息
+
+--备份表空间
+backup database test tablespace ( userspace1 ) to /dbbak/tbs1/ with 2 buffers buffer 1024 parallelism 1 without prompting
+
+--恢复数据库test
+db2 restore db test from /dbbak taken at 20110101010101 into testnew
+
+-- 恢复时重新指派表空间文件,数据文件
+RESTORE DATABASE test FROM /dbbak TAKEN AT 20110101010101 WITH 2 BUFFERS BUFFER 1024 REDIRECT PARALLELISM 1 WITHOUT PROMPTING;
+SET TABLESPACE CONTAINERS FOR 0 IGNORE ROLLFORWARD CONTAINER OPERATIONS USING (FILE /dbfile/db001 51200);
+SET TABLESPACE CONTAINERS FOR 1 IGNORE ROLLFORWARD CONTAINER OPERATIONS USING (FILE /dbfile/db002 51200);
+SET TABLESPACE CONTAINERS FOR 2 IGNORE ROLLFORWARD CONTAINER OPERATIONS USING (FILE /dbfile/db003 51200);
+RESTORE DATABASE test CONTINUE;
+
+
+
+--- 启用增量备份参数
+db2 update db cfg for test using TRACKMOD on
+
+--设置归档日志目录，要先改 LOGRETAIN，再改 LOGARCHMETH1
+db2 update db cfg for test using LOGRETAIN RECOVERY
+
+mkdir /db2log/testlog
+db2 update db cfg for test using LOGARCHMETH1 DISK:/db2log/testlog/
+
+--- 修改 TRACKMOD 参数后需要做一次完全备份
+db2 backup database test to . compress
+
+
+
+--增量备份 上一次完整备份至本次备份之间变化的内容
+db2 backup database test online incremental to . compress
+
+--差量(delta)备份 上次备份以来（完整备份、增量备份、差量备份）至本次备份之间变化的内容
+db2 backup database test online incremental delta to . compress
+
+ 
+--- 在保存备份文件与增量备份文件的目录执行, TS 为最后一个增量备份文件的时间，给出恢复步骤建议
+db2ckrst -d test -t 20110101010101 -r database
+
+
+--- 使用增量备份文件的恢复方法：时间戳为(最新的,最新完整的,最新的) . 没完成最后一步SQL1119N,完成后就是普通恢复后的SQL1117N
+---- 使用增量备份则只需要最新的完整备份，最新的增量备份，最新增量备份时及以后的日志文件
+---- 使用delta备份则需要最新的完整备份，以及（或者）最新的增量备份之后的delta备份及日志文件
+RESTORE DATABASE test INCREMENTAL FROM /dbbak TAKEN AT 20110101010101 TO /db/path WITH 2 BUFFERS BUFFER 1024 PARALLELISM 1 WITHOUT PROMPTING
+RESTORE DATABASE test INCREMENTAL FROM /dbbak TAKEN AT 20110101011501 TO /db/path WITH 2 BUFFERS BUFFER 1024 PARALLELISM 1 WITHOUT PROMPTING
+RESTORE DATABASE test INCREMENTAL FROM /dbbak TAKEN AT 20110101013001 TO /db/path WITH 2 BUFFERS BUFFER 1024 PARALLELISM 1 WITHOUT PROMPTING
+
+--把最后增量备份时及以后的日志文件复制回原日志目录，执行前滚操作
+rollforward db test to end of logs and complete [ noretrieve ]
+rollforward db test to end of logs and stop
+
+----可能会出现的错误--------------------------------------------------------------------------------------------
+SQL2426N 尚未配置数据库以允许增量备份操作。原因码 = "2"。 改db cfg logarchmeth1 trackmod
+SQL1117N 因为处于 ROLL-FORWARD PENDING 状态，所以不能连接或激活数据库 "TEST"。 SQLSTATE=57019 rollforward ..
+SQL1265N 归档日志文件 "S0002005.LOG" 与节点 "0" 上数据库 "TEST" 的当前日志序列不相关。 **stop**
+SQL4970N 在数据库分区 "0" 上，对数据库 "TEST" 执行的前滚恢复操作无法到达指定的停止点（日志末尾或时间点）。
+          前滚恢复操作在处理日志文件 "S0002005.LOG" 时停止。 **complete**
+SQL2573N 必须将增量备份映像作为增量 RESTORE 操作的一部分来复原。
+SQL2528W 警告！复原到与备份映像数据库相同的现有数据库，但现有数据库的别名 "TEST" 与备份映像的别名 "TEST" 不匹配，且现有数据库的数据库名称 "TEST"
+          与备份映像的数据库名称 "TEST" 不匹配。目标数据库将被备份版本覆盖。想要继续吗？（y/n）
+SQL1119N 因为先前复原不完整或者仍在进行，所以不能连接或激活数据库 "TEST"。SQLSTATE=57019 **** 用增量备份恢复的步骤不完整 ****
+
+SQL2537N 在 Restore 之后，需要“前滚”。

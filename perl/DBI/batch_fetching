@@ -1,0 +1,12 @@
+
+Batch fetching is the ability to fetch the entire result set from an SQL query in one call, 
+as opposed to iterating through the result set using row-oriented methods such as fetchrow_array( ), etc.
+
+The DBI defines several methods for this purpose, including fetchall_arrayref( ) and
+selectall_arrayref( ) , which basically retrieve the entire result set into a Perl data structure for
+you to manipulate. They are invoked against a prepared and executed statement handle.
+
+fetchall_arrayref( ) operates in three different modes depending on what arguments have been
+passed to it. It can be called with no arguments, with a reference to an array slice as an argument, and
+with a reference to a hash slice as an argument. We'll discuss these modes in the following sections.
+

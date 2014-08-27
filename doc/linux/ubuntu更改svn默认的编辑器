@@ -1,0 +1,18 @@
+ ubuntu12.04更改svn默认的编辑器 
+
+
+     1.执行如下命令：
+      $ sudo update-alternatives --config editor
+       执行后，出现如下画面：
+    $ sudo update-alternatives --config editor
+有 4 个选项可用于替换项 editor (提供 /usr/bin/editor)。
+
+  选择       路径            优先级  状态
+------------------------------------------------------------
+  0            /bin/nano          40        自动模式
+  1            /bin/ed           -100       手动模式
+  2            /bin/nano          40        手动模式
+* 3            /usr/bin/emacs23   0         手动模式
+  4            /usr/bin/vim.tiny  10        手动模式
+选择你想要的，我这里选择了4
+完成

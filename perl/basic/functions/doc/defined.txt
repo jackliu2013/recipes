@@ -1,0 +1,62 @@
+       defined EXPR
+       defined Returns a Boolean value telling whether EXPR has a value other
+               than the undefined value "undef".  If EXPR is not present, $_
+               is checked.
+
+               Many operations return "undef" to indicate failure, end of
+               file, system error, uninitialized variable, and other
+               exceptional conditions.  This function allows you to
+               distinguish "undef" from other values.  (A simple Boolean test
+               will not distinguish among "undef", zero, the empty string, and
+               "0", which are all equally false.)  Note that since "undef" is
+               a valid scalar, its presence doesn't necessarily indicate an
+               exceptional condition: "pop" returns "undef" when its argument
+               is an empty array, or when the element to return happens to be
+               "undef".
+
+               You may also use "defined(&func)" to check whether subroutine
+               &func has ever been defined.  The return value is unaffected by
+               any forward declarations of &func.  A subroutine that is not
+               defined may still be callable: its package may have an
+               "AUTOLOAD" method that makes it spring into existence the first
+               time that it is called; see perlsub.
+
+               Use of "defined" on aggregates (hashes and arrays) is
+               deprecated.  It used to report whether memory for that
+               aggregate had ever been allocated.  This behavior may disappear
+               in future versions of Perl.  You should instead use a simple
+               test for size:
+
+                   if (@an_array) { print "has array elements\n" }
+                   if (%a_hash)   { print "has hash members\n"   }
+
+               When used on a hash element, it tells you whether the value is
+               defined, not whether the key exists in the hash.  Use "exists"
+               for the latter purpose.
+
+               Examples:
+
+                   print if defined $switch{D};
+                   print "$val\n" while defined($val = pop(@ary));
+                   die "Can't readlink $sym: $!"
+                       unless defined($value = readlink $sym);
+                   sub foo { defined &$bar ? &$bar(@_) : die "No bar"; }
+                   $debugging = 0 unless defined $debugging;
+
+               Note:  Many folks tend to overuse "defined" and are then
+               surprised to discover that the number 0 and "" (the zero-length
+               string) are, in fact, defined values.  For example, if you say
+
+                   "ab" =~ /a(.*)b/;
+
+               The pattern match succeeds and $1 is defined, although it
+               matched "nothing".  It didn't really fail to match anything.
+               Rather, it matched something that happened to be zero
+               characters long.  This is all very above-board and honest.
+               When a function returns an undefined value, it's an admission
+               that it couldn't give you an honest answer.  So you should use
+               "defined" only when questioning the integrity of what you're
+               trying to do.  At other times, a simple comparison to 0 or ""
+               is what you want.
+
+               See also "undef", "exists", "ref".

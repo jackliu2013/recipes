@@ -1,0 +1,134 @@
+#!/usr/bin/env perl
+
+=comment
+Perl中可以直接调用Linux下C库中Berkeley套接字内置接口，调用方式和C语言一致，只是换成Perl的语法而已。
+
+Socket地址协议簇分为AF_UNIX、AF_INET、AF_INET6等，常用的也就是AF_INET，其它两种没用过，不好说。IO::Socket::INET模块（包含在模块IO::Socket中）是针对AF_INET开发的，所以正常情况下，都是结合这两个模块进行perl代码的书写。
+=cut
+
+# Client端代码：
+#!/usr/bin/perl -w
+use IO::Socket
+  ; ##IO::Socket::INET模块是IO::Socket模块的子模块，不用重新use。
+use IO::Select
+  ; ##该模块和Linux下select()函数实现的功能一致，另扩展更过的功能。可以perldoc查看。
+
+# hash to install IP Port
+%ser_info = (
+    "ser_ip"   => "1.1.1.1",
+    "ser_port" => "8888",
+);
+
+&main();
+
+sub main {
+    my $ser_addr = $ser_info{"ser_ip"};
+    my $ser_port = $ser_info{"ser_port"};
+    ##IO::Socket::INET->new()用于初始化一个socket连接，其中集成了socket、inet_aton、connect、bind、listen等功能。就不需要单独转换IP地址为网络地址结构了，直接使用IP地址就ok了。
+    ##具体参数下面单独介绍。
+    my $socket = IO::Socket::INET->new(
+        PeerAddr => "$ser_addr",
+        PeerPort => "$ser_port",
+        Type     => SOCK_STREAM,
+        Proto    => "tcp",
+    ) or die "Can not create socket connect.$@";
+
+    $socket->send( "Client Ok!\n", 0 );    ##发送消息至服务器端。
+    $socket->autoflush(1);
+    my $sel = IO::Select->new($socket);    ##建立select对象
+    while ( my @ready = $sel->can_read ) { ##等待服务端返回的消息
+        foreach my $fh (@ready) {
+            if ( $fh == $socket ) {
+                while (<$fh>) {
+                    print $_;
+                }
+                $sel->remove($fh);
+                close $fh;
+                close FILE;
+            }
+        }
+    }
+    $socket->close() or die "Close Socket failed.$@";
+}
+
+# server端代码：
+#!/usr/bin/perl -w
+use IO::Socket;
+use IO::Select;
+
+# hash to install IP Port
+%ser_info = (
+    "cli_ip"   => "2.2.2.2",
+    "cli_port" => "9999",
+    "ser_ip"   => "1.1.1.1",
+    "ser_port" => "8888",
+);
+&main();
+
+sub main {
+    my $cli_addr = $ser_info{"local_ip"};
+    my $cli_port = $ser_info{"local_port"};
+    my $ser_addr = $ser_info{"ser_ip"};
+    my $ser_port = $ser_info{"ser_port"};
+    my $socket   = IO::Socket::INET->new(
+        PeerAddr  => "$cli_addr",    #client端IP地址
+        PeerPort  => "$cli_port",    #client端端口号
+        LocalAddr => "$ser_addr",    #本机IP地址
+        LocalPort => "$ser_port",    #定义本机的Port，然后进行bind
+        Type      => SOCK_STREAM,    #套接字类型
+        Proto     => "tcp",          #协议名
+        Listen    => 20,             #定义listen的最大数
+    ) or die "Can not create socket connect.$@";
+    my $sel = IO::Select->new($socket);
+    while ( my @ready = $sel->can_read ) {
+        foreach my $fh (@ready) {
+            if ( $fh == $socket ) {
+                my $new = $socket->accept();
+                $sel->add($new);
+            }
+            else {
+                $len = $fh->recv( $buffer, 1024, 0 );    #接收客户端消息
+                print "$buffer \n";
+                $fh->send( "Server OK!\n", 0 );          #发送服务端消息
+                $fh->autoflush(1);
+                $sel->remove($fh);
+                $fh->close();
+            }
+        }
+    }
+    $socket->close() or warn "Close Socket failed.$@";
+}
+
+=comment
+还是使用模块开发简单一些吧。
+下面简单介绍一下IO::Socket::INET->new()支持的参数。直接贴出search.cpan.org中的介绍，水平有限，就不翻译了啊。
+PeerAddr    Remote host address          [:]
+PeerHost    Synonym for PeerAddr
+PeerPort    Remote port or service       [()] |
+LocalAddr   Local host bind address      hostname[:port]
+LocalHost   Synonym for LocalAddr
+LocalPort   Local host bind port         [()] |
+Proto       Protocol name (or number)    "tcp" | "udp" | ...
+Type        Socket type                  SOCK_STREAM | SOCK_DGRAM | ...
+Listen      Queue size for listen
+ReuseAddr   Set SO_REUSEADDR before binding
+Reuse       Set SO_REUSEADDR before binding (deprecated, prefer ReuseAddr)
+ReusePort   Set SO_REUSEPORT before binding
+Broadcast   Set SO_BROADCAST before binding
+Timeout     Timeout value for various operations
+MultiHomed  Try all addresses for multi-homed hosts
+Blocking    Determine if connection will be blocking mode
+有几点注意，说明一下：
+1：定义 "Listen" 就等于调用了 listen()函数，服务端必须的。
+2：定义 “Type => SOCK_STREAM” 就等于调用了 connect()函数，客户端、服务端都是必须的。如果使用UDP（SOCK_DGRAM），客户端定义就ok了，服务端就不需要啦。
+3：PeerHost、LocalHost 可以使用“hostname”或者“1.1.1.1”形式的IP地址。
+4：PeerPort、LocalPort 可以使用“servicename”前提是必须定义的，Linux下在 "/etc/services" 中定义。建议直接使用数字“8888”
+5：Blocking 值为0，表示非阻塞模式。不定义或者值为1，表示阻塞模式。
+另有两个方法，也是常用的。
+1：connected
+if (defined $socket->connected()) {}
+该函数用于判断当前socket连接是否连接上，如果连接上返回对端的地址，反之没有连接上则返回 "undef" 。
+2：sockopt(OPT [, VAL])
+该函数用于设置套接字选项值（等价于调用setsockopt()函数），如果不添加value值则返回套接字选项值的当前值（等价于调用getsockopt()函数）。
+例如：设置建立长连接。$socket->sockopt(SO_KEEPALIVE,1); 
+=cut

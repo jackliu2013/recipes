@@ -1,0 +1,7 @@
+1. 先把memcached启起来
+    memcached -d -m 64m 127.0.0.1 -p 11211 -P mem.pid
+2. 运行perl代码
+    perl mem2.pl
+3. 查看memcached的数据
+    telnet 127.0.0.1 11211 (telnet到本地的11211端口)
+    get test (获取key为test的数据)

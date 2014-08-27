@@ -1,0 +1,35 @@
+typeglob(类型团)
+
+typeglob(类型团):保留整个符号表记录。
+    (符号表记录*foo包括$foo, @foo, %foo, &foo和其他几个foo的简单解释值),类型团(typeglob)的类型前缀是一个*,因为它代表所有类型。
+
+typeglob(类型团)的一个用途是用于传递或者存储文件句柄。
+typeglob中有两个额外的项目--PACKAGE和NAME，通过它们可以知道哪个包的哪个变量。
+
+
+默认情况下，Perl的变量是全局变量，可以在程序的任何地方使用它们。Perl会在符号表中维护它们的记录，该符号表在整个程序内都可见，有效。
+每个软件包都有一串定义好的标志符，每个标志符都有一个指针(不是C语言意义上的指针)指向每一个变量类型的slot。此外还有两个额外的slot留给变量NAME,PACKAGE。
+下面，显示了软件包，标志符和变量类型之间的关系：
+
+Package     Identifier              Type          Variable
+                          +--------scalar----------$bar
+                          +--------array-----------@bar
+                          +--------hash------------%bar
+Foo:: --------bar---------+--------CODE------------&bar
+                          +--------IO--------------file and dir handle
+                          +--------GLOB------------*bar
+                          +--------FORMAT----------format names
+                          +--------NAME
+                          +--------PACEAGE
+总共有7种变量类型，最常见的3个是scalar,array和hash。不过perl也为子程序提供了CODE类型，为文件和目录句柄提供了IO类型，为所有这写变量提供了GLOB类型。
+
+别名
+通过把一个typeglob赋值给另一个typeglob,我们可以创建变量的别名。(demo alias.pl)
+
+我们也可以不对整个typeglob进行赋值，如果把一个引用赋值给一个typeglob，只有typeglob中的引用变量会受到影响。把标量的引用\$scalar赋值给typeglob *foo只会影响typeglob中的SCALAR部分，把\@array赋值给typeglob时，只有typeglob的ARRAY部分会受到影响。(demoe typeglob_ref.pl)
+
+当一个变量的名字很长而我们希望使用一个不同的名字的时候，这个功能就非常有用。这也是Exporter模块向我们的名字空间导入符号时所做的事情，使用该模块，我们可以在自己的名字空间中得到导入的变量，而不用指定完整的软件包名字。Export会从导出的软件包中得到变量的名字，赋值给要导入的软件包的typeglob。(demo exporter.pl )
+
+给匿名子程序(函数)起名字
+通过给typeglob赋值，我们可以给匿名的子程序一个名字，这样，就可以使用一个具有名字的子程序，不用使用反引用得到子程序了。
+

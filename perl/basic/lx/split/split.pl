@@ -1,0 +1,79 @@
+#!/usr/bin/perl
+
+=split /PATTERN/,EXPR,LIMIT
+split /PATTERN/,EXPR
+split /PATTERN/
+split
+
+Splits the string EXPR into a list of strings and returns that list. By default, empty leading fields are preserved, and empty trailing ones are deleted. (If all fields are empty, they are considered to be trailing.)
+
+In scalar context, returns the number of fields found.
+
+    If EXPR is omitted, splits the $_ string. If PATTERN is also omitted, splits on whitespace (after skipping any leading whitespace). Anything matching PATTERN is taken to be a delimiter separating the fields. (Note that the delimiter may be longer than one character.)
+
+    If LIMIT is specified and positive, it represents the maximum number of fields the EXPR will be split into, though the actual number of fields returned depends on the number of times PATTERN matches within EXPR. If LIMIT is unspecified or zero, trailing null fields are stripped (which potential users of pop would do well to remember). If LIMIT is negative, it is treated as if an arbitrarily large LIMIT had been specified. Note that splitting an EXPR that evaluates to the empty string always returns the empty list, regardless of the LIMIT specified.
+
+    A pattern matching the empty string (not to be confused with an empty pattern // , which is just one member of the set of patterns matching the epmty string), splits EXPR into individual characters. For example:
+=cut
+        print join(':', split(/ */, 'hi there')), "\n";
+
+# produces the output 'h:i:t:h:e:r:e'.
+
+#    As a special case for split, the empty pattern // specifically matches the empty string; this is not be confused with the normal use of an empty pattern to mean the last successful match. So to split a string into individual characters, the following:
+
+        print join(':', split(//, 'hi there')), "\n";
+
+#    produces the output 'h:i: :t:h:e:r:e'.
+
+#    Empty leading fields are produced when there are positive-width matches at the beginning of the string; a zero-width match at the beginning of the string does not produce an empty field. For example:
+
+        print join(':', split(/(?=\w)/, 'hi there!'));
+
+#    produces the output 'h:i :t:h:e:r:e!'. Empty trailing fields, on the other hand, are produced when there is a match at the end of the string (and when LIMIT is given and is not 0), regardless of the length of the match. For example:
+
+        print join(':', split(//, 'hi there!', -1)), "\n";
+        print join(':', split(/\W/, 'hi there!', -1)), "\n";
+
+#    produce the output 'h:i: :t:h:e:r:e:!:' and 'hi:there:', respectively, both with an empty trailing field.
+
+#    The LIMIT parameter can be used to split a line partially
+
+        ($login, $passwd, $remainder) = split(/:/, $_, 3);
+
+#    When assigning to a list, if LIMIT is omitted, or zero, Perl supplies a LIMIT one larger than the number of variables in the list, to avoid unnecessary work. For the list above LIMIT would have been 4 by default. In time critical applications it behooves you not to split into more fields than you really need.
+
+#    If the PATTERN contains parentheses, additional list elements are created from each matching substring in the delimiter.
+
+        split(/([,-])/, "1-10,20", 3);
+
+#    produces the list value
+
+#        (1, '-', 10, ',', 20)
+
+#    If you had the entire header of a normal Unix email message in $header, you could split it up into fields and their values this way:
+
+        $header =~ s/\n(?=\s)//g; # fix continuation lines
+        %hdrs = (UNIX_FROM => split /^(\S*?):\s*/m, $header);
+
+#    The pattern /PATTERN/ may be replaced with an expression to specify patterns that vary at runtime. (To do runtime compilation only once, use /$variable/o .)
+
+#    As a special case, specifying a PATTERN of space (' ' ) will split on white space just as split with no arguments does. Thus, split(' ') can be used to emulate awk's default behavior, whereas split(/ /) will give you as many initial null fields (empty string) as there are leading spaces. A split on /\s+/ is like a split(' ') except that any leading whitespace produces a null first field. A split with no arguments really does a split(' ', $_) internally.
+
+#    A PATTERN of /^/ is treated as if it were /^/m , since it isn't much use otherwise.
+
+#    Example:
+
+        open(PASSWD, '/etc/passwd');
+        while (<PASSWD>) {
+        chomp;
+        ($login, $passwd, $uid, $gid,
+        $gcos, $home, $shell) = split(/:/);
+        #...
+        }
+
+#    As with regular pattern matching, any capturing parentheses that are not matched in a split() will be set to undef when returned:
+
+        @fields = split /(A)|B/, "1A2B3";
+        # @fields is (1, 'A', 2, undef, 3)
+
+ 

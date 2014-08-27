@@ -1,0 +1,99 @@
+创建基础数据表
+    drop table book_test;
+    create table book_test(
+        -- 主键
+        id                    bigint primary key not null,
+    
+        -- 核算项字段(核算项按名称排序)
+        period                date not null,
+        
+        -- 记账数据
+        j                     bigint default 0 not null,
+        d                     bigint default 0 not null,
+    
+        -- 记账凭证关联数据
+        ys_type               char(6) not null,
+        ys_id                 bigint  not null,
+        jzpz_id               bigint  not null,
+        
+        -- 创建时间戳
+        ts_c            timestamp default current timestamp
+    ) in tbs_dat index in tbs_idx;
+    
+    comment on table book_test            is '往来-应收自有';
+    
+    -- 核算项字典comment见 dict_book.sql
+    comment on column book_test.ys_type   is '原始凭证类型';
+    comment on column book_test.ys_id     is '原始凭证ID';
+    comment on column book_test.jzpz_id   is '原始凭证类型';
+    comment on column book_test.ts_c      is '创建时间';
+    
+    -- id序列
+    drop sequence seq_test;
+    create sequence seq_test as bigint start with 1 increment by 1 minvalue 1 no maxvalue no cycle cache 200 order;
+    
+1. 创建立即刷新的MQT
+    -- MQT表 立即刷新
+    create table sum_test as (
+        select period as period,
+        sum(j)     as j,
+        sum(d)     as d,
+        count(*)   as cnt
+        from book_test
+        group by period
+    ) data initially deferred refresh immediate
+    in tbs_dat;
+    
+    -- integrity unchecked 刚创建物化表的时候，不对数据进行约束检查
+    set integrity for sum_test materialized query immediate unchecked;
+
+
+2. 创建延迟刷新的MQT
+    -- MQT表 延迟刷新
+    create table sum_test as (
+        select period as period,
+        sum(j)     as j,
+        sum(d)     as d,
+        count(*)   as cnt
+        from book_test
+        group by period
+    ) data initially deferred refresh deferred
+    in tbs_dat;
+    
+    -- integrity unchecked 刚创建物化表的时候，不对数据进行约束检查
+    set integrity for sum_test materialized query immediate unchecked;
+
+3. 删除MQT表与基础数据表的物化关系(MQT表删除物化关系后, MQT表变成普通表)
+    alter table sum_test drop materialized query;
+
+4. 给基础表添加MQT表(在book_test上添加物化查询关系 MQT表是sum_test)
+    1) -- 添加立即刷新的MQT关系
+    alter table sum_test add materialized query (
+        select  period as period,
+        sum(j) as j, 
+        sum(d) as d, 
+        count(*) as cnt 
+        from book_test
+        group by period
+     ) data initially deferred refresh immediate;  
+
+    -- integrity unchecked 刚创建物化表的时候，不对数据进行约束检查(下面这句必须要执行,否则不能访问sum_test表)
+    set integrity for sum_test materialized query immediate unchecked;
+
+    -- 或者执行下面的约束检查(立即对基础表book_test现有的数据进行约束检查, 把book_test的数据更新到MQT表sum_test)
+    set integrity for sum_test immediate checked not incremental
+
+    2) -- 添加延迟刷新的MQT关系 (非增量刷新 没有用staging表)
+    alter table sum_test add materialized query (
+        select  period as period,
+        sum(j) as j, 
+        sum(d) as d, 
+        count(*) as cnt 
+        from book_test
+        group by period
+     ) data initially deferred refresh deferred;  
+
+    -- integrity unchecked 刚创建物化表的时候，不对数据进行约束检查(下面这句必须要执行,否则不能访问sum_test表)
+    set integrity for sum_test materialized query immediate unchecked;
+
+    3) -- 添加延迟刷新的MQT关系 (增量刷新 使用staging表)

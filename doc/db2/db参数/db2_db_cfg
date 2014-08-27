@@ -1,0 +1,166 @@
+SQL0104N  An unexpected token "fro" was found following "CFG".  Expected 
+tokens may include:  "END-OF-STATEMENT".  SQLSTATE=42601
+
+       Database Configuration for Database zdb
+
+ Database configuration release level                    = 0x0d00
+ Database release level                                  = 0x0d00
+
+ Database territory                                      = cn
+ Database code page                                      = 1208
+ Database code set                                       = utf-8
+ Database country/region code                            = 86
+ Database collating sequence                             = IDENTITY
+ Alternate collating sequence              (ALT_COLLATE) = 
+ Number compatibility                                    = OFF
+ Varchar2 compatibility                                  = OFF
+ Date compatibility                                      = OFF
+ Database page size                                      = 4096
+
+ Dynamic SQL Query management           (DYN_QUERY_MGMT) = DISABLE
+
+ Statement concentrator                      (STMT_CONC) = OFF
+
+ Discovery support for this database       (DISCOVER_DB) = ENABLE
+
+ Restrict access                                         = NO
+ Default query optimization class         (DFT_QUERYOPT) = 5
+ Degree of parallelism                      (DFT_DEGREE) = 1
+ Continue upon arithmetic exceptions   (DFT_SQLMATHWARN) = NO
+ Default refresh age                   (DFT_REFRESH_AGE) = 0
+ Default maintained table types for opt (DFT_MTTB_TYPES) = SYSTEM
+ Number of frequent values retained     (NUM_FREQVALUES) = 10
+ Number of quantiles retained            (NUM_QUANTILES) = 20
+
+ Decimal floating point rounding mode  (DECFLT_ROUNDING) = ROUND_HALF_EVEN
+
+ Backup pending                                          = NO
+
+ All committed transactions have been written to disk    = YES
+ Rollforward pending                                     = NO
+ Restore pending                                         = NO
+
+ Multi-page file allocation enabled                      = YES
+
+ Log retain for recovery status                          = NO
+ User exit for logging status                            = NO
+
+ Self tuning memory                    (SELF_TUNING_MEM) = ON
+ Size of database shared memory (4KB)  (DATABASE_MEMORY) = AUTOMATIC(2324768)
+ Database memory threshold               (DB_MEM_THRESH) = 10
+ Max storage for lock list (4KB)              (LOCKLIST) = AUTOMATIC(6200)
+ Percent. of lock lists per application       (MAXLOCKS) = AUTOMATIC(60)
+ Package cache size (4KB)                   (PCKCACHESZ) = AUTOMATIC(8192)
+ Sort heap thres for shared sorts (4KB) (SHEAPTHRES_SHR) = AUTOMATIC(52662)
+ Sort list heap (4KB)                         (SORTHEAP) = AUTOMATIC(2633)
+
+ Database heap (4KB)                            (DBHEAP) = AUTOMATIC(2983)
+ Catalog cache size (4KB)              (CATALOGCACHE_SZ) = 300
+ Log buffer size (4KB)                        (LOGBUFSZ) = 256
+ Utilities heap size (4KB)                (UTIL_HEAP_SZ) = 195272
+ Buffer pool size (pages)                     (BUFFPAGE) = 1000
+ SQL statement heap (4KB)                     (STMTHEAP) = AUTOMATIC(8192)
+ Default application heap (4KB)             (APPLHEAPSZ) = AUTOMATIC(256)
+ Application Memory Size (4KB)             (APPL_MEMORY) = AUTOMATIC(40000)
+ Statistics heap size (4KB)               (STAT_HEAP_SZ) = AUTOMATIC(4384)
+
+ Interval for checking deadlock (ms)         (DLCHKTIME) = 10000
+ Lock timeout (sec)                        (LOCKTIMEOUT) = -1
+
+ Changed pages threshold                (CHNGPGS_THRESH) = 80
+ Number of asynchronous page cleaners   (NUM_IOCLEANERS) = AUTOMATIC(15)
+ Number of I/O servers                   (NUM_IOSERVERS) = AUTOMATIC(3)
+ Index sort flag                             (INDEXSORT) = YES
+ Sequential detect flag                      (SEQDETECT) = YES
+ Default prefetch size (pages)         (DFT_PREFETCH_SZ) = AUTOMATIC
+
+ Track modified pages                         (TRACKMOD) = NO
+
+ Default number of containers                            = 1
+ Default tablespace extentsize (pages)   (DFT_EXTENT_SZ) = 32
+
+ Max number of active applications            (MAXAPPLS) = AUTOMATIC(40)
+ Average number of active applications       (AVG_APPLS) = AUTOMATIC(1)
+ Max DB files open per application            (MAXFILOP) = 61440
+
+ Log file size (4KB)                         (LOGFILSIZ) = 25600
+ Number of primary log files                (LOGPRIMARY) = 70
+ Number of secondary log files               (LOGSECOND) = 4
+ Changed path to log files                  (NEWLOGPATH) = 
+ Path to log files                                       = /db2plog/NODE0000/
+ Overflow log path                     (OVERFLOWLOGPATH) = 
+ Mirror log path                         (MIRRORLOGPATH) = 
+ First active log file                                   = 
+ Block log on disk full                (BLK_LOG_DSK_FUL) = NO
+ Block non logged operations            (BLOCKNONLOGGED) = NO
+ Percent max primary log space by transaction  (MAX_LOG) = 0
+ Num. of active log files for 1 active UOW(NUM_LOG_SPAN) = 0
+
+ Group commit count                          (MINCOMMIT) = 1
+ Percent log file reclaimed before soft chckpt (SOFTMAX) = 520
+ Log retain for recovery enabled             (LOGRETAIN) = OFF
+ User exit for logging enabled                (USEREXIT) = OFF
+
+ HADR database role                                      = STANDARD
+ HADR local host name                  (HADR_LOCAL_HOST) = 
+ HADR local service name                (HADR_LOCAL_SVC) = 
+ HADR remote host name                (HADR_REMOTE_HOST) = 
+ HADR remote service name              (HADR_REMOTE_SVC) = 
+ HADR instance name of remote server  (HADR_REMOTE_INST) = 
+ HADR timeout value                       (HADR_TIMEOUT) = 120
+ HADR log write synchronization mode     (HADR_SYNCMODE) = NEARSYNC
+ HADR peer window duration (seconds)  (HADR_PEER_WINDOW) = 0
+
+ First log archive method                 (LOGARCHMETH1) = OFF
+ Options for logarchmeth1                  (LOGARCHOPT1) = 
+ Second log archive method                (LOGARCHMETH2) = OFF
+ Options for logarchmeth2                  (LOGARCHOPT2) = 
+ Failover log archive path                (FAILARCHPATH) = 
+ Number of log archive retries on error   (NUMARCHRETRY) = 5
+ Log archive retry Delay (secs)         (ARCHRETRYDELAY) = 20
+ Vendor options                              (VENDOROPT) = 
+
+ Auto restart enabled                      (AUTORESTART) = ON
+ Index re-creation time and redo index build  (INDEXREC) = SYSTEM (RESTART)
+ Log pages during index build            (LOGINDEXBUILD) = OFF
+ Default number of loadrec sessions    (DFT_LOADREC_SES) = 1
+ Number of database backups to retain   (NUM_DB_BACKUPS) = 12
+ Recovery history retention (days)     (REC_HIS_RETENTN) = 366
+ Auto deletion of recovery objects    (AUTO_DEL_REC_OBJ) = OFF
+
+ TSM management class                    (TSM_MGMTCLASS) = 
+ TSM node name                            (TSM_NODENAME) = 
+ TSM owner                                   (TSM_OWNER) = 
+ TSM password                             (TSM_PASSWORD) = 
+
+ Automatic maintenance                      (AUTO_MAINT) = ON
+   Automatic database backup            (AUTO_DB_BACKUP) = OFF
+   Automatic table maintenance          (AUTO_TBL_MAINT) = ON
+     Automatic runstats                  (AUTO_RUNSTATS) = ON
+       Automatic statement statistics  (AUTO_STMT_STATS) = ON
+     Automatic statistics profiling    (AUTO_STATS_PROF) = OFF
+       Automatic profile updates         (AUTO_PROF_UPD) = OFF
+     Automatic reorganization               (AUTO_REORG) = OFF
+
+ Auto-Revalidation                          (AUTO_REVAL) = DEFERRED
+ Currently Committed                        (CUR_COMMIT) = ON
+ CHAR output with DECIMAL input        (DEC_TO_CHAR_FMT) = NEW
+ Enable XML Character operations        (ENABLE_XMLCHAR) = YES
+ WLM Collection Interval (minutes)     (WLM_COLLECT_INT) = 0
+ Monitor Collect Settings
+ Request metrics                       (MON_REQ_METRICS) = BASE
+ Activity metrics                      (MON_ACT_METRICS) = BASE
+ Object metrics                        (MON_OBJ_METRICS) = BASE
+ Unit of work events                      (MON_UOW_DATA) = NONE
+ Lock timeout events                   (MON_LOCKTIMEOUT) = NONE
+ Deadlock events                          (MON_DEADLOCK) = WITHOUT_HIST
+ Lock wait events                         (MON_LOCKWAIT) = NONE
+ Lock wait event threshold               (MON_LW_THRESH) = 5000000
+ Number of package list entries         (MON_PKGLIST_SZ) = 32
+ Lock event notification level         (MON_LCK_MSG_LVL) = 1
+
+ SMTP Server                               (SMTP_SERVER) = 
+ SQL conditional compilation flags         (SQL_CCFLAGS) = 
+ Section actuals setting               (SECTION_ACTUALS) = NONE
+ Connect procedure                        (CONNECT_PROC) = 
+

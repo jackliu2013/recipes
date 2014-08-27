@@ -1,0 +1,38 @@
+在使用dbi访问数据库前，我们要进行如下操作：
+1. 利用connect和数据库建立连接，返回一个dbh(database handle object)
+2. 用dbh产生若干个sth(statment handle object)执行SQL命令进行数据的增删改查等操作
+3. 提交事务commit or 回滚事务 rollback or 结束sth
+4. 利用disconnect断开数据库连接
+
+
+
+4.3 Data Source Names
+When connecting to a database via the DBI, you need to tell the DBI where to find the database to
+connect to. For example, the database driver might require a database name, or a physical machine
+name upon which the database resides. This information is termed a data source name, and of all the
+aspects of DBI, this is possibly the most difficult to standardize due to the sheer number and diversity
+of connection syntaxes.
+The DBI requires the data source name to start with the characters dbi:, much like a URL begins with
+http:, and then the name of the driver, followed by another colon - for example, dbi:Oracle:. Any
+text that follows is passed to the driver's own connect() method to interpret as it sees fit. Most
+drivers expect either a simple database name or, more often, a set of one or more name/value pairs
+separated with semicolons. Some common examples are listed later in this section.
+For example, mSQL requires the hostname, database name, and potentially, the TCP/IP port number
+for connecting to the database server. However, Oracle may require only a single word that is an alias
+to a more complicated connection identifier that is stored in separate Oracle configuration files.
+DBI offers two useful methods for querying which data sources are available to you for each driver you
+have installed on your system.
+Firstly, you can get a list of all the available drivers installed on your machine by using the DBI-
+>available_drivers() method. This returns a list with each element containing the data source
+prefix of an installed driver,[3] such as dbi:Informix:.
+    [3] The actual definition of ''installed driver'' is a little loose. The DBI simply searches the directories in @INC
+    looking for any DBD subdirectories that contain .pm files. Those are assumed to be drivers. It does not verify
+    that the modules are completely and correctly installed. In practice, this process is fast and works well.
+Secondly, you can invoke the DBI->data_sources() method against one or more of the drivers
+returned by the DBI->available_drivers() method to enumerate which data sources are known to
+the driver.[4] Calling the data_sources() method will actually load the specified driver and validate
+that it is completely and correctly installed. Because DBI dies if it can't load and initialize a driver,
+this method should be called inside an eval{} block if you need to catch that error.
+Note that not necessarily every data source that is reachable via the driver is returned. Similarly, the
+inclusion of a data source does not imply that it is actually currently available for connection.
+

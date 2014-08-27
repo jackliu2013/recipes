@@ -1,0 +1,9 @@
+#gcc shmA.c -oA
+#gcc shmB.c -oB
+#gcc shmctl.c -omain
+#gcc msgA.c -oA
+#gcc msgB.c -oB
+#gcc semA.c -oA
+#gcc semB.c -oB
+gcc socketA.c -oA
+gcc socketB.c -oB

@@ -1,0 +1,9 @@
+1. 对数据库表进行统计
+db2 runstats on table schema.tablename; (具体参见runstats)
+
+2. 查询某个schema下的所有的table的数据
+select tabschema,  tabname,  card as counts 
+from syscat.tables 
+where tabschema = 'DB2INST' and tabname = 'JZPZ'
+order by counts desc; 
+

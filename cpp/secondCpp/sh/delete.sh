@@ -1,0 +1,1 @@
+rm -f secondcpp thirdcpp

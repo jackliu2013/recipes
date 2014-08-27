@@ -1,0 +1,6 @@
+1. 查看内核版本命令
+    cat /proc/version
+    uname -a
+
+2. 查看linux版本命令
+    lsb_release -a 

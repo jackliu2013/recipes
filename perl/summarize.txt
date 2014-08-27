@@ -1,0 +1,40 @@
+关于perl的一些要熟记于心的要点
+
+########需要多研究perldoc##########
+perlintro -- a brief introduction and overview of Perl
+perlvar - Perl predefined variables
+perldata - Perl data types
+perlreftut - Mark's very short tutorial about references
+perlref - Perl references and nested data structures
+perllol - Manipulating Arrays of Arrays in Perl
+perldsc - Perl Data Structures Cookbook
+perlpacktut -tutorial on pack and unpack
+perlop - Perl operators and precedence
+
+##############################
+1 .If you write just [] , you get a new, empty anonymous array,and returns a reference to that array. If you write just {} , you get a new, empty anonymous hash, and returns a reference to that hash.
+
+可以用下面的方法引入在另一个模块中定义的子过程:
+use MODULE qw(NAME1 NAME2 NAME2...)
+
+
+## perl 中在包中寻找方法的步骤:
+当你调用了调用者的一个类型为 classname 的方法 methname,Perl 将尝试六种不同
+的方法来找出所用的子过程(译注:又是孔乙己?:):
+1.首先,Perl 在调用者自己的包里查找一个叫 classname::methname 的子过程。
+如果失败,则进入继承,并且进入步骤 2。
+2.第二步,Perl 通过检查 @classname::ISA 里列出的所有父包,检查从基类继承
+过来的方法,看看有没有 parent::methname 子过程。这种搜索是从左向右,递归的,
+由浅入深进行的。递归保证祖父类,曾祖父类,太祖父类等等类都进入搜索。
+3. 如果仍然失败,Perl 就搜索一个叫 UNIVERSAL::methname 的子过程。
+4. 这时,Perl 放弃 methname 然后开始查找 AUTOLOAD。首先,它检查叫做
+classmane::AUTOLOAD 的子过程。
+5.如果上面的失败,Perl 则搜索所有在 @classname::ISA 里列出的 parent 包,
+寻找任何 parent::AUTOLOAD 子过程。这样的搜索仍然是从左向右,递归的,由浅
+入深进行的。
+6.最后,Perl 寻找一个叫 UNIVERSAL::AUTOLOAD 的子过程。
+
+
+
+## perl 中函数总结 ##
+1. caller() 
