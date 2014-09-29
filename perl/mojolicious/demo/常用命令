@@ -1,0 +1,17 @@
+# 辅助命令来生成demo应用程序
+mojo generate lite_app myapp.pl
+
+$ ./myapp.pl daemon
+Server available at http://127.0.0.1:3000.
+
+$ ./myapp.pl daemon -l http://*:8080
+Server available at http://127.0.0.1:8080.
+
+$ ./myapp.pl cgi
+...CGI output...
+
+$ ./myapp.pl get /
+Hello World!
+
+$ ./myapp.pl
+...List of available commands (or automatically detected environment)...
