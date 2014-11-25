@@ -6,11 +6,16 @@ use strict;
 use warnings;
 
 use IO::File;
+use Data::Dump;
 
 # 从file读取数据
 my $fh = IO::File->new();
 if ( $fh->open("< file") ) {
-    print <$fh>;
+    # print <$fh>;
+    while(<$fh>) {
+        Data::Dump->dump($_);
+        # print $_;
+    }
     $fh->close;
 }
 

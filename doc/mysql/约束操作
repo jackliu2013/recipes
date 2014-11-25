@@ -1,0 +1,10 @@
+切换数据库: use database-name   for example:  use hibernate;
+查看所有的数据库: show databases;
+查看某个数据库下的表: show tables;
+
+查看表的字段信息：desc 表名;
+查看表的所有信息：show create table 表名;
+添加主键约束：alter table 表名 add constraint 主键 （形如：PK_表名） primary key 表名(主键字段);
+添加外键约束：alter table 从表 add constraint 外键（形如：FK_从表_主表） foreign key 从表(外键字段) references 主表(主键字段);
+删除主键约束：alter table 表名 drop primary key;
+删除外键约束：alter table 表名 drop foreign key 外键（区分大小写）;

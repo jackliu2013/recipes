@@ -16,19 +16,15 @@ vi /etc/sysconfig/iptables
 -A RH-Firewall-1-INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT
 
 2.关闭/开启/重启防火墙
-
 /etc/init.d/iptables stop #start 开启 #restart 重启
 
 3.永久性关闭防火墙
-
 chkconfig --level 35 iptables off /etc/init.d/iptables stop iptables -P INPUT DROP
 
 4.打开主动模式21端口
-
 iptables -A INPUT -p tcp --dport 21 -j ACCEPT
 
 5.打开被动模式49152~65534之间的端口
-
 iptables -A INPUT -p tcp --dport 49152:65534 -j ACCEPT
 iptables -A INPUT -i lo -j ACCEPT
 iptables -A INPUT -m state --state ESTABLISHED -j ACCEPT
@@ -92,3 +88,131 @@ CentOS上可以执行：service iptables save保存规则。
 注意：
 一定要给自己留好后路,留VNC一个管理端口和SSh的管理端口
 需要注意的是，你必须根据自己服务器的情况来修改这个文件。
+
+
+
+
+
+Iptables是一个防火墙，所有的Ubuntu官方发行版（Ubuntu，Kubuntu，Xubuntu）都默认自带Iptables。当你安装完Ubuntu以后，Iptables就已经装好了，但是默认设置是允许所有的通讯。从Ubuntu 8.04版本开始，Ubuntu有了一个防火墙配置的GUI工具UFW。
+ubuntu下跟其他linux系统的操作基本相同，可能略有不同。
+iptables命令的选项很多，多使用man吧。
+查看本机设置
+查看本机的Iptables设置使用下面的命令：
+iptables -L -n
+
+通过iso文件刚安装完的纯净的ubuntu，查看一下防火墙设置的话，是这样没有任何规则的：
+Chain INPUT (policy ACCEPT)
+target       prot opt source                 destination         
+Chain FORWARD (policy ACCEPT)
+target       prot opt source                 destination         
+Chain OUTPUT (policy ACCEPT)
+target       prot opt source                 destination
+
+没有任何规则。
+清除规则
+
+不管有没有配置过规则，在重新进行配置之前，需要先清除规则：
+iptables -F        //清除预设表filter中的所有规则链的规则
+iptables -X        //清除预设表filter中使用者自定链中的规则
+
+设定预设规则
+这样就清除干净了，下面开始配置，先设定预设规则。
+对于防火墙的设置，有两种策略：一种是全部通讯口都允许使用，只是阻止一些我们知道的不安全的或者容易被利用的口；另外一种，则是先屏蔽所有的通讯口，而只是允许我们需要使用的通讯端口。
+iptables -P INPUT DROP
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD DROP
+
+注意-P中的P需要大写，表示Protocol。
+可以看出INPUT,FORWARD两个链采用的是允许什么包通过，而OUTPUT链采用的是不允许什么包通过。
+当超出了IPTABLES里filter表里的两个链规则(INPUT、FORWARD)时，不在这两个规则里的数据包怎么处理呢，那就是DROP(放弃)。应该说这样配置是很安全的，我们要控制流入数据包。
+而对于OUTPUT链，也就是流出的包我们不用做太多限制，而是采取ACCEPT，也就是说，不在这个规则里的包怎么办呢，那就是通过。
+添加规则
+
+先来添加INPUT规则，因为INPUT预设的是DROP，所以要添加ACCEPT规则。
+首先是22端口，这个的用处地球人都知道。
+
+iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+
+或者，你不写22，写ssh也可以。
+
+iptables -A INPUT -p tcp --dport ssh -j ACCEPT
+
+给Web服务器开启80端口
+
+iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+
+给FTP服务开启20和21端口
+
+iptables -A INPUT -p tcp --dport 20 -j ACCEPT
+iptables -A INPUT -p tcp --dport 21 -j ACCEPT
+
+给邮件服务开启25和110端口
+
+iptables -A INPUT -p tcp --dport 25 -j ACCEPT
+iptables -A INPUT -p tcp --dport 110 -j ACCEPT
+
+对于OUTPUT规则，因为预设的是ACCEPT，所以要添加DROP规则，减少不安全的端口链接。
+
+iptables -A OUTPUT -p tcp --sport 31337 -j DROP
+iptables -A OUTPUT -p tcp --dport 31337 -j DROP
+
+具体要DROP掉哪些端口，可以查询相关的资料，可以把一些黑客常用的扫描端口全部DROP掉，多多少少提高一点服务器的安全性。
+
+我们还可以把规则限制到只允许某个IP：
+
+iptables -A INPUT -s 192.168.0.18 -p tcp --dport 22 -j ACCEPT
+
+这表示只允许192.168.0.18的机器进行SSH连接。
+
+如果要允许一个IP段，可以使用下面的写法：
+
+iptables -A INPUT -s 192.168.0.1/255 -p tcp --dport 22 -j ACCEPT
+
+这表示允许192.168.0.1/255IP段的机器进行连接。
+但是，注意我们前面已经添加一条规则来允许所有IP连接22端口，需要把这条规则删除掉。
+
+iptables -D INPUT -p tcp --dport 22 -j ACCEPT
+
+对于FORWARD规则，因为预设的是DROP，所以要添加ACCEPT规则。
+开启转发功能
+
+iptables -A FORWARD -i eth0 -o eth1 -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -A FORWARD -i eth1 -o eh0 -j ACCEPT
+
+丢弃坏的TCP包
+
+iptables -A FORWARD -p TCP ! --syn -m state --state NEW -j DROP
+
+处理IP碎片数量,防止攻击,允许每秒100个
+
+iptables -A FORWARD -f -m limit --limit 100/s --limit-burst 100 -j ACCEPT
+
+设置ICMP包过滤,允许每秒1个包,限制触发条件是10个包
+
+iptables -A FORWARD -p icmp -m limit --limit 1/s --limit-burst 10 -j ACCEPT
+
+Iptables的保存和调用
+
+现在该提一下保存的问题了。
+我们用命令来添加的设置，都不会自动保存，一旦退出，设置都将不存在了，需要手动去保存一下。
+
+iptables-save >/etc/iptables.up.rules
+
+把刚才设置的规则保存到指定的地方，文件名可以自定义。
+
+调用Iptables设置
+
+iptables-restore >/etc/iptables.up.rules
+
+由于每次开机或重启后都需要去调用一次，我们把它设置自动的，执行
+
+sudo gedit /etc/network/interfaces
+
+在
+
+auto ath0
+     iface ath0 inet dhcp
+
+后面，加上
+pre-up iptables-restore >/etc/iptables.up.rules //开机时自动调用已经存在的Iptables设置
+post-down iptables-save >/etc/iptables.up.rule  //关机时自动保存当前的Iptables设置
